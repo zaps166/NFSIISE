@@ -1,0 +1,30 @@
+#!/bin/bash
+
+#Debug for Linux
+# DEBUG_ASM='-g dwarf2'
+# DEBUG_C='-g'
+#Release for Linux
+RELEASE_C='-O2'
+STRIP='-s'
+
+#32bit libraries for Linux
+LIB32_DIR=/usr/lib
+if [[ -d /usr/lib32 ]]; then
+	LIB32_DIR=/usr/lib32
+fi
+
+cd src &&
+
+#Cross-compile for Window$
+# i686-w64-mingw32-gcc -Wall -m32 -O2 -c *.c &&
+# yasm -f win32 NFS2SE.asm -o NFS2SE.o --prefix=_ &&
+# yasm -f win32 EAcsnd.asm -o EAcsnd.asm.o --prefix=_ &&
+# i686-w64-mingw32-ld --enable-stdcall-fixup -o "../Need For Speed II SE/nfs2se.exe" *.o --stack=0x7D00,0x7D00 --heap=0x2000,0x1000 -lws2_32 -lwinmm -lkernel32 -lmsvcrt -lSDL2 -lopengl32 -subsystem=windows -s -e _start &&
+# rm -f *.o
+
+#Compile for Linux
+gcc -Wall -m32 $DEBUG_C $RELEASE_C -c *.c &&
+yasm -f elf32 NFS2SE.asm -o NFS2SE.o $DEBUG_ASM &&
+yasm -f elf32 EAcsnd.asm -o EAcsnd.asm.o $DEBUG_ASM &&
+ld -m elf_i386 -dynamic-linker /lib/ld-linux.so.2 -o "../Need For Speed II SE/nfs2se" *.o -L$LIB32_DIR -lc -lSDL2 -lGL $STRIP -e start &&
+rm -f *.o
