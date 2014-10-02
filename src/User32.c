@@ -3,6 +3,7 @@
 #include <SDL2/SDL_messagebox.h>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_video.h>
+#include <SDL2/SDL_timer.h>
 
 static const uint8_t sdl_to_windows_scancode_table[ 100 ] =
 {
@@ -25,6 +26,9 @@ extern uint32_t fullscreenFlag;
 extern SDL_Window *sdl_win;
 extern WindowProc wndProc;
 
+static SDL_TimerID timerID;
+uint32_t watchdogTimer( uint32_t interval, void *param );
+
 STDCALL uint32_t DefWindowProcA_wrap( void *hWnd, uint32_t uMsg, uint32_t wParam, uint32_t lParam )
 {
 	if ( uMsg == WM_DESTROY )
@@ -42,6 +46,11 @@ STDCALL BOOL DestroyWindow_wrap( void *hWnd )
 {
 	SDL_Event event;
 	event.type = WM_DESTROY;
+	if ( timerID )
+	{
+		SDL_RemoveTimer( timerID );
+		timerID = 0;
+	}
 	return SDL_PushEvent( &event ) == 1;
 }
 
@@ -90,6 +99,7 @@ STDCALL BOOL GetMessageA_wrap( MSG *msg, void *hWnd, uint32_t wMsgFilterMin, uin
 					msg->uMsg = event.type;
 					break;
 				case SDL_QUIT:
+					timerID = SDL_AddTimer( 2500, watchdogTimer, NULL );
 					return 0;
 				case SDL_KEYDOWN:
 					if ( !event.key.repeat )

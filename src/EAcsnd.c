@@ -60,7 +60,6 @@ static void audioCallbackInterp( void *userdata, Uint8 *stream, int len )
 
 uint32_t iSNDdllversion_( void )
 {
-// 	puts( "iSNDdllversion_" );
 	return 0x60002;
 }
 
@@ -72,8 +71,7 @@ STDCALL uint32_t iSNDdirectsetfunctions( void (REGPARM *arg1)(), void (*arg2)(),
 }
 REGPARM uint32_t iSNDdirectcaps_( void *hWnd )
 {
-	uint32_t ret = 0x23E0F;
-// 	printf( "iSNDdirectcaps_: 0x%X\n", ret );
+	uint32_t ret = 0x23E0F; //?
 	return ret;
 }
 REGPARM uint32_t iSNDdirectstart_( uint32_t arg1, void *hWnd )
@@ -89,7 +87,6 @@ REGPARM uint32_t iSNDdirectstart_( uint32_t arg1, void *hWnd )
 			buffer = ( uint8_t * )malloc( buffer_size );
 		}
 		canStart = true;
-// 		printf( "iSNDdirectstart_: 0x%X %d\n", arg1, audioSpec.samples );
 	}
 	return 0;
 }
@@ -104,7 +101,6 @@ void iSNDdirectserve_( void )
 }
 uint32_t iSNDdirectstop_( void )
 {
-// 	puts( "iSNDdirectstop_" );
 	canStart = false;
 	SDL_CloseAudio();
 	buffer_pos = 0;

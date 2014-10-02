@@ -60,8 +60,7 @@ STDCALL int select_wrap( int nfds, struct win_fd_set *readfds, struct win_fd_set
 #ifdef WIN32
 	return select( nfds, readfds, writefds, exceptfds, timeout );
 #else
-	int max_fd = 0;
-	uint32_t i, j;
+	uint32_t i, j, fd_count, max_fd = 0;
 	fd_set fds;
 
 	FD_ZERO( &fds );
@@ -72,15 +71,12 @@ STDCALL int select_wrap( int nfds, struct win_fd_set *readfds, struct win_fd_set
 			max_fd = readfds->fd_array[ i ];
 	}
 
-	int ret = select( max_fd + 1, &fds, NULL, NULL, timeout );
-	if ( ret )
-	{
+	if ( ( fd_count = select( max_fd + 1, &fds, NULL, NULL, timeout ) ) > 0 )
 		for ( i = 0, j = 0 ; i < readfds->fd_count ; ++i )
 			if ( FD_ISSET( readfds->fd_array[ i ], &fds ) && j != i )
-				readfds->fd_array[ j ] = readfds->fd_array[ i ];
-	}
+				readfds->fd_array[ j++ ] = readfds->fd_array[ i ];
 
-	return ( readfds->fd_count = ret );
+	return ( readfds->fd_count = fd_count );
 #endif
 }
 STDCALL int send_wrap( int sock, const char *buf, socklen_t len, int flags )
@@ -131,7 +127,7 @@ STDCALL int setsockopt_wrap( int sock, int level, int optname, const char *optva
 			break;
 	}
 #endif
-	return setsockopt( sock, level, optname, optval, optlen );
+	return setsockopt( sock, level == 0xFFFF ? SOL_SOCKET : level, optname, optval, optlen );
 }
 STDCALL int WSAGetLastError_wrap( void )
 {
@@ -141,12 +137,12 @@ STDCALL int WSAGetLastError_wrap( void )
 	switch ( errno )
 	{
 		case ENOBUFS:
-			return 10055;
+			return 10055; //used
 		case ECONNREFUSED:
 			return 10061;
 		case EWOULDBLOCK:
 		case EINPROGRESS:
-			return 10035;
+			return 10035; //used
 		case ECONNRESET:
 			return 10054;
 		case ENOPROTOOPT:

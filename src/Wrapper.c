@@ -14,7 +14,7 @@ void WrapperAtExit( ProcedureType proc )
 		atExitProcedures[ atExitProcedureCount++ ] = proc;
 }
 
-static uint32_t watchdogTimer( uint32_t interval, void *param )
+uint32_t watchdogTimer( uint32_t interval, void *param )
 {
 	exit( 0 );
 	return 0;

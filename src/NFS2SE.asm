@@ -129310,9 +129310,9 @@ sub_463E70: ;SUBROUTINE
 	mov edx, eax
 	test eax, eax
 	jz loc_463E8F
-	mov ah, byte [byte_4DB2F5]
 
 loc_463E8B:
+	mov ah, byte [byte_4DB2F5]
 	test ah, ah
 	jnz loc_463E8B
 

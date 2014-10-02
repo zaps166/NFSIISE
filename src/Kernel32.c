@@ -5,6 +5,7 @@
 #ifdef WIN32
 	void exit_func();
 #else
+	#define ERROR_IO_PENDING 0x3E5
 	#define WAIT_TIMEOUT 0x102
 	#include <sys/stat.h>
 	#include <termios.h>
@@ -359,43 +360,48 @@ static int serialPortThread( void *data )
 {
 	File *file = ( File * )data;
 	struct timeval tv;
+	int bread, r;
 	fd_set fds;
-	int r;
-	do
+	for ( ;; )
 	{
 		FD_ZERO( &fds );
 		FD_SET( file->fd, &fds );
 		tv.tv_sec = 0;
 		tv.tv_usec = file->us_timeout;
 		r = select( file->fd + 1, &fds, NULL, NULL, &tv );
+		SDL_LockMutex( file->mutex );
 		if ( r < 0 )
 		{
 			file->pending = false;
+			SDL_UnlockMutex( file->mutex );
 			break;
 		}
 		else if ( r == 1 )
 		{
-			uint32_t bread;
-			SDL_LockMutex( file->mutex );
-			bread = read( file->fd, file->asyncReadBuffer, file->toRead );
-			if ( bread <= 0 )
+			if ( ( bread = read( file->fd, file->asyncReadBuffer, file->toRead ) ) > 0 )
 			{
-				file->pending = false;
-				SDL_UnlockMutex( file->mutex );
-				break;
-			}
-			else
-			{
-				if ( ( file->toRead -= bread ) )
+				file->toRead -= bread;
+				if ( file->toRead )
 					file->asyncReadBuffer += bread;
 				else
 					file->pending = false;
 				file->readSoFar += bread;
 			}
-			SetEvent_wrap( file->readOverlapped->hEvent );
-			SDL_UnlockMutex( file->mutex );
+			else if ( bread < 0 || !file->toRead ) //is it necessary?
+			{
+				file->pending = false;
+				SDL_UnlockMutex( file->mutex );
+				break;
+			}
 		}
-	} while ( file->pending );
+		SetEvent_wrap( file->readOverlapped->hEvent );
+		if ( !file->pending )
+		{
+			SDL_UnlockMutex( file->mutex );
+			break;
+		}
+		SDL_UnlockMutex( file->mutex );
+	}
 	return 0;
 }
 
@@ -513,13 +519,16 @@ STDCALL BOOL FlusfileBuffers_wrap( File *file )
 }
 STDCALL BOOL GetOverlappedResult_wrap( File *file, OVERLAPPED *overlapped, uint32_t *lpNumberOfBytesTransferred, BOOL bWait )
 {
+	SDL_LockMutex( file->mutex );
 	if ( file->readOverlapped == overlapped )
 	{
-		SDL_LockMutex( file->mutex );
-		*lpNumberOfBytesTransferred = file->readSoFar;
-		SDL_UnlockMutex( file->mutex );
-		return *lpNumberOfBytesTransferred > 0;
+		if ( ( *lpNumberOfBytesTransferred = file->readSoFar ) > 0 )
+		{
+			SDL_UnlockMutex( file->mutex );
+			return true;
+		}
 	}
+	SDL_UnlockMutex( file->mutex );
 	return false;
 }
 STDCALL BOOL SetEndOfFile_wrap( File *file )
@@ -559,13 +568,12 @@ STDCALL BOOL ReadFile_wrap( File *file, void *buffer, uint32_t numberOfBytesToRe
 			file->toRead = numberOfBytesToRead;
 			file->readSoFar = 0;
 
-			if ( file->pending )
-				overlapped_error = 997; //ERROR_IO_PENDING
-			else
+			if ( !file->pending )
 			{
 				file->pending = true;
 				file->thread = SDL_CreateThread( serialPortThread, NULL, file );
 			}
+			overlapped_error = ERROR_IO_PENDING;
 
 			SDL_UnlockMutex( file->mutex );
 		}
@@ -738,7 +746,7 @@ STDCALL FindFile *FindFirstFileA_wrap( const char *fileName, WIN32_FIND_DATA *fi
 {
 	memset( findFileData, 0, sizeof( WIN32_FIND_DATA ) );
 
-	if ( *fileName != '*' ) //It should be always false
+	if ( *fileName != '*' ) //This condition should be always false
 		return ( FindFile * )-1;
 
 	DIR *dir = opendir( "." );

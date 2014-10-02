@@ -18,11 +18,11 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol!
 * You can delete unnecessary files, ex. "fedata/pc/text/text.*", because TCP version uses new files in root directory.
 * All files and directories copied from CD-ROM must have SMALL LETTERS!!!
 * If you want to chang language, edit "install.win" and change first line. Leave "4nn" as is and modify language name. Possible languages are:
- * english
- * french
- * german
- * italian
- * spanish
+ * english,
+ * french,
+ * german,
+ * italian,
+ * spanish,
  * swedish
 * Run the game. Go to Options->Graphics and set all to maximum.
 * If you want to configure the game, go to "~/.nfs2se" directory, edit "nfs2se.conf" and modify what you want.
