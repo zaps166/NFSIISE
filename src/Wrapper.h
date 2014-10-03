@@ -1,6 +1,10 @@
 #ifndef WRAPPER_H
 #define WRAPPER_H
 
+#ifndef WIN32
+	#define _GNU_SOURCE
+#endif
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>

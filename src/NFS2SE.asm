@@ -2940,13 +2940,12 @@ sub_403150: ;SUBROUTINE
 	push ebx
 	push ecx
 	push edx
-	sub esp, 10h
 
-	;Prevents crash with some languages
-	mov eax, esp
-	xor edx, edx
-	mov ebx, 10h
-	call memset_
+; 	sub esp, 10h ;Below code prevents crash with languages without voice (uninitialized memory, game BUG?)
+	push 1
+	push 0
+	push 0
+	push 0
 
 	call sub_485930
 	mov ebx, 10h
@@ -201402,11 +201401,9 @@ sub_49CAD4: ;SUBROUTINE
 	push ecx
 	push edx
 	push esi
-	push edi
 	sub esp, 24h
 	mov ebx, eax
 	mov edx, dword [dword_4DD3A8]
-	xor edi, edi
 	xor esi, esi
 	test edx, edx
 	jz loc_49CB21
@@ -201428,9 +201425,7 @@ loc_49CAEC:
 	call calloc
 	add esp, 8
 
-	add eax, edi
 	add esp, 24h
-	pop edi
 	pop esi
 	pop edx
 	pop ecx

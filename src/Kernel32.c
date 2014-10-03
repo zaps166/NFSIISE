@@ -219,6 +219,12 @@ static char *getPath( const char *src_pth, BOOL conv_to_lower )
 			tmpFileName = createSettingsDirPath( "tmptrk", src_pth + 18 );
 		else if ( !strcasecmp( src_pth, "replay.rpy" ) )
 			tmpFileName = createSettingsDirPath( "tmptrk", src_pth );
+		else if ( !strncasecmp( src_pth, ".\\fedata\\pc\\stats\\", 18 ) && !strcasestr( src_pth, "prh" ) )
+		{
+			i = strlen( src_pth ) - 4;
+			if ( i > 0 && !strcasecmp( src_pth + i, ".stf" ) )
+				tmpFileName = createSettingsDirPath( "stats", src_pth + 18 );
+		}
 	}
 	if ( !tmpFileName )
 	{
@@ -486,7 +492,7 @@ STDCALL void *MapViewOfFile_wrap( FileMapping *fMapping, uint32_t desiredAccess,
 	{
 		off_t pos = lseek( fMapping->fd, 0, SEEK_CUR );
 		lseek( fMapping->fd, 0, SEEK_SET );
-		fileMap = malloc( size );
+		fileMap = malloc( size + 4 );
 		read( fMapping->fd, fileMap, size );
 		lseek( fMapping->fd, pos, SEEK_SET );
 	}
