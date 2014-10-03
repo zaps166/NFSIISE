@@ -117,30 +117,35 @@ void WrapperInit( void )
 			mkdir( buffer, 0755 );
 			if ( stat( buffer, &st ) == 0 )
 			{
-				/* Checking for nfs2se.conf and copying it at first tme to home dir */
-				strcpy( buffer + pos, "nfs2se.conf" );
-				if ( stat( buffer, &st ) == -1 && stat( "nfs2se.conf", &st ) == 0 )
-				{
-					int fd1 = open( "nfs2se.conf", O_RDONLY );
-					if ( fd1 > 0 )
-					{
-						int fd2 = open( buffer, O_CREAT | O_WRONLY | O_TRUNC, 0644 );
-						if ( fd2 > 0 )
-						{
-							char *buffer2 = ( char * )malloc( st.st_size );
-							read( fd1, buffer2, st.st_size );
-							write( fd2, buffer2, st.st_size );
-							free( buffer2 );
-							close( fd2 );
-						}
-						close( fd1 );
-					}
-				}
+				strcpy( buffer + pos, "tmptrk" );
+				mkdir( buffer, 0755 );
 				if ( stat( buffer, &st ) == 0 )
 				{
-					f = fopen( buffer, "r" );
-					buffer[ pos ] = '\0';
-					settingsDir = strdup( buffer );
+					/* Checking for nfs2se.conf and copying it at first tme to home dir */
+					strcpy( buffer + pos, "nfs2se.conf" );
+					if ( stat( buffer, &st ) == -1 && stat( "nfs2se.conf", &st ) == 0 )
+					{
+						int fd1 = open( "nfs2se.conf", O_RDONLY );
+						if ( fd1 > 0 )
+						{
+							int fd2 = open( buffer, O_CREAT | O_WRONLY | O_TRUNC, 0644 );
+							if ( fd2 > 0 )
+							{
+								char *buffer2 = ( char * )malloc( st.st_size );
+								read( fd1, buffer2, st.st_size );
+								write( fd2, buffer2, st.st_size );
+								free( buffer2 );
+								close( fd2 );
+							}
+							close( fd1 );
+						}
+					}
+					if ( stat( buffer, &st ) == 0 )
+					{
+						f = fopen( buffer, "r" );
+						buffer[ pos ] = '\0';
+						settingsDir = strdup( buffer );
+					}
 				}
 			}
 		}

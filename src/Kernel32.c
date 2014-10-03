@@ -199,16 +199,39 @@ extern char *settingsDir;
 extern SDL_mutex *event_mutex;
 extern SDL_cond *event_cond;
 
-static char *convertToUnixPath( const char *pth )
+static char *createSettingsDirPath( const char *subdir, const char *fn )
 {
+	char *pth = ( char * )malloc( strlen( settingsDir ) + strlen( subdir ) + 1 + strlen( fn ) + 1 );
+	sprintf( pth, "%s%s/%s", settingsDir, subdir, fn );
+	return pth;
+}
+static char *getPath( const char *src_pth, BOOL conv_to_lower )
+{
+	char *tmpFileName = NULL;
 	uint32_t i;
-	char *tmp = strdup( pth );
-	for ( i = 0 ; tmp[ i ] ; ++i )
+	if ( settingsDir )
 	{
-		if ( tmp[ i ] == '\\' )
-			tmp[ i ] = '/';
+		if ( !strncasecmp( src_pth, ".\\fedata\\pc\\config\\", 19 ) )
+			tmpFileName = createSettingsDirPath( "config", src_pth + 19 );
+		else if ( !strncasecmp( src_pth, ".\\fedata\\pc\\save\\", 17 ) )
+			tmpFileName = createSettingsDirPath( "save", src_pth + 17 );
+		else if ( !strncasecmp( src_pth, ".\\gamedata\\tmptrk\\", 18 ) )
+			tmpFileName = createSettingsDirPath( "tmptrk", src_pth + 18 );
+		else if ( !strcasecmp( src_pth, "replay.rpy" ) )
+			tmpFileName = createSettingsDirPath( "tmptrk", src_pth );
 	}
-	return tmp;
+	if ( !tmpFileName )
+	{
+		tmpFileName = strdup( src_pth );
+		for ( i = 0 ; tmpFileName[ i ] ; ++i )
+		{
+			if ( tmpFileName[ i ] == '\\' )
+				tmpFileName[ i ] = '/';
+			else if ( conv_to_lower )
+				tmpFileName[ i ] = tolower( tmpFileName[ i ] );
+		}
+	}
+	return tmpFileName;
 }
 
 static int threadFunction( void *data )
@@ -410,54 +433,15 @@ STDCALL File *CreateFileA_wrap( const char *fileName, uint32_t desiredAccess, ui
 	uint32_t COM_number = 0;
 	if ( !strncasecmp( fileName, "\\\\.\\com", 7 ) )
 		COM_number = fileName[ 7 ] - '0';
-
-	char *tmpFileName = strdup( !COM_number ? fileName : serialPort[ COM_number - 1 ] );
-	if ( !COM_number )
-	{
-		BOOL mustConvertPath = true;
-		if ( settingsDir )
-		{
-			char fn[ 32 ];
-			if ( !strncasecmp( tmpFileName, ".\\fedata\\pc\\config\\", 19 ) )
-			{
-				strcpy( fn, tmpFileName + 19 );
-				free( tmpFileName );
-				tmpFileName = ( char * )malloc( strlen( settingsDir ) + 7 + strlen( fn ) + 1 );
-				strcpy( tmpFileName, settingsDir );
-				strcat( tmpFileName, "config/" );
-				strcat( tmpFileName, fn );
-				mustConvertPath = false;
-			}
-			else if ( !strncasecmp( tmpFileName, ".\\fedata\\pc\\save\\", 17 ) )
-			{
-				strcpy( fn, tmpFileName + 17 );
-				free( tmpFileName );
-				tmpFileName = ( char * )malloc( strlen( settingsDir ) + 5 + strlen( fn ) + 1 );
-				strcpy( tmpFileName, settingsDir );
-				strcat( tmpFileName, "save/" );
-				strcat( tmpFileName, fn );
-				mustConvertPath = false;
-			}
-		}
-		if ( mustConvertPath )
-		{
-			int i;
-			for ( i = 0 ; tmpFileName[ i ] ; ++i )
-			{
-				if ( tmpFileName[ i ] == '\\' )
-					tmpFileName[ i ] = '/';
-				else
-					tmpFileName[ i ] = tolower( tmpFileName[ i ] );
-			}
-		}
-	}
+	char *tmpFileName = COM_number ? strdup( serialPort[ COM_number - 1 ] ) : getPath( fileName, true );
 
 	File *file = NULL;
 	int fd = -1;
 	switch ( desiredAccess )
 	{
-		case GENERIC_READ | GENERIC_WRITE: //serial port
-			fd = open( tmpFileName, O_RDWR | O_NOCTTY | O_NDELAY );
+		case GENERIC_READ | GENERIC_WRITE:
+			if ( COM_number )
+				fd = open( tmpFileName, O_RDWR | O_NOCTTY | O_NDELAY );
 			break;
 		case GENERIC_WRITE:
 			fd = open( tmpFileName, O_CREAT | O_WRONLY | O_TRUNC, 0644 );
@@ -612,18 +596,8 @@ STDCALL BOOL SetCommTimeouts_wrap( File *file, COMMTIMEOUTS *commTimeouts )
 
 STDCALL BOOL DeleteFileA_wrap( const char *fileName )
 {
-	char *tmpFileName;
-	BOOL ret;
-	if ( !settingsDir || strncasecmp( fileName, ".\\fedata\\pc\\save\\", 17 ) )
-		tmpFileName = convertToUnixPath( fileName );
-	else
-	{
-		tmpFileName = ( char * )malloc( strlen( settingsDir ) + 5 + strlen( fileName + 17 ) + 1 );
-		strcpy( tmpFileName, settingsDir );
-		strcat( tmpFileName, "save/" );
-		strcat( tmpFileName, fileName + 17 );
-	}
-	ret = !unlink( tmpFileName );
+	char *tmpFileName = getPath( fileName, true );
+	BOOL ret = !unlink( tmpFileName );
 	free( tmpFileName );
 	return ret;
 }
@@ -699,17 +673,8 @@ STDCALL uint32_t GetCurrentDirectoryA_wrap( uint32_t bufferLength, char *buffer 
 }
 STDCALL BOOL SetCurrentDirectoryA_wrap( const char *pathName )
 {
-	char *tmpPathName;
-	BOOL ret;
-	if ( !settingsDir || strcasecmp( pathName, ".\\fedata\\pc\\save\\" ) )
-		tmpPathName = convertToUnixPath( pathName );
-	else
-	{
-		tmpPathName = ( char * )malloc( strlen( settingsDir ) + 5 + 1 );
-		strcpy( tmpPathName, settingsDir );
-		strcat( tmpPathName, "save/" );
-	}
-	ret = !chdir( tmpPathName );
+	char *tmpPathName = getPath( pathName, false );
+	BOOL ret = !chdir( tmpPathName );
 	free( tmpPathName );
 	return ret;
 }
