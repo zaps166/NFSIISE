@@ -108,7 +108,6 @@
 	{
 		HandleType handleType;
 		int (*threadParameter)();
-		SDL_Thread *thread;
 		SDL_sem *sem;
 	} Thread;
 	typedef struct
@@ -120,7 +119,6 @@
 		uint32_t toRead, readSoFar;
 		uint8_t *asyncReadBuffer;
 		OVERLAPPED *readOverlapped;
-		SDL_Thread *thread;
 		SDL_mutex *mutex;
 		uint32_t us_timeout;
 	} File;

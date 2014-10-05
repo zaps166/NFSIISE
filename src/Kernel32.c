@@ -256,10 +256,11 @@ STDCALL void *CreateThread_wrap( void *threadAttributes, uint32_t stackSize, THR
 	Thread *thread = ( Thread * )malloc( sizeof( Thread ) );
 	thread->handleType = HandleThread;
 	thread->threadParameter = parameter;
-	thread->sem = SDL_CreateSemaphore( !( creationFlags & 0x4 /*Start paused thread*/ ) );
-	thread->thread = SDL_CreateThread( threadFunction, NULL, thread );
+	thread->sem = SDL_CreateSemaphore( !( creationFlags & 0x4 /* Start paused thread */ ) );
+	SDL_Thread *sdl_thread = SDL_CreateThread( threadFunction, NULL, thread );
 	if ( threadId )
-		*threadId = SDL_GetThreadID( thread->thread );
+		*threadId = SDL_GetThreadID( sdl_thread );
+	SDL_DetachThread( sdl_thread );
 	return thread;
 }
 STDCALL uint32_t ResumeThread_wrap( Thread *thread )
@@ -358,9 +359,9 @@ STDCALL uint32_t WaitForMultipleObjects_wrap( uint32_t count, Event *const *even
 	//milliseconds always -1 or 0
 	//waitAll always false
 	uint32_t i, ret = WAIT_TIMEOUT;
+	SDL_LockMutex( event_mutex );
 	for ( ;; )
 	{
-		SDL_LockMutex( event_mutex );
 		for ( i = 0 ; i != count ; ++i )
 		{
 			if ( events[ i ]->is_set )
@@ -372,16 +373,14 @@ STDCALL uint32_t WaitForMultipleObjects_wrap( uint32_t count, Event *const *even
 			}
 		}
 		if ( ret != WAIT_TIMEOUT || !milliseconds )
+			break;
+		if ( SDL_CondWait( event_cond, event_mutex ) == -1 ) //no timeout, because milliseconds will be always -1 here
 		{
-			SDL_UnlockMutex( event_mutex );
+			ret = -1;
 			break;
 		}
-		if ( SDL_CondWait( event_cond, event_mutex ) == -1 ) //no timeout, because milliseconds will be always -1 here
-			ret = -1;
-		SDL_UnlockMutex( event_mutex );
-		if ( ret == -1 )
-			break;
 	}
+	SDL_UnlockMutex( event_mutex );
 	return ret;
 }
 
@@ -409,8 +408,7 @@ static int serialPortThread( void *data )
 		{
 			if ( ( bread = read( file->fd, file->asyncReadBuffer, file->toRead ) ) > 0 )
 			{
-				file->toRead -= bread;
-				if ( file->toRead )
+				if ( ( file->toRead -= bread ) )
 					file->asyncReadBuffer += bread;
 				else
 					file->pending = false;
@@ -531,10 +529,16 @@ STDCALL uint32_t SetFilePointer_wrap( File *file, uint32_t distanceToMove, uint3
 }
 STDCALL BOOL WriteFile_wrap( File *file, const void *buffer, uint32_t numberOfBytesToWrite, uint32_t *numberOfBytesWritten, OVERLAPPED *overlapped )
 {
-	BOOL ret;
+	BOOL hasEvent = file->async && overlapped && overlapped->hEvent, ret;
+	if ( hasEvent )
+	{
+		SDL_LockMutex( event_mutex );
+		( ( Event * )overlapped->hEvent )->is_set = false;
+		SDL_UnlockMutex( event_mutex );
+	}
 	*numberOfBytesWritten = write( file->fd, buffer, numberOfBytesToWrite );
 	ret = numberOfBytesToWrite == *numberOfBytesWritten;
-	if ( file->async && overlapped && overlapped->hEvent && ret )
+	if ( hasEvent && ret )
 	{
 		tcdrain( file->fd );
 		SetEvent_wrap( overlapped->hEvent );
@@ -561,7 +565,7 @@ STDCALL BOOL ReadFile_wrap( File *file, void *buffer, uint32_t numberOfBytesToRe
 			if ( !file->pending )
 			{
 				file->pending = true;
-				file->thread = SDL_CreateThread( serialPortThread, NULL, file );
+				SDL_DetachThread( SDL_CreateThread( serialPortThread, NULL, file ) );
 			}
 			overlapped_error = ERROR_IO_PENDING;
 
@@ -591,6 +595,7 @@ STDCALL BOOL SetCommState_wrap( File *file, DCB *dcb )
 	memset( &tty, 0, sizeof( struct termios ) );
 	cfsetospeed( &tty, B9600 );
 	cfsetispeed( &tty, B9600 );
+	tty.c_iflag |= IGNBRK;
 	tty.c_cflag |= CS8 | CLOCAL | CREAD;
 	return !tcsetattr( file->fd, TCSANOW, &tty );
 }
@@ -627,8 +632,11 @@ STDCALL BOOL CloseHandle_wrap( void *handle )
 		case HandleFile:
 		{
 			File *file = ( File * )handle;
+			SDL_LockMutex( file->mutex );
 			close( file->fd );
-			SDL_WaitThread( file->thread, NULL );
+			SDL_UnlockMutex( file->mutex );
+			while ( file->pending ) //Cannot wait for finished, because thread is detached
+				SDL_Delay( 10 );
 			SDL_DestroyMutex( file->mutex );
 			free( file );
 			return true;
