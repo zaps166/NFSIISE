@@ -16,6 +16,11 @@
 
 #ifdef WIN32
 
+STDCALL FILE *fopen_c( const char *fileName, const char *p )
+{
+	return fopen( fileName, p );
+}
+
 STDCALL void *CreateThread_wrap( void *threadAttributes, uint32_t stackSize, LPTHREAD_START_ROUTINE startAddress, void *parameter, uint32_t creationFlags, uint32_t *threadId )
 {
 	return CreateThread( threadAttributes, stackSize, startAddress, parameter, creationFlags, ( DWORD * )threadId );
@@ -238,6 +243,14 @@ static char *getPath( const char *src_pth, BOOL conv_to_lower )
 		}
 	}
 	return tmpFileName;
+}
+
+STDCALL FILE *fopen_c( const char *fileName, const char *p )
+{
+	char *tmpFileName = getPath( fileName, true );
+	FILE *f = fopen( tmpFileName, p );
+	free( tmpFileName );
+	return f;
 }
 
 static int threadFunction( void *data )

@@ -71,12 +71,16 @@ extern CreateWindow
 extern WrapperInit
 extern startTimer
 extern stopTimer
+extern fopen_c
 
 extern vsprintf
 extern calloc
 extern malloc
-extern free
+extern fclose
+extern fscanf
+extern fgets
 extern time
+extern free
 
 
 extern DefWindowProcA_wrap
@@ -33118,6 +33122,465 @@ loc_41A81D:
 	ret
 ;sub_41A570 endp
 
+sub_41A830: ;SUBROUTINE
+	push ebx
+	push ecx
+	push esi
+	push edi
+	push ebp
+	sub esp, 380h
+	mov [esp+370h], ax
+	mov ebp, 14h
+	cmp dx, 1
+	jz loc_41A9CE
+	add eax, 14h
+	lea edx, [esp+26Ch]
+	cwde
+	call sub_41B250
+	lea eax, [esp+26Ch]
+	push aR
+	push eax
+	call fopen_c
+	mov esi, eax
+	mov ecx, eax
+	test eax, eax
+	jnz loc_41AA2B
+	xor ebx, ebx
+	xor edx, edx
+
+loc_41A885:
+	movsx ecx, bx
+	imul ecx, 14h
+	mov edi, esp
+	mov esi, dword_4C8F90
+	add edi, ecx
+	push edi
+
+loc_41A895:
+	mov al, [esi]
+	mov [edi], al
+	cmp al, 0
+	jz loc_41A8AD
+	mov al, [esi+1]
+	add esi, 2
+	mov [edi+1], al
+	add edi, 2
+	cmp al, 0
+	jnz loc_41A895
+
+loc_41A8AD:
+	pop edi
+	mov [esp+ecx+0Ah], dx
+	mov [esp+ecx+0Ch], edx
+	inc ebx
+	mov [esp+ecx+10h], dx
+	cmp bx, 1Fh
+	jl loc_41A885
+	nop
+
+loc_41A8C4:
+	xor eax, eax
+	xor edx, edx
+
+loc_41A8C8:
+	movsx ecx, ax
+	imul ecx, 14h
+	mov bx, [esp+ecx+0Ah]
+	cmp dx, bx
+	jle loc_41AC4C
+
+loc_41A8DC:
+	movsx ecx, ax
+	imul ecx, 14h
+	mov [esp+ecx+0Ah], dx
+
+loc_41A8E7:
+	movsx ecx, ax
+	imul ecx, 14h
+	mov ebx, [esp+ecx+0Ch]
+	cmp edx, ebx
+	jle loc_41AC5B
+
+loc_41A8F9:
+	movsx ecx, ax
+	imul ecx, 14h
+	mov [esp+ecx+0Ch], edx
+
+loc_41A903:
+	movsx ecx, ax
+	imul ecx, 14h
+	mov di, [esp+ecx+10h]
+	cmp dx, di
+	jle loc_41AC6C
+
+loc_41A917:
+	movsx ecx, ax
+	imul ecx, 14h
+	mov [esp+ecx+10h], dx
+
+loc_41A922:
+	inc eax
+	cmp ax, 1Fh
+	jl loc_41A8C8
+	mov dword [dword_4DB1DC], 2ECh
+	mov eax, ebp
+	mov edi, aCNfs2seFront_5 ; "c:\\nfs2se\\frontend\\common\\Stattool.c"
+	shl eax, 5
+	mov esi, esp
+	sub eax, ebp
+	xor ebx, ebx
+	mov ecx, eax
+	mov edx, eax
+	mov eax, aRecords_0 ; "records"
+	mov dword [dword_4DB1D8], edi
+	call sub_484498
+	mov ebp, eax
+	mov edi, eax
+	mov [esp+36Ch], eax
+	push edi
+	mov eax, ecx
+	shr ecx, 2
+	rep movsd
+	mov cl, al
+	and cl, 3
+	rep movsb
+	pop edi
+	mov eax, [esp+36Eh]
+	lea edx, [esp+26Ch]
+	sar eax, 10h
+	call sub_41B250
+	mov eax, ebp
+	call sub_484D94
+	mov edx, ebp
+	mov ebx, eax
+	lea eax, [esp+26Ch]
+	call sub_4875B0
+	test ax, ax
+	jnz loc_41A9AE
+	mov eax, 2F3h
+	call sub_402CD0
+
+loc_41A9AE:
+	mov edx, [esp+36Ch]
+	test edx, edx
+	jnz loc_41AC7B
+	mov eax, 1
+	add esp, 380h
+	pop ebp
+	pop edi
+	pop esi
+	pop ecx
+	pop ebx
+	retn
+;	---------------------------------------------------------------------------
+
+loc_41A9CE:
+	mov eax, [esp+36Eh]
+	lea edx, [esp+26Ch]
+	sar eax, 10h
+	xor ebx, ebx
+	call sub_41B250
+	xor edx, edx
+
+loc_41A9E8:
+	movsx ecx, bx
+	imul ecx, 14h
+	mov edi, esp
+	mov esi, dword_4C8F90
+	add edi, ecx
+	push edi
+
+loc_41A9F8:
+	mov al, [esi]
+	mov [edi], al
+	cmp al, 0
+	jz loc_41AA10
+	mov al, [esi+1]
+	add esi, 2
+	mov [edi+1], al
+	add edi, 2
+	cmp al, 0
+	jnz loc_41A9F8
+
+loc_41AA10:
+	pop edi
+	mov [esp+ecx+0Ah], dx
+	mov [esp+ecx+0Ch], edx
+	inc ebx
+	mov [esp+ecx+10h], dx
+	cmp bx, 1Fh
+	jl loc_41A9E8
+	jmp loc_41A8C4
+;	---------------------------------------------------------------------------
+
+loc_41AA2B:
+	mov ebx, eax
+	lea eax, [esp+26Ch]
+
+	push ecx
+
+	push ebx
+	push 50h
+	push eax
+	call fgets
+	add esp, 0Ch
+
+	lea eax, [esp+368h]
+	push eax
+	push aD ; "%d\n"
+	push esi
+	call fscanf
+	add esp, 0Ch
+	lea eax, [esp+26Ch]
+
+	push esi
+	push 50h
+	push eax
+	call fgets
+	add esp, 0Ch
+
+	lea eax, [esp+26Ch]
+	mov edi, esp
+
+	push esi
+	push 9
+	push eax
+	call fgets
+	add esp, 0Ch
+
+	pop ecx
+
+	lea esi, [esp+26Ch]
+	mov dl, 0Ah
+	push edi
+
+loc_41AA86:
+	mov al, [esi]
+	mov [edi], al
+	cmp al, 0
+	jz loc_41AA9E
+	mov al, [esi+1]
+	add esi, 2
+	mov [edi+1], al
+	add edi, 2
+	cmp al, 0
+	jnz loc_41AA86
+
+loc_41AA9E:
+	pop edi
+	mov esi, esp
+
+loc_41AAA1:
+	mov al, [esi]
+	cmp al, dl
+	jz loc_41AAB9
+	cmp al, 0
+	jz loc_41AAB7
+	inc esi
+	mov al, [esi]
+	cmp al, dl
+	jz loc_41AAB9
+	inc esi
+	cmp al, 0
+	jnz loc_41AAA1
+
+loc_41AAB7:
+	sub esi, esi
+
+loc_41AAB9:
+	test esi, esi
+	jnz loc_41AC05
+
+loc_41AAC1:
+	lea eax, [esp+0Ah]
+	push eax
+	push aD_0 ; "%d"
+	push ecx
+	call fscanf
+	pop ecx
+	add esp, 8
+	lea eax, [esp+0Ch]
+	push eax
+	push aD_0 ; "%d"
+	push ecx
+	call fscanf
+	pop ecx
+	add esp, 8
+	lea eax, [esp+10h]
+	push eax
+	push aD ; "%d\n"
+	push ecx
+	xor edx, edx
+	call fscanf
+	pop ecx
+	add esp, 8
+	mov [esp+374h], dx
+	mov [esp+37Ch], edx
+
+loc_41AB0B:
+	lea eax, [esp+26Ch]
+
+	push ecx
+	push 50h
+	push eax
+	call fgets
+	add esp, 8
+	pop ecx
+
+	mov eax, [esp+37Ch]
+	inc eax
+	mov [esp+378h], ax
+
+loc_41AB2E:
+	mov eax, [esp+372h]
+	sar eax, 10h
+	imul eax, 0Ah
+	mov esi, [esp+376h]
+	sar esi, 10h
+	add eax, 0Ah
+	cmp esi, eax
+	jg loc_41AC0D
+	lea eax, [esp+26Ch]
+
+	push ecx
+	push 9
+	push eax
+	call fgets
+	add esp, 8
+	pop ecx
+
+	imul ebx, esi, 14h
+	mov eax, esp
+	add ebx, eax
+	lea esi, [esp+26Ch]
+	mov edi, ebx
+	mov dl, 0Ah
+	push edi
+
+loc_41AB76:
+	mov al, [esi]
+	mov [edi], al
+	cmp al, 0
+	jz loc_41AB8E
+	mov al, [esi+1]
+	add esi, 2
+	mov [edi+1], al
+	add edi, 2
+	cmp al, 0
+	jnz loc_41AB76
+
+loc_41AB8E:
+	pop edi
+	mov esi, ebx
+
+loc_41AB91:
+	mov al, [esi]
+	cmp al, dl
+	jz loc_41ABA9
+	cmp al, 0
+	jz loc_41ABA7
+	inc esi
+	mov al, [esi]
+	cmp al, dl
+	jz loc_41ABA9
+	inc esi
+	cmp al, 0
+	jnz loc_41AB91
+
+loc_41ABA7:
+	sub esi, esi
+
+loc_41ABA9:
+	test esi, esi
+	jnz loc_41AC44
+
+loc_41ABB1:
+	mov ebx, [esp+376h]
+	sar ebx, 10h
+	imul ebx, 14h
+	mov eax, esp
+	add ebx, eax
+	lea eax, [ebx+0Ah]
+	push eax
+	push aD_0 ; "%d"
+	push ecx
+	call fscanf
+	pop ecx
+	add esp, 8
+	lea eax, [ebx+0Ch]
+	push eax
+	push aD_0 ; "%d"
+	push ecx
+	call fscanf
+	pop ecx
+	add esp, 8
+	add ebx, 10h
+	push ebx
+	push aD ; "%d\n"
+	push ecx
+	call fscanf
+	pop ecx
+	add esp, 8
+	inc word [esp+378h]
+	jmp loc_41AB2E
+;	---------------------------------------------------------------------------
+
+loc_41AC05:
+	mov byte [esi], 0
+	jmp loc_41AAC1
+;	---------------------------------------------------------------------------
+
+loc_41AC0D:
+	mov edi, [esp+374h]
+	mov esi, [esp+37Ch]
+	inc edi
+	add esi, 0Ah
+	mov [esp+374h], di
+	mov [esp+37Ch], esi
+	cmp di, 2
+	jle loc_41AB0B
+	push ecx
+	call fclose
+	add esp, 4
+	jmp loc_41A8C4
+;	---------------------------------------------------------------------------
+
+loc_41AC44:
+	mov byte [esi], 0
+	jmp loc_41ABB1
+;	---------------------------------------------------------------------------
+
+loc_41AC4C:
+	cmp bx, 0Bh
+	jg loc_41A8DC
+	jmp loc_41A8E7
+;	---------------------------------------------------------------------------
+
+loc_41AC5B:
+	cmp ebx, 38400h
+	jg loc_41A8F9
+	jmp loc_41A903
+;	---------------------------------------------------------------------------
+
+loc_41AC6C:
+	cmp di, 2
+	jg loc_41A917
+	jmp loc_41A922
+;	---------------------------------------------------------------------------
+
+loc_41AC7B:
+	mov eax, edx
+	call sub_4848FC
+	mov eax, 1
+	add esp, 380h
+	pop ebp
+	pop edi
+	pop esi
+	pop ecx
+	pop ebx
+	retn
+;sub_41A830 endp
+
 sub_41ACA0: ;SUBROUTINE
 	push ecx
 	push esi
@@ -33502,7 +33965,7 @@ loc_41B10C:
 loc_41B118:
 	mov eax, ebp
 	xor edx, edx
-;	call sub_41A830
+	call sub_41A830
 	jmp loc_41B10C
 
 loc_41B123:
@@ -33512,7 +33975,7 @@ loc_41B123:
 	xor edx, edx
 	call sub_4879AE
 	mov eax, ebp
-;	call sub_41A830
+	call sub_41A830
 	jmp loc_41B10C
 
 loc_41B13C:
@@ -35928,7 +36391,7 @@ loc_41D12E:
 	mov eax, [esp+0EEh]
 	mov edx, 1
 	sar eax, 10h
-;	call sub_41A830
+	call sub_41A830
 	xor eax, eax
 	call sub_403550
 	jmp loc_41C93C
@@ -233231,8 +233694,7 @@ aCNfs2seFront_5: db 'c:\nfs2se\frontend\common\Stattool.c',0
 aStattool_creat: db 'Stattool_CreateIndex:  This routine is not suitable for N > 50',0Ah,0
 aTempsort: db 'TempSort',0
 aStattoolMemory: db 'Stattool: memory allocation failure',0Ah,0
-aStattool_ncrea: db 'Stattool_nCreateIndex:  This routine is not suitable for N > 50',0Ah
-	db 0
+aStattool_ncrea: db 'Stattool_nCreateIndex:  This routine is not suitable for N > 50',0Ah,0
 a_ssf: db '.ssf',0
 aSSS: db '%s%s%s',0
 a_stf: db '.stf',0
@@ -233243,6 +233705,10 @@ dbl_4C8F70: dq 1.5625
 aRecords_0: db 'records',0
 aTrkrcrds_0: db 'trkrcrds',0
 aS: db '%s',0
+dword_4C8F90: dd 0
+aR: db 'r',0
+aD: db '%d',0Ah,0
+aD_0: db '%d',0
 a5_2f: db '%5.2f',0
 flt_4C8FB4: dd 0.000034133187
 flt_4C8FB8: dd 0.000054932982
