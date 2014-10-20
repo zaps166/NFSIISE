@@ -19,7 +19,7 @@ cd src &&
 # i686-w64-mingw32-gcc -Wall -m32 -O2 -c *.c &&
 # yasm -f win32 NFS2SE.asm -o NFS2SE.o --prefix=_ &&
 # yasm -f win32 EAcsnd.asm -o EAcsnd.asm.o --prefix=_ &&
-# i686-w64-mingw32-ld --enable-stdcall-fixup -o "../Need For Speed II SE/nfs2se.exe" *.o --stack=0x7D00,0x7D00 --heap=0x2000,0x1000 -lws2_32 -lwinmm -lkernel32 -lmsvcrt -ldinput -lopengl32 -lSDL2 -s -e _start && #-subsystem=windows
+# i686-w64-mingw32-ld --enable-stdcall-fixup -o "../Need For Speed II SE/nfs2se.exe" *.o --stack=0x7D00,0x7D00 --heap=0x2000,0x1000 -lws2_32 -lwinmm -lkernel32 -lmsvcrt -lopengl32 -lSDL2 -s -e _start && #-subsystem=windows
 # rm -f *.o
 
 #Compile for Linux

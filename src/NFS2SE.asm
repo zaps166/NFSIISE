@@ -36761,7 +36761,7 @@ loc_41D4DE:
 	mov ecx, 4
 	lea edx, [esp+134h]
 	push 1
-	mov eax, aUdpfailsend ; "ipxfailsend"
+	mov eax, aIpxfailsend ; "ipxfailsend"
 	lea ebx, [ebp+34h]
 
 loc_41D54D:
@@ -36850,7 +36850,7 @@ loc_41D60B:
 	mov ecx, 4
 	lea edx, [esp+4]
 	push 1
-	mov eax, aUdpfailready ; "ipxfailready"
+	mov eax, aIpxfailready ; "ipxfailready"
 	add ebx, 34h
 	call sub_48B724
 
@@ -36974,7 +36974,7 @@ sub_41D720: ;SUBROUTINE
 	cmp dword [dword_4DBAD8], 4
 	jl loc_41D746
 	push 0
-	mov eax, aUdpclosesocket ; "ipxclosesocket"
+	mov eax, aIpxclosesocket ; "ipxclosesocket"
 	xor ecx, ecx
 	push 0
 	xor ebx, ebx
@@ -37121,7 +37121,7 @@ loc_41D8BB:
 	mov ecx, 4
 	lea edx, [esp+14h]
 	push 1
-	mov eax, aUdpopensocket ; "ipxopensocket"
+	mov eax, aIpxopensocket ; "ipxopensocket"
 	lea ebx, [edi+34h]
 	call sub_48B724
 	jmp loc_41D84F
@@ -166520,7 +166520,7 @@ loc_47E004:
 	call strstr_
 	test eax, eax
 	jz loc_47E0F8
-	mov edx, aUdp ; "IPX"
+	mov edx, aUdp ; "UDP"
 	mov eax, esi
 	call strstr_
 	test eax, eax
@@ -167887,7 +167887,7 @@ loc_47EF64:
 	jnz loc_47EFA3
 	push ebx
 	mov byte [byte_51345F], 1
-	mov eax, aUdp ; "IPX"
+	mov eax, aUdp ; "UDP"
 	mov ebx, 8
 	call sub_41D1E0
 	mov eax, aTcpGather ; "TCP gather"
@@ -233743,13 +233743,13 @@ aDosIpxCompatib: db 'DOS IPX compatible',0
 aRecvfrom: db 'recvfrom',0
 aCNfs2seFron_13: db 'c:\nfs2se\frontend\pc\ipx.c',0
 aSocket: db 'socket',0
-aUdpopensocket: db 'ipxopensocket',0
+aIpxopensocket: db 'ipxopensocket',0
 aOpenfailed: db 'openfailed',0
 aAborterr: db 'aborterr',0
-aUdpclosesocket: db 'ipxclosesocket',0
+aIpxclosesocket: db 'ipxclosesocket',0
 aCloseerr: db 'closeerr',0
-aUdpfailready: db 'ipxfailready',0
-aUdpfailsend: db 'ipxfailsend',0
+aIpxfailready: db 'ipxfailready',0
+aIpxfailsend: db 'ipxfailsend',0
 aWinipxsend: db 'WINIPXSend',0
 aTurfBuffer: db 'Turf Buffer',0
 aWinipxrecv: db 'WINIPXRecv',0
