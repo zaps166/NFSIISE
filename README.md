@@ -33,14 +33,13 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol!
 
 * Force Feedback (tested on Linux),
 * Serial port connection,
+* TCP and UDP connection,
 * Game controllers,
-* TCP connection,
 * Sound
 
 ## What does not work:
 
 * Modem connection (it will never work again, this feature was removed from assembly code),
-* Probably IPX protocol - not tested, it is not needed anymore,
 * Brightness on Intel video drivers on Linux (SDL2 BUG?),
 * Force Feedback on Window$ may not work
 

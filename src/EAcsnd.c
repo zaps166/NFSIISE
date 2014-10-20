@@ -9,7 +9,7 @@ static void ( *fadeInOut )( void );
 
 #define CHN_CNT 2
 
-static BOOL started, canStart;
+static BOOL unPaused, canGetSamples, soundStarted;
 static uint32_t buffer_pos;
 static uint8_t *buffer;
 
@@ -58,6 +58,14 @@ static void audioCallbackInterp( void *userdata, Uint8 *stream, int len )
 	memcpy( buffer, buffer + len, buffer_pos -= len );
 }
 
+static void getSamplesNoPlay()
+{
+	uint8_t buffer[ 256 * sizeof( int16_t ) * CHN_CNT ];
+	getSamples( buffer, sizeof buffer >> 2 );
+}
+
+/**/
+
 uint32_t iSNDdllversion_( void )
 {
 	return 0x60002;
@@ -71,8 +79,7 @@ STDCALL uint32_t iSNDdirectsetfunctions( void (REGPARM *arg1)(), void (*arg2)(),
 }
 REGPARM uint32_t iSNDdirectcaps_( void *hWnd )
 {
-	uint32_t ret = 0x23E0F; //?
-	return ret;
+	return 0x23E0F; //?
 }
 REGPARM uint32_t iSNDdirectstart_( uint32_t arg1, void *hWnd )
 {
@@ -86,25 +93,34 @@ REGPARM uint32_t iSNDdirectstart_( uint32_t arg1, void *hWnd )
 			buffer_size *= CHN_CNT * sizeof( int16_t );
 			buffer = ( uint8_t * )malloc( buffer_size );
 		}
-		canStart = true;
+		soundStarted = true;
 	}
+	canGetSamples = true;
 	return 0;
 }
 void iSNDdirectserve_( void )
 {
-	if ( canStart && !started )
+	if ( canGetSamples )
 	{
-		SDL_PauseAudio( 0 );
-		started = true;
+		if ( !unPaused && soundStarted )
+		{
+			SDL_PauseAudio( 0 );
+			unPaused = true;
+		}
+		fadeInOut();
+		if ( !soundStarted )
+			getSamplesNoPlay();
 	}
-	fadeInOut();
 }
 uint32_t iSNDdirectstop_( void )
 {
-	canStart = false;
-	SDL_CloseAudio();
+	canGetSamples = false;
+	if ( soundStarted )
+	{
+		SDL_CloseAudio();
+		unPaused = soundStarted = false;
+	}
 	buffer_pos = 0;
-	started = false;
 	free( buffer );
 	buffer = NULL;
 	return 0;

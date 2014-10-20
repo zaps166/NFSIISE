@@ -87,6 +87,7 @@ int32_t win_width = 640, win_height = 480, joystickAxisValueShift[ 2 ] = { 0 }, 
 uint32_t joystickButtons[ 2 ][ 15 ] = { { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 } };
 BOOL mouseAsJoystick = false, linearSoundInterpolation = false, useGlBleginGlEnd = false;
 uint32_t fullscreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP;
+uint16_t PORT1 = 1030, PORT2 = 1029;
 
 void WrapperInit( void )
 {
@@ -247,6 +248,10 @@ void WrapperInit( void )
 				linearSoundInterpolation = !!atoi( line + 25 );
 			else if ( !strncasecmp( "UseGlBleginGlEnd=", line, 17 ) )
 				useGlBleginGlEnd = !!atoi( line + 17 );
+			else if ( !strncasecmp( "Port1=", line, 6 ) )
+				PORT1 = atoi( line + 6 );
+			else if ( !strncasecmp( "Port2=", line, 6 ) )
+				PORT2 = atoi( line + 6 );
 #ifndef WIN32
 			else if ( !strncasecmp( "LinuxCOM1=", line, 10 ) )
 				serialPort[ 0 ] = strdup( line + 10 );

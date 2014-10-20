@@ -4,10 +4,12 @@
 #include "Wrapper.h"
 
 #ifndef WIN32
+	#include <netinet/tcp.h>
 	#include <sys/socket.h>
 	#include <arpa/inet.h>
 	#include <sys/ioctl.h>
 	#include <unistd.h>
+	#include <string.h>
 	#include <netdb.h>
 	#include <errno.h>
 
@@ -32,5 +34,13 @@
 	#define win_fd_set fd_set
 	#define socklen_t int
 #endif
+
+struct sockaddr_ipx
+{
+	int16_t sa_family;
+	int8_t sa_netnum[ 4 ];
+	int8_t sa_nodenum[ 6 ];
+	uint16_t sa_socket;
+};
 
 #endif // WSOCK32_H

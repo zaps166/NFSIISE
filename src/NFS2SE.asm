@@ -36761,7 +36761,7 @@ loc_41D4DE:
 	mov ecx, 4
 	lea edx, [esp+134h]
 	push 1
-	mov eax, aIpxfailsend ; "ipxfailsend"
+	mov eax, aUdpfailsend ; "ipxfailsend"
 	lea ebx, [ebp+34h]
 
 loc_41D54D:
@@ -36850,7 +36850,7 @@ loc_41D60B:
 	mov ecx, 4
 	lea edx, [esp+4]
 	push 1
-	mov eax, aIpxfailready ; "ipxfailready"
+	mov eax, aUdpfailready ; "ipxfailready"
 	add ebx, 34h
 	call sub_48B724
 
@@ -36974,7 +36974,7 @@ sub_41D720: ;SUBROUTINE
 	cmp dword [dword_4DBAD8], 4
 	jl loc_41D746
 	push 0
-	mov eax, aIpxclosesocket ; "ipxclosesocket"
+	mov eax, aUdpclosesocket ; "ipxclosesocket"
 	xor ecx, ecx
 	push 0
 	xor ebx, ebx
@@ -37121,7 +37121,7 @@ loc_41D8BB:
 	mov ecx, 4
 	lea edx, [esp+14h]
 	push 1
-	mov eax, aIpxopensocket ; "ipxopensocket"
+	mov eax, aUdpopensocket ; "ipxopensocket"
 	lea ebx, [edi+34h]
 	call sub_48B724
 	jmp loc_41D84F
@@ -166520,7 +166520,7 @@ loc_47E004:
 	call strstr_
 	test eax, eax
 	jz loc_47E0F8
-	mov edx, aIpx ; "IPX"
+	mov edx, aUdp ; "IPX"
 	mov eax, esi
 	call strstr_
 	test eax, eax
@@ -167887,7 +167887,7 @@ loc_47EF64:
 	jnz loc_47EFA3
 	push ebx
 	mov byte [byte_51345F], 1
-	mov eax, aIpx ; "IPX"
+	mov eax, aUdp ; "IPX"
 	mov ebx, 8
 	call sub_41D1E0
 	mov eax, aTcpGather ; "TCP gather"
@@ -233743,13 +233743,13 @@ aDosIpxCompatib: db 'DOS IPX compatible',0
 aRecvfrom: db 'recvfrom',0
 aCNfs2seFron_13: db 'c:\nfs2se\frontend\pc\ipx.c',0
 aSocket: db 'socket',0
-aIpxopensocket: db 'ipxopensocket',0
+aUdpopensocket: db 'ipxopensocket',0
 aOpenfailed: db 'openfailed',0
 aAborterr: db 'aborterr',0
-aIpxclosesocket: db 'ipxclosesocket',0
+aUdpclosesocket: db 'ipxclosesocket',0
 aCloseerr: db 'closeerr',0
-aIpxfailready: db 'ipxfailready',0
-aIpxfailsend: db 'ipxfailsend',0
+aUdpfailready: db 'ipxfailready',0
+aUdpfailsend: db 'ipxfailsend',0
 aWinipxsend: db 'WINIPXSend',0
 aTurfBuffer: db 'Turf Buffer',0
 aWinipxrecv: db 'WINIPXRecv',0
@@ -234308,7 +234308,7 @@ aSsldS_qfs: db '%ssld%s.qfs',0
 aSSload_qfs: db '%s%sload.qfs',0
 aBack_3: db 'back',0
 aSload_qfs: db '%sLoad.qfs',0
-aIpx: db 'IPX',0
+aUdp: db 'UDP',0
 aTcpGather: db 'TCP gather',0
 aCNfs2seGamePcN: db 'c:\nfs2se\game\pc\net.c',0
 aBugAddnewplaye: db 'BUG: AddNewPlayers() - Player Overflow (should have gotten past a'
