@@ -20373,7 +20373,7 @@ off_4103B0: dd loc_41053C
 	dd loc_4107EF
 	dd loc_41053C
 	dd loc_41053C
-	dd 0
+	dd loc_410954
 	dd loc_41098F
 	dd loc_4109A2
 	dd loc_41053C
@@ -20845,6 +20845,26 @@ loc_410912:
 	pop esi
 	pop ebx
 	ret
+
+loc_410954:
+	cmp di, 0Dh
+	jnz loc_41053C
+	push 134h
+	push 1
+	call sub_401AE0
+	add esp, 8
+	test eax, eax
+	jz loc_41053C
+	call sub_4090C0
+	and byte [byte_4D3468], 0FEh
+	mov eax, ebx
+	pop ecx
+	add esp, 9Ch
+	pop ebp
+	pop edi
+	pop esi
+	pop ebx
+	retn
 
 loc_41093C:
 	mov eax, 2
