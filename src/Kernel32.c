@@ -47,23 +47,23 @@ STDCALL BOOL TerminateThread_wrap( HANDLE hThread, uint32_t exitCode )
 }
 STDCALL void InitializeCriticalSection_wrap( CRITICAL_SECTION *criticalSection )
 {
-	return InitializeCriticalSection( criticalSection );
+	InitializeCriticalSection( criticalSection );
 }
 STDCALL void EnterCriticalSection_wrap( CRITICAL_SECTION *criticalSection )
 {
-	return EnterCriticalSection( criticalSection );
+	EnterCriticalSection( criticalSection );
 }
 STDCALL void LeaveCriticalSection_wrap( CRITICAL_SECTION *criticalSection )
 {
-	return LeaveCriticalSection( criticalSection );
+	LeaveCriticalSection( criticalSection );
 }
 STDCALL void DeleteCriticalSection_wrap( CRITICAL_SECTION *criticalSection )
 {
-	return DeleteCriticalSection( criticalSection );
+	DeleteCriticalSection( criticalSection );
 }
 STDCALL void GlobalMemoryStatus_wrap( MEMORYSTATUS *memoryStatus )
 {
-	return GlobalMemoryStatus( memoryStatus );
+	GlobalMemoryStatus( memoryStatus );
 }
 STDCALL void ExitProcess_wrap( uint32_t exitCode )
 {

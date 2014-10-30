@@ -1,6 +1,7 @@
 #include "Wsock32.h"
 
 extern uint16_t PORT1, PORT2;
+extern uint32_t Bcast;
 
 STDCALL uint32_t inet_addr_wrap( const char *cp )
 {
@@ -106,7 +107,7 @@ STDCALL int bind_wrap( int sock, const struct sockaddr *name, int namelen )
 	struct sockaddr_in name_in;
 	name_in.sin_family = AF_INET;
 	name_in.sin_addr.s_addr = INADDR_ANY;
-	if ( namelen == sizeof( struct sockaddr_ipx ) )
+	if ( namelen == sizeof( struct sockaddr_ipx ) ) /* If IPX socket type is not 0 (0x452) then use PORT2 */
 		name_in.sin_port = ( ( struct sockaddr_ipx * )name )->sa_socket ? htons( PORT2 ) : htons( PORT1 );
 	else
 		name_in.sin_port = ( ( struct sockaddr_in * )name )->sin_port ? htons( PORT1 ) : 0;
@@ -202,10 +203,12 @@ STDCALL int socket_wrap( int af, int type, int protocol )
 		protocol = IPPROTO_UDP;
 	}
 	int s = socket( af, type, protocol );
-	if ( isTCP && s > 0 )
+	if ( s > 0 )
 	{
 		BOOL opt = true;
-		setsockopt( s, IPPROTO_TCP, TCP_NODELAY, ( char * )&opt, sizeof opt );
+		if ( isTCP )
+			setsockopt( s, IPPROTO_TCP, TCP_NODELAY, ( char * )&opt, sizeof opt );
+		setsockopt( s, SOL_SOCKET, SO_REUSEADDR, ( char * )&opt, sizeof opt );
 	}
 	return s;
 }
@@ -232,8 +235,8 @@ STDCALL int sendto_wrap( int sock, const char *buf, socklen_t len, int flags, co
 
 	to_in.sin_family = AF_INET;
 	to_in.sin_port = htons( PORT1 );
-	if ( !memcmp( to->sa_nodenum, "\0\0\0\0\0\0", 6 ) ) /* 0x000000000000 address is broadcast too */
-		memset( &to_in.sin_addr.s_addr, 0xFF, 4 );
+	if ( !memcmp( to->sa_nodenum, "\xFF\xFF\xFF\xFF\xFF\xFF", 6 ) || !memcmp( to->sa_nodenum, "\0\0\0\0\0\0", 6 ) ) /* 0x000000000000 address is broadcast too */
+		to_in.sin_addr.s_addr = Bcast;
 	else
 		memcpy( &to_in.sin_addr.s_addr, to->sa_nodenum, 4 ); /* IPX address to INET address */
 

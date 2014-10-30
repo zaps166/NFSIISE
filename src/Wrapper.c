@@ -86,7 +86,7 @@ uint32_t joystickAxes[ 2 ][ 8 ] = { { 0, 1, 2, 3, 0, 0, 0, 0 }, { 0, 1, 2, 3, 0,
 int32_t win_width = 640, win_height = 480, joystickAxisValueShift[ 2 ] = { 0 }, mouseJoySensitivity = 20, VSync = 1;
 uint32_t joystickButtons[ 2 ][ 15 ] = { { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 } };
 BOOL mouseAsJoystick = false, linearSoundInterpolation = false, useGlBleginGlEnd = false;
-uint32_t fullscreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP;
+uint32_t fullscreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP, Bcast = 0xFFFFFFFF;
 uint16_t PORT1 = 1030, PORT2 = 1029;
 
 void WrapperInit( void )
@@ -252,6 +252,12 @@ void WrapperInit( void )
 				PORT1 = atoi( line + 6 );
 			else if ( !strncasecmp( "Port2=", line, 6 ) )
 				PORT2 = atoi( line + 6 );
+			else if ( !strncasecmp( "Bcast=", line, 6 ) )
+			{
+				uint32_t a, b, c, d;
+				if ( sscanf( line + 6, "%d.%d.%d.%d", &a, &b, &c, &d ) && a <= 0xFF && b <= 0xFF && c <= 0xFF && d <= 0xFF )
+					Bcast = d << 24 | c << 16 | b << 8 | a;
+			}
 #ifndef WIN32
 			else if ( !strncasecmp( "LinuxCOM1=", line, 10 ) )
 				serialPort[ 0 ] = strdup( line + 10 );
@@ -283,7 +289,7 @@ void WrapperInit( void )
 #endif
 }
 
-WindowProc wndProc;
+extern WindowProc wndProc;
 
 SDL_Window *CreateWindow( WindowProc windowProc )
 {

@@ -24,7 +24,8 @@ BOOL newWindowSize = false;
 extern int32_t win_width, win_height;
 extern uint32_t fullscreenFlag;
 extern SDL_Window *sdl_win;
-extern WindowProc wndProc;
+
+WindowProc wndProc;
 
 static SDL_TimerID timerID;
 uint32_t watchdogTimer( uint32_t interval, void *param );
