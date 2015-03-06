@@ -1,7 +1,10 @@
 #include "Wrapper.h"
 #include <SDL2/SDL.h>
+#ifdef WIN32
+	#include <windows.h>
+#endif
 
-typedef void (*ProcedureType)( void );
+typedef void ( *ProcedureType )( void );
 static ProcedureType atExitProcedures[ 10 ];
 static uint32_t atExitProcedureCount;
 void WrapperAtExit( ProcedureType proc )
@@ -16,8 +19,11 @@ void WrapperAtExit( ProcedureType proc )
 
 uint32_t watchdogTimer( uint32_t interval, void *param )
 {
+#ifndef WIN32
 	exit( 0 );
-	return 0;
+#else
+	ExitProcess( 0 );
+#endif
 }
 
 SDL_Window *sdl_win;
@@ -60,6 +66,7 @@ void exit_func( void )
 #include <signal.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sched.h>
 
 static void signal_handler( int sig )
 {
@@ -91,10 +98,13 @@ uint16_t PORT1 = 1030, PORT2 = 1029;
 
 void WrapperInit( void )
 {
+	BOOL useOnlyOneCPU = true;
 	uint32_t msaa = 0;
+	FILE *f = NULL;
+
 	SDL_Init( ( SDL_INIT_EVERYTHING | SDL_INIT_NOPARACHUTE ) & ~SDL_INIT_GAMECONTROLLER );
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-	FILE *f = NULL;
+
 #ifndef WIN32
 	const char *homeDir = getenv( "HOME" );
 	if ( homeDir && *homeDir )
@@ -189,7 +199,9 @@ void WrapperInit( void )
 				continue;
 			}
 			line[ nPos ] = '\0';
-			if ( !strncasecmp( "StartAtFullScreen=", line, 18 ) )
+			if ( !strncasecmp( "UseOnlyOneCPU=", line, 14 ) )
+				useOnlyOneCPU = !!atoi( line + 14 );
+			else if ( !strncasecmp( "StartAtFullScreen=", line, 18 ) )
 				startAtFullScreen = !!atoi( line + 18 );
 			else if ( !strncasecmp( "VSync=", line, 6 ) )
 			{
@@ -287,13 +299,26 @@ void WrapperInit( void )
 		}
 	}
 #endif
+
+	if ( useOnlyOneCPU )
+#ifdef WIN32
+		SetProcessAffinityMask( GetCurrentProcess(), 1 );
+#else
+	{
+		cpu_set_t set;
+		CPU_ZERO( &set );
+		CPU_SET( 0, &set );
+		if ( sched_setaffinity( 0, sizeof set, &set ) )
+			perror( "sched_setaffinity" );
+	}
+#endif
 }
 
 extern WindowProc wndProc;
 
-SDL_Window *CreateWindow( WindowProc windowProc )
+SDL_Window *WrapperCreateWindow( WindowProc windowProc )
 {
-	static const char *title = "The Need For Speed 2";
+	static const char title[] = "The Need For Speed 2";
 	static const uint32_t palette[ 8 ] = { 0xFF000000, 0xFF000080, 0xFF0000FF, 0xFFC0C0C0, 0xFF00FFFF, 0xFFFFFFFF, 0x00000000, 0xFF008080 };
 	static const uint8_t compressed_icon[ 372 ] =
 	{

@@ -6,16 +6,16 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol!
 ## Compile:
 
 * To compile the game you must have a 32-bit:
- * GCC compiler,
  * YASM assembler,
- * SDL2 devel,
- * OpenGL devel
+ * GCC compiler,
+ * OpenGL devel,
+ * SDL2 devel.
 * Edit the "compile_nfs" script, modify what is needed, and then compile the game by executing script. It should automaticly generate executable file in "Need For Speed II SE" directory.
 
 ## Run:
 
 * Copy fedata" and "gamedata" directories from the Need For Speed II SE original CD-ROM (or from CD image from the Internet) into "Need For Speed II SE" directory.
-* You can delete unnecessary files, ex. "fedata/pc/text/text.*", because TCP version uses new files in root directory.
+* You can delete unnecessary files, e.g. "fedata/pc/text/text.*", because TCP version uses new files in root directory.
 * All files and directories copied from CD-ROM must have SMALL LETTERS!!!
 * If you want to chang language, edit "install.win" and change first line. Leave "4nn" as is and modify language name. Possible languages are:
  * english,
@@ -23,7 +23,7 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol!
  * german,
  * italian,
  * spanish,
- * swedish
+ * swedish.
 * Run the game. Go to Options->Graphics and set all to maximum.
 * If you want to configure the game, go to "~/.nfs2se" directory, edit "nfs2se.conf" and modify what you want.
 * On Linux the game saves files in "~/.nfs2se". At the firs run, "nfs2se.conf" will be copied into "~/.nfs2se".
@@ -35,13 +35,13 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol!
 * TCP and UDP connection,
 * Serial port connection,
 * Game controllers,
-* Sound
+* Sound.
 
 ## What does not work:
 
+* Brightness on Intel video drivers on Linux (SDL2 uses function which is not supported by opensource graphics drivers),
 * Modem connection (it will never work again, this feature was removed from assembly code),
-* Brightness on Intel video drivers on Linux (SDL2 BUG?),
-* Force Feedback on Window$ may not work
+* Force Feedback on Window$ may not work.
 
 ## Patches:
 

@@ -66,8 +66,8 @@ extern grTexMipMapMode
 extern grTexSource
 extern guFogGenerateExp
 
+extern WrapperCreateWindow
 extern WrapperAtExit
-extern CreateWindow
 extern WrapperInit
 extern startTimer
 extern stopTimer
@@ -3561,7 +3561,7 @@ loc_4037E9:
 	call sub_485380
 	mov al, [ecx+8]
 	mov [esp+4], al
-	mov al, byte dword [dword_4E509C]
+	mov al, byte [dword_4E509C]
 	xor ebp, ebp
 	mov [esp+8], al
 	mov eax, esp
@@ -5005,8 +5005,6 @@ loc_404710:
 	jmp loc_4046BD
 ;sub_404590 endp
 
-;	Attributes: bp-based frame
-
 sub_404740: ;SUBROUTINE
 	push esi
 	push edi
@@ -5596,7 +5594,7 @@ loc_404E8F:
 	jz loc_404EDA
 	cmp ecx, 10h
 	ja loc_404EDA
-	jmp dword off_404E00[edi]
+	jmp off_404E00[edi]
 
 loc_404EB4:
 	mov edx, 7Fh
@@ -5623,7 +5621,7 @@ loc_404EE3:
 	ret
 
 loc_404EEA:
-	jmp dword off_404DF0[edx*4] ; switch jump
+	jmp off_404DF0[edx*4] ; switch jump
 
 loc_404EF1:
 	cmp eax, 47h ; jumptable 00404EEA case 0
@@ -5682,7 +5680,7 @@ loc_404F7D:
 	mov edx, 7Fh
 	mov eax, 5
 	call sub_4423F0
-	mov al, byte dword [dword_4D21A0]
+	mov al, byte [dword_4D21A0]
 	mov byte [byte_4D1FE8], al
 	mov byte [byte_4D1FE9], al
 
@@ -6036,29 +6034,6 @@ loc_405350:
 	ret
 ;sub_405320 endp
 
-;	START OF FUNCTION CHUNK FOR sub_405A30
-
-loc_405360:
-	push edx
-	sub esp, 50h
-	mov edx, dword [dword_4D9668]
-	inc edx
-	push edx
-	push aScn04d_tga ; "scn%04d.tga"
-	lea eax, [esp+8]
-	push eax
-	mov dword [dword_4D9668], edx
-	call sprintf_
-	add esp, 0Ch
-	call unknown_libname_4 ; Watcom v9-*1.5 32bit NT runtime
-	mov eax, esp
-	call sub_487538
-	call sub_4824BC
-	add esp, 50h
-	pop edx
-	ret
-;	END OF FUNCTION CHUNK FOR sub_405A30
-
 sub_4053A0: ;SUBROUTINE
 	push esi
 	push edi
@@ -6335,7 +6310,7 @@ loc_405662:
 	jbe loc_405676
 	cmp di, 2
 	jnz loc_405610
-	mov ax, word dword [dword_4D20D4]
+	mov ax, word [dword_4D20D4]
 	mov [esp], ax
 	jmp loc_405610
 
@@ -6381,7 +6356,7 @@ sub_4056F0: ;SUBROUTINE
 	cmp eax, edx
 	jz loc_405728
 	mov ecx, dword [dword_4D20A0]
-	mov word dword [dword_4E54AC], dx
+	mov word [dword_4E54AC], dx
 	test ecx, ecx
 	jnz loc_40572B
 
@@ -6543,7 +6518,7 @@ sub_4057C0: ;SUBROUTINE
 	mov eax, dword_4E53F0
 	mov edx, 0FFFFFFFFh
 	call sub_4871B0
-	mov word dword [dword_4E54AC], dx
+	mov word [dword_4E54AC], dx
 	add esp, 100h
 	pop ebp
 	pop edi
@@ -6659,9 +6634,6 @@ loc_405A05:
 ;sub_405960 endp
 
 sub_405A30: ;SUBROUTINE
-
-;	FUNCTION CHUNK AT 00405360 SIZE 0000003A BYTES
-
 	mov eax, 38h
 	call sub_486550
 	test eax, eax
@@ -6675,7 +6647,25 @@ loc_405A3F:
 	call sub_486550
 	test eax, eax
 	jz locret_405A3E
-	jmp loc_405360
+
+	push edx
+	sub esp, 50h
+	mov edx, dword [dword_4D9668]
+	inc edx
+	push edx
+	push aScn04d_tga ; "scn%04d.tga"
+	lea eax, [esp+8]
+	push eax
+	mov dword [dword_4D9668], edx
+	call sprintf_
+	add esp, 0Ch
+	call unknown_libname_4 ; Watcom v9-*1.5 32bit NT runtime
+	mov eax, esp
+	call sub_487538
+	call sub_4824BC
+	add esp, 50h
+	pop edx
+	ret
 ;sub_405A30 endp
 
 sub_405A60: ;SUBROUTINE
@@ -6931,12 +6921,82 @@ sub_405C70: ;SUBROUTINE
 ;sub_405C70 endp
 
 sub_405CF0: ;SUBROUTINE
-
-;	FUNCTION CHUNK AT 00426BA0 SIZE 000000A5 BYTES
-
 	cmp dword [dword_4D20A0], 0
 	jz sub_486A30
-	jmp loc_426BA0
+	push ecx
+	push esi
+	push edi
+	push ebp
+	sub esp, 8
+	mov esi, eax
+	mov edi, edx
+	mov [esp+4], ebx
+	mov eax, dword [dword_4D20A4]
+	or eax, 0FF000000h
+	mov [esp], eax
+	cmp byte [esi], 0
+	jz loc_426C27
+
+loc_426BC1:
+	mov ebp, dword [dword_4E54AC]
+	mov al, [esi]
+	cmp ebp, 24h
+	jnz loc_426C3E
+	cmp al, 20h
+	jnz loc_426C2F
+	mov ah, 0FAh
+
+loc_426BD8:
+	xor edx, edx
+	mov dl, ah
+	xor ebx, ebx
+	mov bl, byte byte_4EC3AC[edx]
+	and eax, 0FFh
+	push eax
+	mov ecx, [esp+4]
+	push ecx
+	movzx ebp, byte byte_4EC2B0[edx]
+	push 33h
+	xor eax, eax
+	mov ecx, edi
+	push ebx
+	mov ebx, [esp+14h]
+	mov al, byte byte_4EC0B8[edx]
+	push ebx
+	xor ebx, ebx
+	mov eax, dword dword_4EC4B0[eax*4]
+	mov bl, byte byte_4EC1B4[edx]
+	mov edx, ebp
+	inc esi
+	call sub_426C50
+	mov dl, [esi]
+	add edi, eax
+	test dl, dl
+	jnz loc_426BC1
+
+loc_426C27:
+	add esp, 8
+	pop ebp
+	pop edi
+	pop esi
+	pop ecx
+	ret
+
+loc_426C2F:
+	cmp al, 0D6h
+	jnz loc_426C37
+	mov ah, 0FBh
+	jmp loc_426BD8
+
+loc_426C37:
+	mov ah, al
+	add ah, 9Fh
+	jmp loc_426BD8
+
+loc_426C3E:
+	mov ah, al
+	sub ah, 20h
+	jmp loc_426BD8
 ;sub_405CF0 endp
 
 sub_405D10: ;SUBROUTINE
@@ -7181,7 +7241,7 @@ loc_406080:
 	cmp al, 4
 	ja loc_4060CC
 	and eax, 0FFh ; switch 5 cases
-	jmp dword off_405DB0[eax*4] ; switch jump
+	jmp off_405DB0[eax*4] ; switch jump
 
 loc_406099:
 	mov edx, 1 ; jumptable 00406092 case 0
@@ -7213,7 +7273,7 @@ loc_4060CC:
 	cmp al, 3
 	ja loc_406129
 	and eax, 0FFh ; switch 4 cases
-	jmp dword off_405DC4[eax*4] ; switch jump
+	jmp off_405DC4[eax*4] ; switch jump
 
 loc_406107:
 	cmp byte [byte_512DA9], 1 ; jumptable 00406100 cases 0,3
@@ -8492,7 +8552,7 @@ sub_4071D0: ;SUBROUTINE
 	cmp bl, 3
 	ja loc_40720E ; jumptable 00407207 case 0
 	and ebx, 0FFh ; switch 4 cases
-	jmp dword off_4071C0[ebx*4] ; switch jump
+	jmp off_4071C0[ebx*4] ; switch jump
 
 loc_40720E:
 	shl eax, 8 ; jumptable 00407207 case 0
@@ -8906,7 +8966,7 @@ sub_40764C: ;SUBROUTINE
 	cmp dl, 6
 	ja loc_407683
 	and edx, 0FFh ; switch 7 cases
-	jmp dword off_407630[edx*4] ; switch jump
+	jmp off_407630[edx*4] ; switch jump
 
 loc_40766C:
 	xor eax, eax ; jumptable 00407665 case 0
@@ -9488,8 +9548,8 @@ sub_407C40: ;SUBROUTINE
 	push esi
 	push edi
 	sub esp, 4E78h
-	mov si, word dword [dword_512264]
-	mov dx, word dword [dword_512268]
+	mov si, word [dword_512264]
+	mov dx, word [dword_512268]
 	mov eax, esp
 	add esi, edx
 	xor ebx, ebx
@@ -9797,7 +9857,7 @@ sub_408020: ;SUBROUTINE
 	push esi
 	push edi
 	push ebp
-	mov edx, loc_4242E0
+	mov edx, sub_4242E0
 	mov ebp, 10h
 	mov edi, dword [dword_4DAB84]
 	xor ah, ah
@@ -9988,7 +10048,7 @@ sub_4082B4: ;SUBROUTINE
 	cmp al, 4
 	ja loc_4082DA
 	and eax, 0FFh ; switch 5 cases
-	jmp dword off_4082A0[eax*4] ; switch jump
+	jmp off_4082A0[eax*4] ; switch jump
 
 loc_4082D5:
 	mov ebp, 1 ; jumptable 004082CE case 0
@@ -10185,7 +10245,7 @@ loc_4084A0:
 	test eax, eax
 	jnz loc_408490
 	call sub_486F28
-	cmp word byte [byte_4E5518], 0
+	cmp word [byte_4E5518], 0
 	jnz loc_4084F5
 
 loc_4084B8:
@@ -10213,7 +10273,7 @@ loc_4084C1:
 
 loc_4084F5:
 	xor ebx, ebx
-	mov word byte [byte_4E5518], bx
+	mov word [byte_4E5518], bx
 	call sub_408610
 	jmp loc_4084B8
 
@@ -10274,7 +10334,7 @@ sub_408558: ;SUBROUTINE
 	cmp bl, 5
 	ja loc_4085D0
 	and ebx, 0FFh ; switch 6 cases
-	jmp dword off_408540[ebx*4] ; switch jump
+	jmp off_408540[ebx*4] ; switch jump
 
 loc_40858F:
 	mov edx, aEngl ; jumptable 00408588 case 0
@@ -10469,7 +10529,7 @@ loc_40875D:
 	jnz loc_408926
 	mov ecx, 1
 	mov ebp, 1
-	mov word byte [byte_4E5518], cx
+	mov word [byte_4E5518], cx
 
 loc_4087B7:
 	call sub_408DF0
@@ -10550,7 +10610,7 @@ loc_4088B9:
 	push eax
 	call time
 	add esp, 4
-	mov word dword [dword_512D9E+2], ax
+	mov word [dword_512D9E+2], ax
 	xor eax, eax
 	xor eax, eax
 	push eax
@@ -10594,7 +10654,7 @@ loc_408926:
 	jz loc_408974
 	mov ebx, 1
 	mov eax, edi
-	mov word byte [byte_4E5518], bx
+	mov word [byte_4E5518], bx
 	call sub_487950
 	mov ecx, dword [dword_5134C8]
 	push ecx
@@ -10612,7 +10672,7 @@ loc_408974:
 	mov eax, aCNfs2seFront_0 ; "c:\\nfs2se\\frontend\\common\\Front.c"
 	xor edx, edx
 	xor ebx, ebx
-	mov word byte [byte_4E5518], dx
+	mov word [byte_4E5518], dx
 	mov dword [dword_4DB1D8], eax
 	mov edx, 23Fh
 	mov eax, aFrontend ; "frontend"
@@ -10822,14 +10882,14 @@ sub_408BF0: ;SUBROUTINE
 	mov edx, aCNfs2seFront_0 ; "c:\\nfs2se\\frontend\\common\\Front.c"
 	mov ecx, 1C2h
 	mov esi, (dword_512D9E+2)
-	mov al, byte dword [dword_4D5A30]
+	mov al, byte [dword_4D5A30]
 	xor ebx, ebx
 	mov byte [byte_512DFE], al
 	mov dword [dword_4DB1D8], edx
-	mov al, byte dword [dword_4D5A2C]
+	mov al, byte [dword_4D5A2C]
 	mov dword [dword_4DB1DC], ecx
 	mov byte [byte_512DFD], al
-	mov al, byte dword [dword_4D5A28]
+	mov al, byte [dword_4D5A28]
 	mov edx, 2ACh
 	mov byte [byte_512DFC], al
 	mov eax, aFrontend ; "frontend"
@@ -11023,7 +11083,7 @@ sub_408DF0: ;SUBROUTINE
 	mov bl, 1
 	xor edx, edx
 	xor ah, ah
-	mov word dword [dword_512D9E+2], dx
+	mov word [dword_512D9E+2], dx
 	mov byte [byte_512DA8], ah
 	mov byte [byte_512DBC], ah
 	mov byte [byte_512DBD], ah
@@ -11109,7 +11169,7 @@ loc_408F34:
 	mov byte [byte_512DFF], ah
 	mov byte [byte_512E00], ah
 	mov al, 2
-	mov byte dword [dword_512ED4], dl
+	mov byte [dword_512ED4], dl
 	mov byte [byte_512ECD], al
 	mov byte [byte_512ED3], ah
 
@@ -11188,8 +11248,6 @@ loc_409057:
 	mov byte [byte_512DFA], dl
 	jmp loc_408F34
 ;sub_408DF0 endp
-
-;	=============== S U B R O U T I N E =======================================
 
 sub_409070: ;SUBROUTINE
 	push edx
@@ -11493,7 +11551,7 @@ loc_4094AA:
 	cmp ax, 6 ; switch 7 cases
 	ja loc_4095BE ; jumptable 0040950C default case
 	and eax, 0FFFFh
-	jmp dword off_409370[eax*4] ; switch jump
+	jmp off_409370[eax*4] ; switch jump
 
 loc_409513:
 	mov eax, 2FCh ; jumptable 0040950C case 0
@@ -13899,14 +13957,14 @@ sub_40B2C0: ;SUBROUTINE
 	mov esi, eax
 	xor ecx, ecx
 	xor edx, edx
-	mov cl, byte dword [dword_512ED4]
+	mov cl, byte [dword_512ED4]
 	mov [esp+24h], edx
 	mov [esp+0Ch], edx
 	mov [esp+2Ch], edx
 	call sub_479240
 	xor eax, eax
 	mov [esp+18h], edx
-	mov al, byte dword [dword_512ED4]
+	mov al, byte [dword_512ED4]
 	lea edx, 0[ecx*8]
 	call sub_4792C0
 	add edx, ecx
@@ -14135,11 +14193,11 @@ loc_40B5DF:
 	jz loc_40B38E
 	cmp ebx, 0FFFFFFFEh
 	jz loc_40B5F6
-	mov byte dword [dword_512ED4], cl
+	mov byte [dword_512ED4], cl
 
 loc_40B5F6:
 	xor eax, eax
-	mov al, byte dword [dword_512ED4]
+	mov al, byte [dword_512ED4]
 	call sub_4792C0
 	call sub_4792D0
 	call sub_479220
@@ -14231,7 +14289,7 @@ sub_40B6C4: ;SUBROUTINE
 	cmp ax, 4 ; switch 5 cases
 	ja loc_40BB35 ; jumptable 0040B705 default case
 	and eax, 0FFFFh
-	jmp dword off_40B6B0[eax*4] ; switch jump
+	jmp off_40B6B0[eax*4] ; switch jump
 
 loc_40B70C:
 	xor ebx, ebx ; jumptable 0040B705 case 0
@@ -15039,7 +15097,7 @@ sub_40C110: ;SUBROUTINE
 	push ecx
 	push edx
 	push esi
-	mov eax, dword byte [byte_4D3ECC]
+	mov eax, dword [byte_4D3ECC]
 	sar eax, 10h
 	mov edx, dword off_4D3ED0[eax*4]
 	mov eax, [edx]
@@ -15084,7 +15142,7 @@ sub_40C160: ;SUBROUTINE
 	mov ebx, 270Fh
 	mov eax, 6
 	xor edx, edx
-	mov word dword [dword_4E5928], bx
+	mov word [dword_4E5928], bx
 	call sub_4056A0
 	mov ebp, dword [dword_4D243C]
 	mov [esp+1Ch], dx
@@ -15210,7 +15268,7 @@ loc_40C375:
 	xor edx, edx
 	xor eax, eax
 	call sub_427B30
-	mov eax, dword byte [byte_4D3ECC]
+	mov eax, dword [byte_4D3ECC]
 	mov edx, edi
 	sar eax, 10h
 	call sub_4276F0
@@ -15226,7 +15284,7 @@ loc_40C3CC:
 	mov edx, 400h
 	mov eax, dword [dword_4D4D24]
 	xor ecx, ecx
-	mov word dword [dword_4E5924+2], bx
+	mov word [dword_4E5924+2], bx
 	call sub_4825A8
 	mov eax, aBlk4 ; "blk4"
 	xor ebx, ebx
@@ -15423,7 +15481,7 @@ loc_40C64C:
 	mov eax, esi
 	xor ecx, ecx
 	call sub_40CB00
-	mov eax, dword byte [byte_4D3ECC]
+	mov eax, dword [byte_4D3ECC]
 	mov edx, edi
 	sar eax, 10h
 	mov dword [dword_4D20A0], ecx
@@ -15487,7 +15545,7 @@ loc_40C76E:
 	jnz loc_40C301
 
 loc_40C77B:
-	cmp word dword [dword_4E5924+2], 0
+	cmp word [dword_4E5924+2], 0
 	jnz loc_40C3CC
 	mov word [esp+14h], 3E9h
 	xor ebp, ebp
@@ -15596,7 +15654,7 @@ loc_40C8CF:
 	jmp loc_40C58E
 
 loc_40C8F8:
-	cmp word dword [dword_4E5928], 0Bh
+	cmp word [dword_4E5928], 0Bh
 	jg loc_40C57B
 	cmp esi, off_4D2A20
 	jz loc_40C57B
@@ -15657,7 +15715,7 @@ loc_40C9B3:
 	mov eax, 1
 	xor edx, edx
 	call sub_427B30
-	mov eax, dword byte [byte_4D3ECC]
+	mov eax, dword [byte_4D3ECC]
 	mov edx, edi
 	sar eax, 10h
 	mov ecx, 20h
@@ -15717,7 +15775,7 @@ loc_40CA75:
 
 loc_40CA98:
 	xor ebx, ebx
-	mov word dword [dword_4E5924+2], bx
+	mov word [dword_4E5924+2], bx
 	jmp loc_40CA58
 ;sub_40C160 endp
 
@@ -15781,7 +15839,7 @@ sub_40CB00: ;SUBROUTINE
 	jnz loc_40CD20
 
 loc_40CB42:
-	cmp word dword [dword_4E5928], 0Bh
+	cmp word [dword_4E5928], 0Bh
 	jg loc_40CBF4
 	mov eax, 58h
 	call sub_41B650
@@ -15984,10 +16042,10 @@ loc_40CDEB:
 	mov al, byte [byte_512DBF]
 
 loc_40CE28:
-	mov word dword [dword_4E5928], ax
+	mov word [dword_4E5928], ax
 	cmp byte [byte_512DD1], 0
 	jz loc_40CFFC
-	cmp word dword [dword_4E5928], 0Bh
+	cmp word [dword_4E5928], 0Bh
 	jg loc_40CFFC
 	mov ebx, [esp+0BCh]
 	mov edx, 3000h
@@ -16066,7 +16124,7 @@ loc_40CF46:
 	call sub_488620
 	xor eax, eax
 	mov al, byte [byte_512DB0]
-	mov word dword [dword_4E5928], ax
+	mov word [dword_4E5928], ax
 	xor eax, eax
 	mov ebx, [esp+0BCh]
 	mov al, byte [byte_512DB0]
@@ -16135,7 +16193,7 @@ loc_40D026:
 	call sub_488620
 	xor eax, eax
 	mov al, byte [byte_512DF5]
-	mov word dword [dword_4E5928], ax
+	mov word [dword_4E5928], ax
 	xor eax, eax
 	mov ebx, [esp+0BCh]
 	mov al, byte [byte_512DF5]
@@ -16170,7 +16228,7 @@ sub_40D0C0: ;SUBROUTINE
 	jz loc_40D0F5
 	cmp eax, 7 ; switch 8 cases
 	ja loc_40D0EA ; jumptable 0040D0DA default case
-	jmp dword off_40D0A0[eax*4] ; switch jump
+	jmp off_40D0A0[eax*4] ; switch jump
 
 loc_40D0E1:
 	mov edx, [ecx+2C4h] ; jumptable 0040D0DA case 0
@@ -16339,7 +16397,7 @@ loc_40D24B:
 	call sub_40CB00
 	xor eax, eax
 	mov dword [dword_4D20A0], eax
-	mov eax, dword byte [byte_4D3ECC]
+	mov eax, dword [byte_4D3ECC]
 	xor edx, edx
 	sar eax, 10h
 	call sub_4276F0
@@ -16819,7 +16877,7 @@ loc_40D9C5:
 	call sub_4833C7
 	mov ebp, dword [dword_4E5914]
 	add ebp, eax
-	mov word dword [dword_4E5928+2], bx
+	mov word [dword_4E5928+2], bx
 	mov dword [dword_4E5914], ebp
 
 loc_40D9DF:
@@ -16831,7 +16889,7 @@ loc_40D9F2:
 	mov eax, 1
 	mov ebx, [esp+114h]
 	xor ecx, ecx
-	mov word dword [dword_4E5924+2], ax
+	mov word [dword_4E5924+2], ax
 	mov dword [dword_4D2310], ecx
 	test ebx, ebx
 	jz loc_40DA17
@@ -17035,7 +17093,7 @@ sub_40DC40: ;SUBROUTINE
 	sar eax, 10h
 	xor ebx, ebx
 	call sub_40DDD0
-	mov eax, dword byte [byte_4D3ECC]
+	mov eax, dword [byte_4D3ECC]
 	mov edx, dword [dword_4E5914]
 	sar eax, 10h
 	mov dword [dword_4D20A0], ebx
@@ -17385,7 +17443,7 @@ loc_40DF5B:
 	pop edi
 	mov ecx, 1
 	mov eax, dword [dword_4D7708]
-	mov word dword [dword_513428], cx
+	mov word [dword_513428], cx
 	call sub_489F60
 	cmp word [word_513458], 0
 	jz loc_40DF57
@@ -17445,8 +17503,6 @@ loc_40E02E:
 	pop edi
 	ret
 ;sub_40DFD0 endp
-
-;	Attributes: bp-based frame
 
 sub_40E040: ;SUBROUTINE
 	push ebx
@@ -17645,7 +17701,7 @@ loc_40E27D:
 
 loc_40E294:
 	xor edx, edx
-	mov si, word dword [dword_513408+2]
+	mov si, word [dword_513408+2]
 	mov dword [dword_4D24DC], edx
 	cmp si, 2
 	jl loc_40E2CB
@@ -17817,7 +17873,7 @@ sub_40E420: ;SUBROUTINE
 	push edx
 	push edi
 	push ebp
-	cmp word dword [dword_513408+2], 2
+	cmp word [dword_513408+2], 2
 	jl loc_40E519
 	cmp word [word_513458], 0
 	jz loc_40E50B
@@ -17895,7 +17951,7 @@ loc_40E501:
 	ret
 
 loc_40E50B:
-	cmp word dword [dword_513428+2], 1
+	cmp word [dword_513428+2], 1
 	jz loc_40E469
 
 loc_40E519:
@@ -18007,7 +18063,7 @@ sub_40E620: ;SUBROUTINE
 	mov al, byte [byte_512DBB]
 	mov ebx, 0Ch
 	mov byte [byte_4E5A69], al
-	mov ax, word dword [dword_512D9E+2]
+	mov ax, word [dword_512D9E+2]
 	mov edx, byte_4E5A60
 	mov word [word_4E5A6A], ax
 	xor eax, eax
@@ -18145,14 +18201,14 @@ loc_40E829:
 	xor edx, edx
 	call sub_420FD0
 	or ecx, eax
-	cmp word dword [dword_513428], 0
+	cmp word [dword_513428], 0
 	jz loc_40E860
 	mov eax, dword [dword_4D7708]
 	mov ecx, 1
 	call sub_489F48
 	xor edx, edx
 	mov eax, dword [dword_4D7708]
-	mov word dword [dword_513428], dx
+	mov word [dword_513428], dx
 	call sub_489F60
 
 loc_40E860:
@@ -18232,7 +18288,7 @@ loc_40E909:
 	cmp dh, byte [byte_4E5A69]
 	jnz loc_40E807
 	mov eax, dword [dword_512D9E]
-	mov esi, dword byte [byte_4E5A68]
+	mov esi, dword [byte_4E5A68]
 	sar eax, 10h
 	sar esi, 10h
 	cmp esi, eax
@@ -18267,7 +18323,7 @@ loc_40E9BD:
 	mov byte [byte_512DBB], al
 	mov ax, word [word_4E5A6A]
 	mov edx, dword [dword_4D24E4]
-	mov word dword [dword_512D9E+2], ax
+	mov word [dword_512D9E+2], ax
 	test edx, edx
 	jz loc_40EA5F
 	xor ecx, ecx
@@ -20305,7 +20361,7 @@ sub_410330: ;SUBROUTINE
 	cmp al, 3
 	ja loc_41035E
 	and eax, 0FFh ; switch 4 cases
-	jmp dword off_410320[eax*4] ; switch jump
+	jmp off_410320[eax*4] ; switch jump
 
 loc_410348:
 	mov ecx, 118h ; jumptable 00410341 case 0
@@ -20397,7 +20453,7 @@ sub_410414: ;SUBROUTINE
 	jnz loc_410458
 	cmp di, 0Dh
 	jz loc_41055A
-	mov ax, word dword [dword_4E8B08]
+	mov ax, word [dword_4E8B08]
 	mov [esi+0Ah], ax
 	mov eax, esi
 	call sub_423E10
@@ -20480,7 +20536,7 @@ loc_410529:
 	cmp al, 18h
 	ja loc_41053C ; jumptable 00410535 cases 0,1,6,15,17,18,22,23
 	and eax, 0FFh ; switch 25 cases
-	jmp dword off_4103B0[eax*4] ; switch jump
+	jmp off_4103B0[eax*4] ; switch jump
 
 loc_41053C:
 	mov eax, ebx ; jumptable 00410535 cases 0,1,6,15,17,18,22,23
@@ -20864,7 +20920,7 @@ loc_410954:
 	pop edi
 	pop esi
 	pop ebx
-	retn
+	ret
 
 loc_41093C:
 	mov eax, 2
@@ -21568,7 +21624,7 @@ loc_411100:
 	jz loc_41112B
 	cmp word [word_513458], 0
 	jz loc_41112B
-	cmp word dword [dword_513408+2], 2
+	cmp word [dword_513408+2], 2
 	jge loc_41112B
 	call sub_41A350
 
@@ -21643,7 +21699,7 @@ loc_4111D2:
 	jmp loc_4110A1
 
 loc_4111E3:
-	cmp word dword [dword_513428+2], 1
+	cmp word [dword_513428+2], 1
 	jz loc_4110F1
 
 loc_4111F1:
@@ -23259,7 +23315,7 @@ sub_412670: ;SUBROUTINE
 	mov [esp+154h], edx
 	mov ecx, 0Ch
 	mov si, word [word_4D3ECE]
-	mov word dword [dword_4E5FF8+2], cx
+	mov word [dword_4E5FF8+2], cx
 	cmp si, 3
 	jz loc_412A8D
 	xor eax, eax
@@ -24140,7 +24196,7 @@ loc_4132C0:
 	cmp bl, 4
 	ja loc_4132F7 ; jumptable 004132F0 case 0
 	and ebx, 0FFh ; switch 5 cases
-	jmp dword off_4131B0[ebx*4] ; switch jump
+	jmp off_4131B0[ebx*4] ; switch jump
 
 loc_4132F7:
 	movsx ebx, ax ; jumptable 004132F0 case 0
@@ -24175,7 +24231,7 @@ loc_41334A:
 	imul edi, ebx, 684h
 	test byte [edi+esi+1F4h], 4
 	jnz loc_413391
-	mov bx, word dword [dword_512264]
+	mov bx, word [dword_512264]
 	mov [esp+20h], bx
 
 loc_41336D:
@@ -24628,7 +24684,7 @@ loc_4137DF:
 	call sub_41A3A0
 	cmp eax, 7 ; switch 8 cases
 	ja loc_4137F5 ; jumptable 004137EE default case
-	jmp dword off_413630[eax*4] ; switch jump
+	jmp off_413630[eax*4] ; switch jump
 
 loc_4137F5:
 	mov eax, dword [dword_4D76B8] ; jumptable 004137EE default case
@@ -24731,7 +24787,7 @@ sub_413914: ;SUBROUTINE
 	mov eax, dword [dword_512208]
 	cmp eax, 4 ; switch 5 cases
 	ja loc_413934 ; jumptable 0041392D default case
-	jmp dword off_413900[eax*4] ; switch jump
+	jmp off_413900[eax*4] ; switch jump
 
 loc_413934:
 	mov esi, dword_512F4C ; jumptable 0041392D default case
@@ -25990,7 +26046,7 @@ loc_4148A2:
 	mov ebp, eax
 	cmp ebx, 1
 	jz loc_414A9C
-	mov ax, word dword [dword_51220C]
+	mov ax, word [dword_51220C]
 	mov [esp+88h], ax
 	mov ebx, esp
 	mov edx, [esp+86h]
@@ -27873,7 +27929,7 @@ loc_415F37:
 	jmp loc_415EC2
 
 loc_415F42:
-	mov ax, word dword [dword_51220C]
+	mov ax, word [dword_51220C]
 	mov [esp+4EC4h], ax
 	jmp loc_415EFB
 
@@ -28396,13 +28452,12 @@ loc_416674:
 	sar ecx, 10h
 	cmp edx, ecx
 	jge loc_4166D5
-	cmp bx, word (dword_513436+2)[eax]
 	inc edx
 	add eax, 2
 	jmp loc_416674
 
 loc_41668E:
-	mov di, word dword [dword_513428+2]
+	mov di, word [dword_513428+2]
 	cmp bx, di
 	jz loc_416532
 	cmp di, 1
@@ -28410,7 +28465,7 @@ loc_41668E:
 	jmp loc_4165BB
 
 loc_4166AD:
-	mov bx, word dword [dword_513428+2]
+	mov bx, word [dword_513428+2]
 	cmp bx, 16h
 	jz loc_416532
 	cmp bx, 2
@@ -28520,7 +28575,7 @@ loc_4167B1:
 	ret
 
 loc_4167BC:
-	mov ax, word dword [dword_513428+2]
+	mov ax, word [dword_513428+2]
 	cmp ax, 1
 	jnz loc_416839
 
@@ -28531,7 +28586,7 @@ loc_4167C8:
 loc_4167D3:
 	mov eax, 308h
 	call sub_402CD0
-	mov si, word dword [dword_513428+2]
+	mov si, word [dword_513428+2]
 	cmp si, 2
 	jnz loc_416805
 	mov al, 3
@@ -28565,7 +28620,7 @@ loc_416839:
 	jz loc_4167C8
 
 loc_41683F:
-	cmp word dword [dword_513428+2], 16h
+	cmp word [dword_513428+2], 16h
 	jnz loc_4167B1
 	mov al, 3
 	add esp, 14h
@@ -28670,7 +28725,7 @@ loc_41696C:
 	mov edx, dword [dword_512208]
 	cmp edx, 4 ; switch 5 cases
 	ja loc_416997 ; jumptable 00416990 default case
-	jmp dword off_416870[edx*4] ; switch jump
+	jmp off_416870[edx*4] ; switch jump
 
 loc_416997:
 	mov edi, dword [dword_51220C] ; jumptable 00416990 default case
@@ -29609,7 +29664,7 @@ loc_417727:
 	ret
 
 loc_417753:
-	mov ax, word dword [dword_51220C]
+	mov ax, word [dword_51220C]
 	mov [esp+4EC8h], ax
 	jmp loc_417336
 
@@ -30166,7 +30221,7 @@ loc_417F7A:
 	mov eax, dword [dword_512208]
 	cmp eax, 4 ; switch 5 cases
 	ja loc_417F8B ; jumptable 00417F84 default case
-	jmp dword off_417DC0[eax*4] ; switch jump
+	jmp off_417DC0[eax*4] ; switch jump
 
 loc_417F8B:
 	mov eax, dword [dword_51221C] ; jumptable 00417F84 default case
@@ -30344,7 +30399,7 @@ loc_418236:
 	jmp loc_4181C9
 
 loc_41827F:
-	mov ax, word dword [dword_51220C] ; jumptable 00417F84 cases 2,3
+	mov ax, word [dword_51220C] ; jumptable 00417F84 cases 2,3
 	lea edx, [esp+4ED0h]
 	mov [esp+4F30h], ax
 	mov eax, esp
@@ -30353,7 +30408,7 @@ loc_41827F:
 	jmp loc_417F8B ; jumptable 00417F84 default case
 
 loc_4182A2:
-	mov ax, word dword [dword_51220C] ; jumptable 00417F84 case 4
+	mov ax, word [dword_51220C] ; jumptable 00417F84 case 4
 	mov [esp+4F30h], ax
 	xor eax, eax
 	cmp bx, 1
@@ -31403,7 +31458,7 @@ loc_41923D:
 	mov eax, dword [dword_512208]
 	cmp eax, 4 ; switch 5 cases
 	ja loc_41924E ; jumptable 00419247 default case
-	jmp dword off_419030[eax*4] ; switch jump
+	jmp off_419030[eax*4] ; switch jump
 
 loc_41924E:
 	xor eax, eax ; jumptable 00419247 default case
@@ -31982,7 +32037,7 @@ loc_419AC4:
 	mov [esp+4F64h], ax
 
 loc_419ADC:
-	mov ax, word dword [dword_51220C] ; jumptable 00419247 case 4
+	mov ax, word [dword_51220C] ; jumptable 00419247 case 4
 	mov [esp+4F68h], ax
 	xor eax, eax
 	cmp cx, 1
@@ -32355,8 +32410,8 @@ loc_41A015:
 
 sub_41A020: ;SUBROUTINE
 	push edx
-	mov dx, word dword [dword_512268]
-	mov ax, word dword [dword_512264]
+	mov dx, word [dword_512268]
+	mov ax, word [dword_512264]
 	add eax, edx
 	cmp ax, 1
 	jge loc_41A03B
@@ -32578,8 +32633,8 @@ sub_41A240: ;SUBROUTINE
 	push esi
 	push edi
 	mov esi, eax
-	mov di, word dword [dword_512264]
-	mov dx, word dword [dword_512268]
+	mov di, word [dword_512264]
+	mov dx, word [dword_512268]
 	xor eax, eax
 	xor ebx, ebx
 	add edi, edx
@@ -32717,11 +32772,6 @@ loc_41A3BF:
 	pop ecx
 	ret
 ;sub_41A3A0 endp
-
-sub_41A3D0: ;SUBROUTINE
-	cmp eax, 0Fh
-	ret
-;sub_41A3D0 endp
 
 sub_41A3E0: ;SUBROUTINE
 	cmp eax, 24h
@@ -32941,7 +32991,7 @@ loc_41A603:
 
 loc_41A611:
 	mov esi, 1
-	mov cx, word dword [dword_512264]
+	mov cx, word [dword_512264]
 
 loc_41A61D:
 	mov edx, [esp+46h]
@@ -32991,7 +33041,7 @@ loc_41A67B:
 loc_41A689:
 	cmp bx, 1
 	jnz loc_41A6B7
-	mov ax, word dword [dword_512264]
+	mov ax, word [dword_512264]
 
 loc_41A695:
 	mov ecx, [esp+46h]
@@ -33291,7 +33341,7 @@ loc_41A9AE:
 	pop esi
 	pop ecx
 	pop ebx
-	retn
+	ret
 
 loc_41A9CE:
 	mov eax, [esp+36Eh]
@@ -33589,7 +33639,7 @@ loc_41AC7B:
 	pop esi
 	pop ecx
 	pop ebx
-	retn
+	ret
 ;sub_41A830 endp
 
 sub_41ACA0: ;SUBROUTINE
@@ -34000,8 +34050,6 @@ loc_41B13C:
 	pop ebx
 	ret
 ;sub_41B040 endp
-
-;	Attributes: bp-based frame
 
 sub_41B150: ;SUBROUTINE
 	push ebx
@@ -34715,7 +34763,7 @@ sub_41B8D0: ;SUBROUTINE
 	mov [esp+0C8h], eax
 	mov ecx, 6
 	lea edi, [esp+0A0h]
-	mov ax, word dword [dword_5121FC]
+	mov ax, word [dword_5121FC]
 	xor edx, edx
 	mov esi, off_41B8B8
 	mov [esp+0CCh], edx
@@ -38055,7 +38103,7 @@ loc_41E148:
 loc_41E14E:
 	mov ebx, dword [dword_4D4B4C]
 	inc ebx
-	mov si, word dword [word_4E61B8]
+	mov si, word [word_4E61B8]
 	mov dword [dword_4D4B4C], ebx
 	test si, si
 	jz loc_41E195
@@ -38270,7 +38318,7 @@ loc_41E366:
 loc_41E375:
 	mov edx, [esp]
 	mov [edx], eax
-	mov dx, word dword [word_4E61B8]
+	mov dx, word [word_4E61B8]
 	test dx, dx
 	jz loc_41E442
 	xor eax, eax
@@ -39301,7 +39349,7 @@ loc_41EE0C:
 	test eax, eax
 	jz loc_41EDBB
 	lea edi, [esi+54h]
-	mov edx, loc_41F710
+	mov edx, sub_41F710
 	mov ebx, esi
 	mov eax, edi
 	call sub_48BFFC
@@ -39559,17 +39607,17 @@ loc_41F0AD:
 	mov [esp], eax
 	call sub_48BA2C
 	lea eax, [edi+54h]
-	mov edx, loc_41F740
+	mov edx, sub_41F740
 	mov ebx, edi
 	call sub_48BA2C
-	mov edx, loc_41F740
+	mov edx, sub_41F740
 	lea eax, [edi+78h]
 	mov dword [edi+70h], 1
 	mov ebx, edi
 	mov dword [edi+74h], 1
 	call sub_48BA2C
 	lea eax, [edi+94h]
-	mov edx, loc_41F740
+	mov edx, sub_41F740
 	mov ebx, edi
 	call sub_48BA2C
 	mov eax, [esp+14h]
@@ -39879,8 +39927,6 @@ loc_41F4CB:
 	ret
 ;sub_41EF30 endp
 
-;	Attributes: bp-based frame
-
 sub_41F4E0: ;SUBROUTINE
 	push ebx
 	push ecx
@@ -40103,7 +40149,7 @@ sub_41F700: ;SUBROUTINE
 	ret
 ;sub_41F700 endp
 
-loc_41F710:
+sub_41F710: ;SUBROUTINE
 	mov edx, [eax+8]
 	test edx, edx
 	jle loc_41F726
@@ -40124,10 +40170,12 @@ loc_41F72C:
 	mov eax, 1
 	pop ecx
 	ret
+;sub_41F710 endp
 
-loc_41F740:
+sub_41F740: ;SUBROUTINE
 	mov eax, [eax+4]
 	ret
+;sub_41F740 endp
 
 sub_41F750: ;SUBROUTINE
 	push ebx
@@ -40632,7 +40680,7 @@ loc_41FBBD:
 	xor ecx, ecx
 	push 0
 	xor ebx, ebx
-	mov eax, aAck? ; "ack?"
+	mov eax, aAckQ ; "ack?"
 	call sub_48B724
 	jmp loc_41FB87
 
@@ -40763,8 +40811,6 @@ loc_41FCF1:
 	xor esi, esi
 	jmp loc_41FCD5
 ;sub_41FC60 endp
-
-;	Attributes: bp-based frame
 
 sub_41FD00: ;SUBROUTINE
 	push ebx
@@ -42796,12 +42842,12 @@ loc_4220B2:
 	jnz loc_422187
 	test byte [esp+eax+4], 80h
 	jz loc_422178
-	mov ch, byte dword [dword_4E8950]
+	mov ch, byte [dword_4E8950]
 	or ch, 1
 	or dl, 1
 
 loc_4220D5:
-	mov byte dword [dword_4E8950], ch
+	mov byte [dword_4E8950], ch
 
 loc_4220DB:
 	add eax, 10h
@@ -42889,7 +42935,7 @@ loc_422187:
 	jnz loc_4221B3
 	test byte [esp+eax+4], 80h
 	jz loc_4221A4
-	mov ch, byte dword [dword_4E8950]
+	mov ch, byte [dword_4E8950]
 	or ch, 2
 	or dl, 2
 	jmp loc_4220D5
@@ -42903,7 +42949,7 @@ loc_4221B3:
 	jnz loc_4221DF
 	test byte [esp+eax+4], 80h
 	jz loc_4221D0
-	mov ch, byte dword [dword_4E8950]
+	mov ch, byte [dword_4E8950]
 	or ch, 4
 	or dl, 4
 	jmp loc_4220D5
@@ -42917,7 +42963,7 @@ loc_4221DF:
 	jnz loc_42220B
 	test byte [esp+eax+4], 80h
 	jz loc_4221FC
-	mov ch, byte dword [dword_4E8950]
+	mov ch, byte [dword_4E8950]
 	or ch, 8
 	or dl, 8
 	jmp loc_4220D5
@@ -43841,7 +43887,7 @@ loc_422B23:
 	cmp cl, 0Ch
 	ja loc_422C1D
 	and ecx, 0FFh ; switch 13 cases
-	jmp dword off_422A00[ecx*4] ; switch jump
+	jmp off_422A00[ecx*4] ; switch jump
 
 loc_422BCA:
 	mov dword dword_4E7974[eax], 4 ; jumptable 00422BC3 case 0
@@ -43954,7 +44000,7 @@ loc_422D24:
 	jmp loc_422BD4
 
 loc_422D33:
-	mov ax, word dword [dword_4D4C60]
+	mov ax, word [dword_4D4C60]
 	cwde
 	mov eax, dword dword_4E88C0[eax*4]
 	push eax
@@ -45692,7 +45738,7 @@ loc_423F55:
 loc_423F6E:
 	call sub_4824BC
 	mov eax, ebp
-	mov edi, loc_4242E0
+	mov edi, sub_4242E0
 	call sub_423E10
 	mov dword [off_4DAC4C], edi
 	add esp, 104h
@@ -45721,7 +45767,7 @@ loc_423FC4:
 	ja loc_424072
 	test byte [edx+2], 1
 	jnz loc_423F55
-	mov eax, dword byte [byte_4E8C04]
+	mov eax, dword [byte_4E8C04]
 	mov ecx, [esp+100h]
 	sar eax, 10h
 	add edx, 4
@@ -45740,7 +45786,7 @@ loc_424007:
 	sar edx, 14h
 	add edx, edi
 	mov esi, edx
-	mov edx, dword byte [byte_4E8C04]
+	mov edx, dword [byte_4E8C04]
 	sar edx, 10h
 	mov word (dword_4E8AA6+2)[edx*2], si
 	add si, [ecx+6]
@@ -45763,7 +45809,7 @@ loc_424007:
 loc_424072:
 	cmp al, 2
 	jnz loc_423F55
-	mov eax, dword byte [byte_4E8C04]
+	mov eax, dword [byte_4E8C04]
 	sar eax, 10h
 	mov ecx, [esp+100h]
 	mov word (dword_4E89B6+2)[eax*2], cx
@@ -45791,7 +45837,7 @@ loc_4240B8:
 	mov eax, [edx]
 	sar eax, 10h
 	call sub_41B650
-	mov ecx, dword byte [byte_4E8C04]
+	mov ecx, dword [byte_4E8C04]
 	sar ecx, 10h
 	mov word (dword_4E8AA6+2)[ecx*2], ax
 	mov eax, [edx]
@@ -45799,7 +45845,7 @@ loc_4240B8:
 	call sub_41B6F0
 	mov si, word (dword_4E8AA6+2)[ecx*2]
 	mov ecx, eax
-	mov eax, dword byte [byte_4E8C04]
+	mov eax, dword [byte_4E8C04]
 	add ecx, esi
 	sar eax, 10h
 	add ecx, 0Ch
@@ -45818,7 +45864,7 @@ loc_42411F:
 	mov eax, [edx]
 	sar eax, 10h
 	call sub_41B670
-	mov ecx, dword byte [byte_4E8C04]
+	mov ecx, dword [byte_4E8C04]
 	sar ecx, 10h
 	add eax, 0Ch
 	mov word (dword_4E8A06+2)[ecx*2], ax
@@ -45826,7 +45872,7 @@ loc_42411F:
 	call sub_482424
 	mov cx, word (dword_4E8A06+2)[ecx*2]
 	sub ecx, eax
-	mov eax, dword byte [byte_4E8C04]
+	mov eax, dword [byte_4E8C04]
 	sar eax, 10h
 	sub ecx, 0Ch
 	mov word (dword_4E8A56+2)[eax*2], cx
@@ -45834,14 +45880,14 @@ loc_42411F:
 loc_424163:
 	cmp byte [edx+9], 12h
 	jnz loc_42417B
-	mov eax, dword byte [byte_4E8C04]
+	mov eax, dword [byte_4E8C04]
 	sar eax, 10h
 	add word (dword_4E8A06+2)[eax*2], 12Ch
 
 loc_42417B:
 	cmp byte [edx+9], 0Dh
 	jnz loc_424193
-	mov eax, dword byte [byte_4E8C04]
+	mov eax, dword [byte_4E8C04]
 	sar eax, 10h
 	add word (dword_4E8A06+2)[eax*2], 0F0h
 
@@ -45850,14 +45896,14 @@ loc_424193:
 	jz loc_4241B0
 	test byte [edx+8], 8
 	jnz loc_4241B0
-	mov eax, dword byte [byte_4E8C04]
+	mov eax, dword [byte_4E8C04]
 	sar eax, 10h
 	add word (dword_4E8A06+2)[eax*2], 78h
 
 loc_4241B0:
 	cmp byte [edx+9], 5
 	jnz loc_4241C7
-	mov eax, dword byte [byte_4E8C04]
+	mov eax, dword [byte_4E8C04]
 	sar eax, 10h
 	add word (dword_4E8A06+2)[eax*2], 6Eh
 
@@ -45876,14 +45922,14 @@ loc_4241E6:
 	mov eax, [edx]
 	sar eax, 10h
 	call sub_41B670
-	mov ecx, dword byte [byte_4E8C04]
+	mov ecx, dword [byte_4E8C04]
 	sar ecx, 10h
 	mov word (dword_4E8A56+2)[ecx*2], ax
 	mov eax, esp
 	call sub_482424
 	mov cx, word (dword_4E8A56+2)[ecx*2]
 	add ecx, eax
-	mov eax, dword byte [byte_4E8C04]
+	mov eax, dword [byte_4E8C04]
 	sar eax, 10h
 	mov word (dword_4E8A06+2)[eax*2], cx
 	jmp loc_424163
@@ -45951,9 +45997,10 @@ sub_4242C0: ;SUBROUTINE
 	jmp sub_4222F0
 ;sub_4242C0 endp
 
-loc_4242E0:
+sub_4242E0: ;SUBROUTINE
 	inc dword [dword_4D4C88]
 	ret
+;sub_4242E0 endp
 
 sub_4242F0: ;SUBROUTINE
 	push ecx
@@ -46533,8 +46580,6 @@ loc_42495D:
 	ret
 ;sub_4248D0 endp
 
-;	Attributes: bp-based frame
-
 sub_424970: ;SUBROUTINE
 	push ebx
 	push ecx
@@ -46886,7 +46931,7 @@ sub_424E60: ;SUBROUTINE
 	mov [esp+54h], edx
 	cmp ecx, 1
 	jl loc_424F08
-	mov ax, word dword [dword_51220C]
+	mov ax, word [dword_51220C]
 
 loc_424E8A:
 	cwde
@@ -46896,7 +46941,6 @@ loc_424E8A:
 	add edx, eax
 	mov eax, [edx+21Ch]
 	mov eax, [eax]
-	call sub_41A3D0
 	mov esi, [edx+280h]
 	mov [esp+78h], edx
 	cmp esi, 2
@@ -47011,7 +47055,7 @@ loc_424F0F:
 	mov eax, [eax+21Ch]
 	mov ax, [eax]
 	mov [ebp+0], ax
-	mov ax, word dword [dword_5121FC]
+	mov ax, word [dword_5121FC]
 	mov [ebp+2], ax
 	mov eax, [esp+78h]
 	mov ebx, esp
@@ -47108,8 +47152,6 @@ off_425120: dd loc_425542
 	dd loc_42558C ; jump table for switch statement
 	dd loc_425874
 	dd loc_4258BB
-
-;	Attributes: bp-based frame
 
 sub_425130: ;SUBROUTINE
 	push esi
@@ -47418,7 +47460,7 @@ loc_425571:
 loc_42557B:
 	xor eax, eax
 	mov ax, [esp+0E0h]
-	jmp dword off_425120[eax*4] ; switch jump
+	jmp off_425120[eax*4] ; switch jump
 
 loc_42558C:
 	xor edx, edx ; jumptable 00425585 case 1
@@ -48190,7 +48232,7 @@ loc_4261B0:
 	xor eax, eax
 	mov ebx, [esp+92h]
 	mov al, byte [byte_512DBA]
-	mov si, word dword [dword_512228]
+	mov si, word [dword_512228]
 	mov dword [dword_512228], eax
 	mov eax, [esp+8Ah]
 	mov edx, [esp+70h]
@@ -48940,87 +48982,6 @@ loc_426B84:
 	ret
 ;sub_426B70 endp
 
-;	START OF FUNCTION CHUNK FOR sub_405CF0
-
-loc_426BA0:
-	push ecx
-	push esi
-	push edi
-	push ebp
-	sub esp, 8
-	mov esi, eax
-	mov edi, edx
-	mov [esp+4], ebx
-	mov eax, dword [dword_4D20A4]
-	or eax, 0FF000000h
-	mov [esp], eax
-	cmp byte [esi], 0
-	jz loc_426C27
-
-loc_426BC1:
-	mov ebp, dword [dword_4E54AC]
-	mov al, [esi]
-	cmp ebp, 24h
-	jnz loc_426C3E
-	cmp al, 20h
-	jnz loc_426C2F
-	mov ah, 0FAh
-
-loc_426BD8:
-	xor edx, edx
-	mov dl, ah
-	xor ebx, ebx
-	mov bl, byte byte_4EC3AC[edx]
-	and eax, 0FFh
-	push eax
-	mov ecx, [esp+4]
-	push ecx
-	movzx ebp, byte byte_4EC2B0[edx]
-	push 33h
-	xor eax, eax
-	mov ecx, edi
-	push ebx
-	mov ebx, [esp+14h]
-	mov al, byte byte_4EC0B8[edx]
-	push ebx
-	xor ebx, ebx
-	mov eax, dword dword_4EC4B0[eax*4]
-	mov bl, byte byte_4EC1B4[edx]
-	mov edx, ebp
-	inc esi
-	call sub_426C50
-	mov dl, [esi]
-	add edi, eax
-	test dl, dl
-	jnz loc_426BC1
-
-loc_426C27:
-	add esp, 8
-	pop ebp
-	pop edi
-	pop esi
-	pop ecx
-	ret
-
-loc_426C2F:
-	cmp al, 0D6h
-	jnz loc_426C37
-	mov ah, 0FBh
-	jmp loc_426BD8
-
-loc_426C37:
-	mov ah, al
-	add ah, 9Fh
-	jmp loc_426BD8
-
-loc_426C3E:
-	mov ah, al
-	sub ah, 20h
-	jmp loc_426BD8
-;	END OF FUNCTION CHUNK FOR sub_405CF0
-
-;	Attributes: bp-based frame
-
 sub_426C50: ;SUBROUTINE
 	push esi
 	push edi
@@ -49437,12 +49398,12 @@ loc_4271BF:
 	call sub_482740
 
 loc_4271C4:
-	mov al, byte dword [dword_4EC4AC]
+	mov al, byte [dword_4EC4AC]
 	mov byte byte_4EC0B8[esi], al
-	mov al, byte dword [dword_4EC0B4]
+	mov al, byte [dword_4EC0B4]
 	mov ebx, dword [dword_4EC0B0]
 	mov byte byte_4EC2B0[esi], al
-	mov al, byte dword [dword_4EC0B0]
+	mov al, byte [dword_4EC0B0]
 	mov edx, dword [dword_4EC0B4]
 	mov byte byte_4EC1B4[esi], al
 	mov eax, edi
@@ -49544,7 +49505,7 @@ loc_4272A4:
 	call sub_427B30
 	cmp dword [esp], 0
 	jz loc_4272F3
-	mov eax, dword byte [byte_4D3ECC]
+	mov eax, dword [byte_4D3ECC]
 	xor edx, edx
 	sar eax, 10h
 	call sub_4276F0
@@ -49598,7 +49559,7 @@ loc_42733A:
 	call sub_427B30
 	cmp dword [esp+4], 0
 	jz loc_42738A
-	mov eax, dword byte [byte_4D3ECC]
+	mov eax, dword [byte_4D3ECC]
 	xor edx, edx
 	sar eax, 10h
 	call sub_4276F0
@@ -49747,8 +49708,6 @@ loc_4274B5:
 	pop ebx
 	ret
 ;sub_427450 endp
-
-;	Attributes: bp-based frame
 
 sub_4274F0: ;SUBROUTINE
 	push esi
@@ -51240,13 +51199,13 @@ sub_4286B0: ;SUBROUTINE
 	call sub_4289F0
 	finit
 	wait
-	fstcw word dword [dword_4EC4C4]
+	fstcw word [dword_4EC4C4]
 	wait
 	mov eax, dword [dword_4EC4C4]
 	mov dword [dword_4EC4C0], eax
 	and eax, 0FFFFFCFFh
 	mov dword [dword_4EC4C4], eax
-	fldcw word dword [dword_4EC4C4]
+	fldcw word [dword_4EC4C4]
 	wait
 	call sub_4287C0
 	mov eax, 0FF000000h
@@ -51275,7 +51234,7 @@ sub_428730: ;SUBROUTINE
 	call sub_482740
 	finit
 	wait
-	fldcw word dword [dword_4EC4C0]
+	fldcw word [dword_4EC4C0]
 	wait
 	pop edx
 	pop ecx
@@ -51325,7 +51284,7 @@ sub_4287F0: ;SUBROUTINE
 	push edx
 	finit
 	wait
-	fldcw word dword [dword_4EC4C0]
+	fldcw word [dword_4EC4C0]
 	wait
 	xor edx, edx
 	mov eax, dword [dword_4D4D28]
@@ -51383,13 +51342,13 @@ loc_428868:
 	call sub_482740
 	finit
 	wait
-	fstcw word dword [dword_4EC4C4]
+	fstcw word [dword_4EC4C4]
 	wait
 	mov eax, dword [dword_4EC4C4]
 	mov dword [dword_4EC4C0], eax
 	and eax, 0FFFFFCFFh
 	mov dword [dword_4EC4C4], eax
-	fldcw word dword [dword_4EC4C4]
+	fldcw word [dword_4EC4C4]
 	wait
 	pop ecx
 	pop ebx
@@ -51643,14 +51602,14 @@ loc_428C9A:
 	call sub_49AFA0
 	cmp dword [dword_4DAB5C], 0
 	jnz loc_428CE0
-	test byte dword [dword_4DAB88], 1
+	test byte [dword_4DAB88], 1
 	jnz loc_428DE4
 	mov eax, 1
 
 loc_428CC6:
 	call sub_428A70
 	mov eax, sub_428E20
-	mov edx, loc_428E10
+	mov edx, sub_428E10
 	call atexit_
 	mov dword [dword_4DAC04], edx
 
@@ -51755,12 +51714,13 @@ loc_428DEB:
 	pop esi
 	pop ecx
 	ret
+;sub_428C60 endp
 
-loc_428E10:
+sub_428E10: ;SUBROUTINE
 	call sub_428E20
 	xor eax, eax
 	ret
-;sub_428C60 endp
+;sub_428E10 endp
 
 sub_428E20: ;SUBROUTINE
 	cmp dword [dword_4DAB5C], 0
@@ -51813,17 +51773,6 @@ sub_428EB0: ;SUBROUTINE
 	mov dword [dword_4EC648], 1
 	ret
 ;sub_428EB0 endp
-
-nullsub_57: ;SUBROUTINE
-	ret
-;nullsub_57 endp
-
-;	START OF FUNCTION CHUNK FOR sub_46F660
-
-loc_428EE0:
-	call sub_49C110
-	jmp sub_42A450
-;	END OF FUNCTION CHUNK FOR sub_46F660
 
 sub_428F20: ;SUBROUTINE
 	push ecx
@@ -52042,7 +51991,7 @@ sub_429170: ;SUBROUTINE
 	mov eax, dword [dword_5117B0]
 	cmp eax, 7 ; switch 8 cases
 	ja loc_429FD1 ; jumptable 00429186 default case
-	jmp dword off_429150[eax*4] ; switch jump
+	jmp off_429150[eax*4] ; switch jump
 
 loc_42918D:
 	mov eax, dword [dword_5117C4] ; jumptable 00429186 case 0
@@ -53828,96 +53777,6 @@ sub_42A3F0: ;SUBROUTINE
 	ret
 ;sub_42A3F0 endp
 
-loc_42A420:
-	push ebx
-	push edx
-	push esi
-	mov edx, sub_42B6B0
-	mov ebx, sub_42B970
-	mov esi, sub_42BBA0
-	mov dword [dword_4EC524], edx
-	mov dword [dword_4EC528], ebx
-	mov dword [dword_4EC52C], esi
-	mov dword [dword_4EC520], edx
-	pop esi
-	pop edx
-	pop ebx
-	ret
-
-sub_42A450: ;SUBROUTINE
-	push ebx
-	push ecx
-	push edx
-	push esi
-	push edi
-	push ebp
-	mov ecx, sub_42A8B0
-	mov esi, nullsub_9
-	mov ebp, sub_42C4C0
-	mov edx, nullsub_11
-	mov ebx, sub_42A7D0
-	mov edi, loc_42AD70
-	mov eax, sub_42AAC0
-	mov dword [dword_4EC544], ecx
-	mov dword [dword_4EC504], esi
-	mov dword [dword_4EC508], esi
-	mov dword [dword_4EC50C], ebp
-	mov dword [dword_4EC510], ebp
-	mov dword [dword_4EC514], ebp
-	mov dword [dword_4EC558], ebp
-	mov dword [dword_4EC500], edx
-	mov dword [dword_4EC548], ebx
-	mov dword [dword_4EC554], edi
-	mov dword [dword_4EC54C], eax
-	mov ecx, sub_42C8B0
-	mov esi, sub_42AD80
-	mov ebp, sub_42ABF0
-	mov edx, sub_42A980
-	mov ebx, sub_42BCD0
-	mov edi, sub_42B320
-	mov eax, sub_42B970
-	mov dword [dword_4EC518], ecx
-	mov dword [dword_4EC550], esi
-	mov dword [dword_4EC578], ebp
-	mov dword [dword_4EC574], edx
-	mov dword [dword_4EC584], ebx
-	mov dword [dword_4EC580], edi
-	mov dword [dword_4EC528], eax
-	mov ecx, sub_42C0D0
-	mov esi, sub_42B6B0
-	mov edx, sub_42BBA0
-	mov ebx, sub_42AF00
-	mov eax, sub_42A710
-	mov edi, loc_42A680
-	mov dword [dword_4EC51C], ecx
-	mov dword [dword_4EC520], esi
-	mov dword [dword_4EC524], esi
-	mov dword [dword_4EC52C], edx
-	mov dword [dword_4EC57C], ebx
-	mov dword [dword_4EC560], eax
-	mov dword [dword_4EC56C], edi
-	mov ecx, sub_42B170
-	mov edx, loc_42A700
-	mov ebx, nullsub_10
-	mov esi, loc_42A6D0
-	mov dword [dword_4EC530], ecx
-	mov dword [dword_4EC534], ecx
-	mov dword [dword_4EC538], ecx
-	mov dword [dword_4EC53C], ecx
-	mov dword [dword_4EC55C], edx
-	mov dword [dword_4EC570], ebx
-	mov ecx, loc_42A6F0
-	mov dword [dword_4EC568], esi
-	mov dword [dword_4EC564], ecx
-	pop ebp
-	pop edi
-	pop esi
-	pop edx
-	pop ecx
-	pop ebx
-	ret
-;sub_42A450 endp
-
 nullsub_9: ;SUBROUTINE
 	ret
 ;nullsub_9 endp
@@ -54006,7 +53865,7 @@ nullsub_10: ;SUBROUTINE
 	ret
 ;nullsub_10 endp
 
-loc_42A680:
+sub_42A680: ;SUBROUTINE
 	push ecx
 	push edx
 	mov edx, [eax+0Ch]
@@ -54051,22 +53910,53 @@ loc_42A6B4:
 	pop edx
 	pop ecx
 	ret
+;sub_42A680 endp
 
-loc_42A6D0:
+sub_42A6D0: ;SUBROUTINE
 	mov al, [eax+8]
 	and eax, 0FFh
 	shl eax, 0Ah
 	add eax, dword_545944
-	jmp loc_42CD20
+	cmp eax, dword [dword_4D4E8C]
+	jnz loc_42CD29
+	ret
 
-loc_42A6F0:
-	jmp loc_42A420
+loc_42CD29:
+	push edx
+	push ecx
+	push eax
+	push 0
+	push 0
+	mov dword [dword_4D4E8C], eax
+	call sub_49755C
+	pop ecx
+	pop edx
+	ret
+;sub_42A6D0 endp
 
-loc_42A700:
+sub_42A6F0: ;SUBROUTINE
+	push ebx
+	push edx
+	push esi
+	mov edx, sub_42B6B0
+	mov ebx, sub_42B970
+	mov esi, sub_42BBA0
+	mov dword [dword_4EC524], edx
+	mov dword [dword_4EC528], ebx
+	mov dword [dword_4EC52C], esi
+	mov dword [dword_4EC520], edx
+	pop esi
+	pop edx
+	pop ebx
+	ret
+;sub_42A6F0 endp
+
+sub_42A700: ;SUBROUTINE
 	mov al, [eax+8]
 	and eax, 0FFh
 	mov dword [dword_4EC654], eax
 	ret
+;sub_42A700 endp
 
 sub_42A710: ;SUBROUTINE
 	push ebx
@@ -54598,9 +54488,6 @@ loc_42AD52:
 	jmp loc_42AD30
 ;sub_42ABF0 endp
 
-loc_42AD70:
-	jmp sub_42AD80
-
 sub_42AD80: ;SUBROUTINE
 	push ebx
 	push ecx
@@ -54856,7 +54743,7 @@ loc_42B020:
 
 loc_42B08E:
 	mov eax, 0Ch
-	jmp dword off_42AEE0[eax]
+	jmp off_42AEE0[eax]
 
 loc_42B099:
 	push 0
@@ -54881,7 +54768,7 @@ loc_42B0A1:
 	push 0
 	call grTexClampMode
 	xor eax, eax
-	jmp dword off_42AEF0[eax]
+	jmp off_42AEF0[eax]
 
 loc_42B0D6:
 	push eax
@@ -55327,7 +55214,7 @@ loc_42B4E5:
 
 loc_42B56E:
 	mov eax, 0Ch
-	jmp dword off_42B300[eax]
+	jmp off_42B300[eax]
 
 loc_42B579:
 	push 0
@@ -55353,7 +55240,7 @@ loc_42B581:
 	push 0
 	call grTexClampMode
 	xor eax, eax
-	jmp dword off_42B310[eax]
+	jmp off_42B310[eax]
 
 loc_42B5BA:
 	push eax
@@ -55955,7 +55842,7 @@ loc_42BC15:
 
 loc_42BC34:
 	mov eax, 4
-	jmp dword off_42BB80[eax]
+	jmp off_42BB80[eax]
 
 loc_42BC3F:
 	push 0
@@ -55972,7 +55859,7 @@ loc_42BC47:
 	mov edx, ebp
 	call sub_432580
 	xor eax, eax
-	jmp dword off_42BB90[eax]
+	jmp off_42BB90[eax]
 
 loc_42BC63:
 	push eax
@@ -57419,7 +57306,7 @@ loc_42CC02:
 	cmp esi, ebx
 	jnz loc_42CC9C
 	mov eax, 4
-	jmp dword off_42C890[eax]
+	jmp off_42C890[eax]
 
 loc_42CC5C:
 	push 0
@@ -57437,7 +57324,7 @@ loc_42CC64:
 	mov eax, [esp+8]
 	call sub_432580
 	xor eax, eax
-	jmp dword off_42C8A0[eax]
+	jmp off_42C8A0[eax]
 
 loc_42CC86:
 	push eax
@@ -57460,7 +57347,7 @@ loc_42CC9C:
 	mov dword [dword_4D4EB0], esi
 	call sub_497738
 	mov eax, 4
-	jmp dword off_42C890[eax]
+	jmp off_42C890[eax]
 
 loc_42CCB6:
 	push 0
@@ -57506,22 +57393,6 @@ loc_42CCDD:
 	ret
 ;sub_42C8B0 endp
 
-loc_42CD20:
-	cmp eax, dword [dword_4D4E8C]
-	jnz loc_42CD29
-	ret
-
-loc_42CD29:
-	push edx
-	push ecx
-	push eax
-	push 0
-	push 0
-	mov dword [dword_4D4E8C], eax
-	call sub_49755C
-	pop ecx
-	pop edx
-	ret
 off_42CD40: dd loc_42CD90
 	dd loc_42CDB4 ; jump table for switch statement
 	dd loc_42CDD8
@@ -57545,7 +57416,7 @@ sub_42CD64: ;SUBROUTINE
 	call grFogMode
 	cmp ebx, 8 ; switch 9 cases
 	ja loc_42CDB4 ; jumptable 0042CD89 default case
-	jmp dword off_42CD40[ebx*4] ; switch jump
+	jmp off_42CD40[ebx*4] ; switch jump
 
 loc_42CD90:
 	mov eax, 0FF000204h ; jumptable 0042CD89 case 0
@@ -58357,8 +58228,6 @@ loc_42D723:
 	jmp loc_42D5F7
 ;sub_42CFB0 endp
 
-;	Attributes: bp-based frame
-
 sub_42D730: ;SUBROUTINE
 	push esi
 	push edi
@@ -58532,8 +58401,6 @@ sub_42D920: ;SUBROUTINE
 	mov dword [dword_4D5270], eax
 	ret
 ;sub_42D920 endp
-
-;	Attributes: bp-based frame
 
 sub_42D930: ;SUBROUTINE
 	push ebx
@@ -58720,7 +58587,7 @@ loc_42DB58:
 	mov [esp+3C4h], eax
 	mov eax, [esp+3C0h]
 	mov [esp+3C8h], eax
-	mov eax, dword byte [byte_5127BC]
+	mov eax, dword [byte_5127BC]
 	mov [esp+3CCh], eax
 	mov eax, [esp+3B8h]
 	mov [esp+3D0h], eax
@@ -58798,7 +58665,7 @@ loc_42DC66:
 	mov eax, [esp+3E8h]
 	push ecx
 	mov [esp+3F4h], eax
-	mov eax, dword byte [byte_5127BC]
+	mov eax, dword [byte_5127BC]
 	push ecx
 	mov [esp+3FCh], eax
 	mov eax, [esp+3E8h]
@@ -58923,7 +58790,7 @@ loc_42DEA7:
 	push eax
 	mov edx, dword dword_4EF3F8[ebp]
 	push edx
-	mov eax, dword byte [byte_4EF3F0]
+	mov eax, dword [byte_4EF3F0]
 	push eax
 	push eax
 	mov eax, [esp+ecx+0A0h]
@@ -58972,10 +58839,10 @@ loc_42DF64:
 	jz loc_42DFE2
 	mov eax, [esp+420h]
 	push eax
-	mov edx, dword byte [byte_4EEBF8]
+	mov edx, dword [byte_4EEBF8]
 	push edx
 	push edx
-	mov eax, dword byte [byte_4EEBF4]
+	mov eax, dword [byte_4EEBF4]
 	push eax
 	push eax
 	mov ebp, [esp+ecx+128h]
@@ -59105,7 +58972,7 @@ loc_42E1B3:
 	push esi
 	mov eax, dword dword_4EF3F8[ebp]
 	push eax
-	mov edx, dword byte [byte_4EF3F0]
+	mov edx, dword [byte_4EF3F0]
 	push edx
 	push edx
 	mov edx, dword byte_4EF3F4[ebp]
@@ -59428,7 +59295,7 @@ sub_42E510: ;SUBROUTINE
 	mov edi, 1E6h
 	mov ebp, 27Ch
 	mov ebx, 28h
-	mov dword byte [byte_5127BC], esi
+	mov dword [byte_5127BC], esi
 	mov dword [dword_5127B0], edi
 	mov dword [dword_5127A8], ebp
 	mov dword [dword_5127B4], ebx
@@ -59448,7 +59315,7 @@ loc_42E54A:
 	mov eax, [eax+4]
 	call sub_42A270
 	mov eax, dword [dword_5127B4]
-	add dword byte [byte_5127BC], eax
+	add dword [byte_5127BC], eax
 	pop ecx
 	pop edx
 	pop ebp
@@ -59526,7 +59393,7 @@ loc_42E632:
 ;sub_42E580 endp
 
 sub_42E650: ;SUBROUTINE
-	xor byte dword [dword_4EEBE8], 1
+	xor byte [dword_4EEBE8], 1
 	ret
 ;sub_42E650 endp
 
@@ -59946,7 +59813,7 @@ loc_42EBEC:
 	add esi, eax
 	cmp edi, 20h
 	jnz loc_42EBEC
-	mov eax, dword byte [byte_4EF3F4]
+	mov eax, dword [byte_4EF3F4]
 	mov edx, dword [dword_4EEB40]
 	mov dword [dword_4EF434], eax
 	test edx, edx
@@ -60423,7 +60290,7 @@ loc_42F42A:
 	jnz loc_42F63B
 	cmp eax, 5
 	ja loc_42F123
-	jmp dword off_42ED80[ecx]
+	jmp off_42ED80[ecx]
 
 loc_42F446:
 	mov dword [dword_4EFC54], 86h
@@ -60512,7 +60379,7 @@ loc_42F5EF:
 loc_42F63B:
 	cmp edx, 5
 	ja loc_42F123
-	jmp dword off_42ED98[ecx]
+	jmp off_42ED98[ecx]
 
 loc_42F64A:
 	mov dword [dword_4EFC54], 86h
@@ -60904,10 +60771,7 @@ sub_4301B0: ;SUBROUTINE
 	call sub_478340
 	call sub_421980
 	call sub_4972BC
-	call loc_49ADA5
-	pop edx
-	pop ecx
-	ret
+	jmp ExitProcess0
 ;sub_4301B0 endp
 
 sub_430200: ;SUBROUTINE
@@ -60928,15 +60792,13 @@ sub_430200: ;SUBROUTINE
 	mov dword [dword_4DAB80], ecx
 	call sub_49D020
 	call sub_430920
-	mov edx, loc_430760
+	mov edx, sub_430760
 	mov eax, 1
-	push loc_430380
+	push sub_430380
 	push 218h
 	call sub_482270
 	cmp dword [dword_4DAB5C], 0
 	jz loc_430366
-
-loc_4302AA:
 	xor edi, edi
 	mov ebp, 1
 	mov dword [dword_4DB2EC], edi
@@ -60964,7 +60826,7 @@ loc_4302AA:
 	mov ebx, ebp
 	push dword_4EFCC8
 	xor edx, edx
-	mov eax, loc_453840
+	mov eax, sub_453840
 	call sub_489AE0
 	call sub_478040
 	mov edx, ebp
@@ -60988,12 +60850,10 @@ loc_4302AA:
 	ret
 
 loc_430366:
-	xor eax, eax
-	jmp loc_4A9F7D
-	jmp loc_4302AA
+	jmp ExitProcess0
 ;sub_430200 endp
 
-loc_430380:
+sub_430380: ;SUBROUTINE
 	mov eax, [esp+10h]
 	test eax, eax
 	jz loc_43038D
@@ -61007,8 +60867,9 @@ loc_43038D:
 loc_430395:
 	mov eax, 1
 	ret 18h
+;sub_430380 endp
 
-loc_430760:
+sub_430760: ;SUBROUTINE
 	cmp edx, 2Ch
 	jz loc_43076B
 	mov eax, 1
@@ -61018,6 +60879,7 @@ loc_43076B:
 	mov byte [byte_4DB32B], 1
 	mov eax, 1
 	ret
+;sub_430760 endp
 
 sub_430780: ;SUBROUTINE
 	push ecx
@@ -61118,9 +60980,9 @@ sub_430920: ;SUBROUTINE
 	mov dword [hWnd], eax
 	test eax, eax
 	jz loc_4309F5
-	mov ah, byte dword [dword_4D5278]
+	mov ah, byte [dword_4D5278]
 	and ah, 0E6h
-	mov byte dword [dword_4D5278], ah
+	mov byte [dword_4D5278], ah
 	jmp loc_4309E8
 
 loc_4309A7:
@@ -61133,7 +60995,7 @@ loc_4309A7:
 loc_4309E8:
 	mov dl, ah
 	or dl, 11h
-	mov byte dword [dword_4D5278], dl
+	mov byte [dword_4D5278], dl
 	jmp loc_4309A7
 
 loc_4309F5:
@@ -64273,8 +64135,6 @@ loc_4338EF:
 	jmp loc_4331D8
 ;sub_4326E0 endp
 
-;	Attributes: bp-based frame
-
 sub_433910: ;SUBROUTINE
 	push edx
 	push ebp
@@ -64331,13 +64191,13 @@ loc_4339A8:
 
 loc_4339AE:
 	fstp dword [flt_4D5298]
-	mov ah, byte dword [flt_4D5298+3]
+	mov ah, byte [flt_4D5298+3]
 	fld dword [dword_4D5294]
 	xor ah, 80h
 	fld dword [flt_4CB6C4]
 	fxch st1
 	fmul st0, st1
-	mov byte dword [flt_4D5298+3], ah
+	mov byte [flt_4D5298+3], ah
 	fld dword [flt_4D5298]
 	fmulp st2, st0
 	mov edx, [ebp+24h]
@@ -64377,7 +64237,7 @@ loc_433A01:
 	jmp loc_4339A8
 
 loc_433A26:
-	xor byte dword [dword_4D5294+3], 80h
+	xor byte [dword_4D5294+3], 80h
 	mov esp, ebp
 	pop ebp
 	pop edx
@@ -64426,8 +64286,6 @@ loc_433ABD:
 	ret 18h
 ;sub_433A40 endp
 
-;	Attributes: bp-based frame
-
 sub_433AE0: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -64459,8 +64317,6 @@ loc_433B15:
 	fstp dword [esp]
 	jmp loc_433AF4
 ;sub_433AE0 endp
-
-;	Attributes: bp-based frame
 
 sub_433B30: ;SUBROUTINE
 	push ecx
@@ -64512,7 +64368,7 @@ sub_433BA4: ;SUBROUTINE
 	cmp dl, 8
 	ja loc_433BC2
 	and edx, 0FFh ; switch 9 cases
-	jmp dword off_433B80[edx*4] ; switch jump
+	jmp off_433B80[edx*4] ; switch jump
 
 loc_433BBB:
 	mov dword [eax+4], 20h ; jumptable 00433BB4 cases 0-2
@@ -64608,7 +64464,7 @@ loc_433C6D:
 	cmp al, 8
 	ja loc_433C56
 	and eax, 0FFh ; switch 9 cases
-	jmp dword off_433BF0[eax*4] ; switch jump
+	jmp off_433BF0[eax*4] ; switch jump
 
 loc_433C8D:
 	mov dh, [esi+1] ; jumptable 00433C86 case 0
@@ -66224,7 +66080,7 @@ sub_435104: ;SUBROUTINE
 	rep movsd
 	cmp edx, 4 ; switch 5 cases
 	ja loc_435136 ; jumptable 00435117 default case
-	jmp dword off_4350F0[edx*4] ; switch jump
+	jmp off_4350F0[edx*4] ; switch jump
 
 loc_43511E:
 	mov edx, [eax+10h] ; jumptable 00435117 case 0
@@ -66315,7 +66171,7 @@ sub_4351C4: ;SUBROUTINE
 	rep movsd
 	cmp edx, 4 ; switch 5 cases
 	ja loc_4351F6 ; jumptable 004351D7 default case
-	jmp dword off_4351B0[edx*4] ; switch jump
+	jmp off_4351B0[edx*4] ; switch jump
 
 loc_4351DE:
 	mov edx, [eax+8] ; jumptable 004351D7 case 0
@@ -67386,7 +67242,7 @@ loc_435C90:
 	dec eax
 	cmp eax, 3 ; switch 4 cases
 	ja loc_435CF1 ; jumptable 00435CC2 default case
-	jmp dword off_435C40[eax*4] ; switch jump
+	jmp off_435C40[eax*4] ; switch jump
 
 loc_435CC9:
 	mov eax, [esi+4] ; jumptable 00435CC2 case 0
@@ -67472,8 +67328,6 @@ loc_435D57:
 	call sub_436280
 	jmp loc_435CF1 ; jumptable 00435CC2 default case
 ;sub_435C50 endp
-
-;	Attributes: bp-based frame
 
 sub_435D70: ;SUBROUTINE
 	push ebx
@@ -67810,7 +67664,7 @@ loc_43615C:
 	movsd
 	movsd
 	mov edx, [esp+0A0h]
-	mov al, byte dword [dword_50A8B0]
+	mov al, byte [dword_50A8B0]
 	mov [edx+2Ch], al
 	mov edx, [esp+0A0h]
 	mov [edx+2Dh], al
@@ -67838,8 +67692,6 @@ loc_43625F:
 	movsd
 	jmp loc_43615C
 ;sub_435D70 endp
-
-;	Attributes: bp-based frame
 
 sub_436280: ;SUBROUTINE
 	push ebx
@@ -68138,7 +67990,7 @@ loc_4365FD:
 	lea edi, [edi+20h]
 	movsd
 	movsd
-	mov al, byte dword [dword_50A8B0]
+	mov al, byte [dword_50A8B0]
 	mov edx, [esp+84h]
 	sub al, cl
 	mov [edx+2Ch], al
@@ -68178,8 +68030,6 @@ loc_43671C:
 	mov ebx, edx
 	jmp loc_4365FD
 ;sub_436280 endp
-
-;	Attributes: bp-based frame
 
 sub_436730: ;SUBROUTINE
 	push ebx
@@ -68461,7 +68311,7 @@ loc_436A1D:
 	mov eax, [esp+98h]
 	add [eax+20h], edx
 	mov eax, [esp+98h]
-	mov dl, byte dword [dword_50A8B0]
+	mov dl, byte [dword_50A8B0]
 	mov [eax+2Ch], dl
 	mov al, dl
 	mov edx, [esp+98h]
@@ -68501,8 +68351,6 @@ loc_436B5A:
 	call sub_437120
 	jmp loc_4367AE
 ;sub_436730 endp
-
-;	Attributes: bp-based frame
 
 sub_436BA0: ;SUBROUTINE
 	push ebx
@@ -68824,7 +68672,7 @@ loc_436FBD:
 	mov eax, [esp+7Ch]
 	add [eax+24h], edx
 	mov eax, [esp+7Ch]
-	mov dl, byte dword [dword_50A8B0]
+	mov dl, byte [dword_50A8B0]
 	mov [eax+2Ch], dl
 	mov eax, [esp+7Ch]
 	mov [eax+2Dh], dl
@@ -70006,7 +69854,7 @@ loc_437CB5:
 ;sub_437C20 endp
 
 sub_437CD0: ;SUBROUTINE
-	test byte dword [dword_540F48], 1
+	test byte [dword_540F48], 1
 	jnz loc_437CDA
 	ret
 
@@ -70072,9 +69920,9 @@ loc_437D78:
 
 loc_437D7F:
 	mov dx, word word_4D5406[eax]
-	mov word dword [dword_50A8B4], dx
+	mov word [dword_50A8B4], dx
 	mov dx, word word_4D5408[eax]
-	mov word dword [dword_50A8B4+2], dx
+	mov word [dword_50A8B4+2], dx
 	mov edx, dword [dword_50A8A4]
 	lea ecx, 0[edx*4]
 	mov ebx, 64h
@@ -71277,7 +71125,7 @@ loc_438C7E:
 	and eax, 3
 	cmp eax, 3 ; switch 4 cases
 	ja loc_438CB8 ; jumptable 00438C9B default case
-	jmp dword off_438BA0[eax*4] ; switch jump
+	jmp off_438BA0[eax*4] ; switch jump
 
 loc_438CA2:
 	mov ecx, 5 ; jumptable 00438C9B case 0
@@ -74648,7 +74496,7 @@ loc_43B2DF:
 	inc edi
 	xor ecx, ecx
 	or ebx, eax
-	mov dword byte [byte_50AC28], ecx
+	mov dword [byte_50AC28], ecx
 
 loc_43B31C:
 	mov eax, [esi+500h]
@@ -74665,7 +74513,7 @@ loc_43B31C:
 	inc edi
 	xor ecx, ecx
 	or ebx, eax
-	mov dword byte [byte_50AC24], ecx
+	mov dword [byte_50AC24], ecx
 
 loc_43B34A:
 	mov ecx, [esi+500h]
@@ -74684,7 +74532,7 @@ loc_43B34A:
 	inc edi
 	xor ecx, ecx
 	or ebx, eax
-	mov dword byte [byte_50AC2C], ecx
+	mov dword [byte_50AC2C], ecx
 	jmp loc_43B248
 
 loc_43B390:
@@ -80137,7 +79985,6 @@ sub_43F120: ;SUBROUTINE
 	mov ecx, eax
 	mov edx, dword [dword_512228]
 	mov eax, [eax+14h]
-	test edx, edx
 	cmp dword [dword_512228], 0
 	jz loc_43F1F5
 	mov edx, 0FFFFFFFDh
@@ -81897,27 +81744,6 @@ loc_4403BD:
 	jmp loc_4403A1
 ;sub_440370 endp
 
-;	START OF FUNCTION CHUNK FOR sub_440410
-
-loc_4403D0:
-	push edx
-	mov edx, dword [dword_4D5798]
-	test edx, edx
-	jnz loc_4403DD
-	pop edx
-	ret
-
-loc_4403DD:
-	push ecx
-	mov eax, edx
-	xor ecx, ecx
-	call sub_4848FC
-	mov dword [dword_4D5798], ecx
-	pop ecx
-	pop edx
-	ret
-;	END OF FUNCTION CHUNK FOR sub_440410
-
 sub_4403F0: ;SUBROUTINE
 	push edx
 	mov edx, dword [dword_4D5794]
@@ -81938,11 +81764,23 @@ loc_4403FD:
 ;sub_4403F0 endp
 
 sub_440410: ;SUBROUTINE
-
-;	FUNCTION CHUNK AT 004403D0 SIZE 00000020 BYTES
-
 	call sub_4403F0
-	jmp loc_4403D0
+	push edx
+	mov edx, dword [dword_4D5798]
+	test edx, edx
+	jnz loc_4403DD
+	pop edx
+	ret
+
+loc_4403DD:
+	push ecx
+	mov eax, edx
+	xor ecx, ecx
+	call sub_4848FC
+	mov dword [dword_4D5798], ecx
+	pop ecx
+	pop edx
+	ret
 ;sub_440410 endp
 
 sub_440420: ;SUBROUTINE
@@ -82018,8 +81856,6 @@ loc_4404C0:
 	pop ecx
 	ret
 ;sub_4404A0 endp
-
-;	Attributes: bp-based frame
 
 sub_4404D0: ;SUBROUTINE
 	push ebx
@@ -83463,8 +83299,6 @@ loc_4412EE:
 	pop esi
 	ret 4
 ;sub_4410A0 endp
-
-;	Attributes: bp-based frame
 
 sub_441320: ;SUBROUTINE
 	push esi
@@ -85253,8 +85087,6 @@ off_4426E0: dd loc_442891
 	dd loc_443771
 	dd loc_442891
 
-;	Attributes: bp-based frame
-
 sub_442710: ;SUBROUTINE
 	push esi
 	push edi
@@ -85382,7 +85214,7 @@ loc_44287F:
 	sub eax, 2 ; switch 12 cases
 	cmp eax, 0Bh
 	ja loc_4428B1 ; jumptable 0044288A default case
-	jmp dword off_4426E0[eax*4] ; switch jump
+	jmp off_4426E0[eax*4] ; switch jump
 
 loc_442891:
 	mov eax, [ebp-0Ch] ; jumptable 0044288A cases 2,10,13
@@ -85437,7 +85269,6 @@ loc_442913:
 	sar edx, 1Fh
 	idiv ecx
 	mov ecx, eax
-	cmp dword [dword_4D96B0], 0
 	push 40h
 	mov edx, 4
 	mov eax, dword [dword_50B470]
@@ -85752,7 +85583,6 @@ loc_442DCF:
 	xor edx, edx
 	call sub_488074
 	div ecx
-	cmp edx, 32h
 	mov edx, 1
 	mov eax, dword [dword_50B44C]
 	mov ecx, ebx
@@ -85965,7 +85795,6 @@ loc_443083:
 	mov ebx, edi
 
 loc_44308F:
-	cmp dword [dword_4D96B0], 0
 	call sub_488074
 	and eax, 7Fh
 	push eax
@@ -87035,7 +86864,6 @@ loc_443D8F:
 	xor edx, edx
 	call sub_488074
 	div ecx
-	cmp edx, 32h
 	mov edx, 1
 	mov ecx, [ebp-54h]
 	mov eax, dword [dword_50B44C]
@@ -87818,7 +87646,7 @@ loc_4445E2:
 	jz loc_44455D
 	cmp ebp, 0Bh ; switch 12 cases
 	ja loc_444639 ; jumptable 00444614 default case
-	jmp dword off_4444F0[ebp*4] ; switch jump
+	jmp off_4444F0[ebp*4] ; switch jump
 
 loc_44461B:
 	mov eax, dword [dword_50B41C] ; jumptable 00444614 case 0
@@ -88025,8 +87853,6 @@ loc_4447F7:
 	pop ebx
 	ret
 ;sub_4447D0 endp
-
-;	Attributes: bp-based frame
 
 sub_444830: ;SUBROUTINE
 	push esi
@@ -88346,7 +88172,6 @@ loc_444B6D:
 	mov eax, edi
 
 loc_444B73:
-	cmp dword [dword_4D96B0], 0
 	push 40h
 	mov edi, dword [dword_50B470]
 	mov ebx, eax
@@ -88559,7 +88384,7 @@ loc_444D44:
 	and eax, 3
 	cmp eax, 3 ; switch 4 cases
 	ja loc_444D58 ; jumptable 00444D51 default case
-	jmp dword off_444C60[eax*4] ; switch jump
+	jmp off_444C60[eax*4] ; switch jump
 
 loc_444D58:
 	mov eax, 23h ; jumptable 00444D51 default case
@@ -88620,7 +88445,7 @@ loc_444DE0:
 	lea ecx, [edx-1Eh] ; switch 8 cases
 	cmp ecx, 7
 	ja loc_444CA2 ; jumptable 00444E03 default case
-	jmp dword off_444C70[ecx*4] ; switch jump
+	jmp off_444C70[ecx*4] ; switch jump
 
 loc_444E0A:
 	jg loc_444E1B
@@ -89143,7 +88968,7 @@ loc_445376:
 	mov eax, dword [dword_512234]
 	cmp eax, 5 ; switch 6 cases
 	ja loc_4453B1 ; jumptable 00445381 default case
-	jmp dword off_445160[eax*4] ; switch jump
+	jmp off_445160[eax*4] ; switch jump
 
 loc_445388:
 	mov esi, aCnteng ; jumptable 00445381 cases 0,5
@@ -89197,7 +89022,7 @@ loc_4453DE:
 	mov eax, dword [dword_512234]
 	cmp eax, 5 ; switch 6 cases
 	ja loc_445419 ; jumptable 004453E9 default case
-	jmp dword off_445178[eax*4] ; switch jump
+	jmp off_445178[eax*4] ; switch jump
 
 loc_4453F0:
 	mov esi, aSpcheng ; jumptable 004453E9 cases 0,5
@@ -89268,7 +89093,7 @@ loc_445486:
 	mov eax, dword [dword_512234]
 	cmp eax, 5 ; switch 6 cases
 	ja loc_4454C3 ; jumptable 00445491 default case
-	jmp dword off_445190[eax*4] ; switch jump
+	jmp off_445190[eax*4] ; switch jump
 
 loc_445498:
 	mov edi, esp ; jumptable 00445491 cases 0,5
@@ -89329,7 +89154,7 @@ loc_445504:
 	mov eax, dword [dword_512234]
 	cmp eax, 5 ; switch 6 cases
 	ja loc_445541 ; jumptable 0044550F default case
-	jmp dword off_4451A8[eax*4] ; switch jump
+	jmp off_4451A8[eax*4] ; switch jump
 
 loc_445516:
 	mov edi, esp ; jumptable 0044550F cases 0,5
@@ -90058,8 +89883,6 @@ off_445AF0: dd loc_4460A8
 	dd loc_445DE2
 	dd loc_446132
 
-;	Attributes: bp-based frame
-
 sub_445B10: ;SUBROUTINE
 	push ebx
 	push ecx
@@ -90264,7 +90087,7 @@ loc_445DA9:
 	mov eax, [esi+1F8h]
 	cmp eax, 7 ; switch 8 cases
 	ja loc_445DE4 ; jumptable 00445DCE default case
-	jmp dword off_445AD0[eax*4] ; switch jump
+	jmp off_445AD0[eax*4] ; switch jump
 
 loc_445DD5:
 	cmp dword [dword_5121FC], 2 ; jumptable 00445DCE case 0
@@ -90530,7 +90353,7 @@ loc_4460EB:
 	mov eax, [esi+1F8h]
 	cmp eax, 7 ; switch 8 cases
 	ja loc_445DE4 ; jumptable 00445DCE default case
-	jmp dword off_445AF0[eax*4] ; switch jump
+	jmp off_445AF0[eax*4] ; switch jump
 
 loc_446101:
 	cmp dword [dword_5121FC], 2 ; jumptable 004460FA case 1
@@ -91491,7 +91314,7 @@ sub_446B20: ;SUBROUTINE
 	mov [eax+9Ch], ecx
 	cmp esi, 3 ; switch 4 cases
 	ja loc_446BEC ; jumptable 00446B85 default case
-	jmp dword off_446B10[esi*4] ; switch jump
+	jmp off_446B10[esi*4] ; switch jump
 
 loc_446B8C:
 	mov dword [eax+0A4h], 1F40000h ; jumptable 00446B85 case 0
@@ -92186,7 +92009,6 @@ sub_447310: ;SUBROUTINE
 loc_44736B:
 	mov ecx, [esp+4]
 	add ecx, eax
-	test ecx, ecx
 	lea ecx, [eax+eax]
 	lea ebx, [esi+ebp]
 	add edx, 2
@@ -97823,7 +97645,7 @@ loc_44B6F0:
 	call sub_44B660
 	cmp eax, 3 ; switch 4 cases
 	ja loc_44B6ED ; jumptable 0044B6FA default case
-	jmp dword off_44B6D0[eax*4] ; switch jump
+	jmp off_44B6D0[eax*4] ; switch jump
 
 loc_44B701:
 	mov eax, 1 ; jumptable 0044B6FA cases 0-3
@@ -99622,7 +99444,7 @@ loc_44CBE6:
 	cmp al, 0Ch
 	ja loc_44CBBE ; jumptable 0044CC10 cases 9,10
 	and eax, 0FFh ; switch 13 cases
-	jmp dword off_44CAD0[eax*4] ; switch jump
+	jmp off_44CAD0[eax*4] ; switch jump
 
 loc_44CC17:
 	mov eax, ecx ; jumptable 0044CC10 cases 0,1
@@ -100995,7 +100817,6 @@ loc_44DB9E:
 	cmp eax, 0FFFFFFFFh
 	jnz loc_44DBD2
 	mov edi, dword [dword_511FF0]
-	cmp edi, 1
 	mov edx, edi
 	mov eax, ebp
 	call sub_44B5B0
@@ -101017,7 +100838,6 @@ loc_44DBE1:
 	call sub_440BC0
 	mov dword dword_4D5D54[esi], ebx
 	mov esi, dword [dword_511FF0]
-	cmp esi, 1
 	mov edx, esi
 	mov eax, ebp
 	call sub_44B5B0
@@ -102568,7 +102388,7 @@ loc_44EEE0:
 	ret
 
 loc_44EF00:
-	fld dword byte [byte_5118C8]
+	fld dword [byte_5118C8]
 	fld dword [flt_5118C4]
 	fld dword [flt_5118B8]
 	fld dword [flt_5118B4]
@@ -102615,7 +102435,7 @@ loc_44EF81:
 	mov bh, 9
 	mov ecx, dword [dword_4DAC24]
 	fxch st3
-	fstp dword byte [byte_5118C8]
+	fstp dword [byte_5118C8]
 	fxch st1
 	fstp dword [flt_5118C4]
 	fstp dword [flt_5118B8]
@@ -103879,12 +103699,12 @@ loc_44FDD9:
 	call sub_46BE00
 
 loc_44FE52:
-	mov dword [ecx+370h], loc_4703D0
-	mov dword [ecx+374h], loc_4588D0
+	mov dword [ecx+370h], sub_4703D0
+	mov dword [ecx+374h], sub_4588D0
 	mov dword [ecx+378h], sub_474AF0
-	mov dword [ecx+37Ch], loc_4679E0
+	mov dword [ecx+37Ch], sub_4679E0
 	mov dword [ecx+380h], sub_460030
-	mov dword [ecx+384h], loc_462180
+	mov dword [ecx+384h], sub_462180
 	mov dword [ecx+388h], sub_461F50
 	mov dword [ecx+38Ch], sub_453860
 	mov dword [ecx+390h], sub_4505E0
@@ -103892,7 +103712,7 @@ loc_44FE52:
 	mov dword [ecx+36Ch], sub_4628B0
 	test bl, 2
 	jz loc_44FEE9
-	mov dword [ecx+374h], loc_4589F0
+	mov dword [ecx+374h], sub_4589F0
 	mov dword [ecx+37Ch], sub_43D920
 	mov dword [ecx+388h], sub_461E80
 	mov dword [ecx+370h], 0
@@ -105030,7 +104850,7 @@ loc_450E04:
 	jz loc_450E33
 	push esi
 	push ecx
-	mov cx, word dword [dword_5118A0]
+	mov cx, word [dword_5118A0]
 	mov bx, [eax+1F8h]
 	imul ebx, ecx
 	mov si, [eax+14h]
@@ -105045,7 +104865,7 @@ loc_450E04:
 	ret
 
 loc_450E33:
-	mov bx, word dword [dword_5118A0]
+	mov bx, word [dword_5118A0]
 	imul bx, [eax+1F8h]
 	mov dx, [eax+14h]
 	add ebx, edx
@@ -108352,10 +108172,10 @@ sub_4537F0: ;SUBROUTINE
 	inc dword [dword_511E54]
 	mov edx, dword [dword_511E60]
 	inc dword [dword_511E60]
-	test byte dword [dword_511E54], 1
+	test byte [dword_511E54], 1
 	jnz loc_45381B
 	inc dword [dword_511E58]
-	test byte dword [dword_511E58], 1
+	test byte [dword_511E58], 1
 	jz loc_45381D
 
 loc_45381B:
@@ -108375,7 +108195,7 @@ loc_45381D:
 	ret
 ;sub_4537F0 endp
 
-loc_453840:
+sub_453840: ;SUBROUTINE
 	call sub_489E0C
 	mov dword [dword_511E50], eax
 
@@ -108385,6 +108205,7 @@ loc_45384A:
 	call sub_45BB50
 	call sub_45BAD0
 	jmp loc_45384A
+;sub_453840 endp
 
 sub_453860: ;SUBROUTINE
 	push ebx
@@ -109102,7 +108923,7 @@ sub_4540A0: ;SUBROUTINE
 	sub esp, 18h
 	mov ecx, eax
 	mov esi, 1
-	mov ah, byte dword [dword_540F48]
+	mov ah, byte [dword_540F48]
 	xor edi, edi
 	mov ebp, esi
 	test ah, 4
@@ -109110,7 +108931,7 @@ sub_4540A0: ;SUBROUTINE
 	mov esi, 0FFFFFFFFh
 
 loc_4540C4:
-	test byte dword [dword_540F48], 8
+	test byte [dword_540F48], 8
 	jz loc_4540D2
 	mov ebp, 0FFFFFFFFh
 
@@ -114347,8 +114168,6 @@ off_457F90: dd loc_45813B
 	dd loc_458185
 	dd loc_458196
 
-;	Attributes: bp-based frame
-
 sub_457FA8: ;SUBROUTINE
 	push esi
 	push edi
@@ -114488,7 +114307,7 @@ loc_458072:
 	cmp ebx, 5 ; switch 6 cases
 	ja loc_457FD7 ; jumptable 00458134 default case
 	mov edx, ebx
-	jmp dword off_457F90[edx*4] ; switch jump
+	jmp off_457F90[edx*4] ; switch jump
 
 loc_45813B:
 	mov edx, [ebp+10h] ; jumptable 00458134 case 0
@@ -114827,7 +114646,6 @@ sub_458430: ;SUBROUTINE
 	mov esi, ebx
 	mov ebp, ecx
 	mov eax, edx
-	cmp edi, 1Dh
 	mov byte byte_511F64[eax], 1
 	lea edx, [esp+24h]
 	lea ecx, [esp+20h]
@@ -115243,7 +115061,7 @@ loc_4588BA:
 	jmp loc_458861
 ;sub_458800 endp
 
-loc_4588D0:
+sub_4588D0: ;SUBROUTINE
 	push ecx
 	push edx
 	mov ecx, eax
@@ -115341,8 +115159,9 @@ loc_4589D9:
 	pop edx
 	pop ecx
 	ret
+;sub_4588D0 endp
 
-loc_4589F0:
+sub_4589F0: ;SUBROUTINE
 	push edx
 	mov edx, eax
 	call sub_439300
@@ -115350,6 +115169,7 @@ loc_4589F0:
 	call sub_4390F0
 	pop edx
 	ret
+;sub_4589F0 endp
 
 sub_458A10: ;SUBROUTINE
 	push ebx
@@ -115589,7 +115409,7 @@ loc_458C16:
 	call sub_46FDA0
 	cmp dword [dword_51200C], 0
 	jz loc_458FD3
-	test byte dword [dword_540F48], 10h
+	test byte [dword_540F48], 10h
 	jz loc_458FD3
 	mov ebx, 1
 	mov eax, asc_4CC788 ; " / "
@@ -115797,7 +115617,7 @@ loc_458FD3:
 	jmp loc_458CD7
 
 loc_459009:
-	test byte dword [dword_540F48], 10h
+	test byte [dword_540F48], 10h
 	jz loc_458F2A
 	jmp loc_458F78
 
@@ -116085,7 +115905,7 @@ loc_459354:
 loc_459373:
 	cmp dword [dword_512008], 0
 	jz loc_4592F3
-	test byte dword [dword_540F48], 10h
+	test byte [dword_540F48], 10h
 	jz loc_4592F3
 	cmp dword [dword_512070], 0
 	jnz loc_45918F
@@ -116219,11 +116039,26 @@ sub_4594D0: ;SUBROUTINE
 ;sub_4594D0 endp
 
 sub_4594E0: ;SUBROUTINE
-
-;	FUNCTION CHUNK AT 00459940 SIZE 00000029 BYTES
-
 	call sub_47C2B0
-	jmp loc_459940
+	push ecx
+	push edx
+	mov edx, dword [dword_4D69DC]
+	test edx, edx
+	jnz loc_459957
+	xor ecx, ecx
+	mov dword [dword_4D69DC], ecx
+	pop edx
+	pop ecx
+	ret
+
+loc_459957:
+	mov eax, edx
+	call sub_4848FC
+	xor ecx, ecx
+	mov dword [dword_4D69DC], ecx
+	pop edx
+	pop ecx
+	ret
 ;sub_4594E0 endp
 
 sub_4594F0: ;SUBROUTINE
@@ -116546,30 +116381,6 @@ loc_45992C:
 	mov dword [dword_511FE0], 1
 	jmp loc_45977E
 ;sub_4595F0 endp
-
-;	START OF FUNCTION CHUNK FOR sub_4594E0
-
-loc_459940:
-	push ecx
-	push edx
-	mov edx, dword [dword_4D69DC]
-	test edx, edx
-	jnz loc_459957
-	xor ecx, ecx
-	mov dword [dword_4D69DC], ecx
-	pop edx
-	pop ecx
-	ret
-
-loc_459957:
-	mov eax, edx
-	call sub_4848FC
-	xor ecx, ecx
-	mov dword [dword_4D69DC], ecx
-	pop edx
-	pop ecx
-	ret
-;	END OF FUNCTION CHUNK FOR sub_4594E0
 
 sub_459970: ;SUBROUTINE
 	push edx
@@ -118255,7 +118066,7 @@ loc_45ACD8:
 	ret
 ;sub_45AC50 endp
 
-sub_45AD10 ;SUBROUTINE
+sub_45AD10: ;SUBROUTINE
 	push ecx
 	push edx
 	push eax ; lpBuffer
@@ -119602,11 +119413,11 @@ sub_45BDB0: ;SUBROUTINE
 	call sub_46FE70
 	test eax, eax
 	jz loc_45BFC8
-	mov ecx, loc_45D960
-	mov esi, loc_45D210
-	mov edi, loc_45C8F0
-	mov ebp, loc_45BFF0
-	mov edx, loc_45E050
+	mov ecx, sub_45D960
+	mov esi, sub_45D210
+	mov edi, sub_45C8F0
+	mov ebp, sub_45BFF0
+	mov edx, sub_45E050
 	xor eax, eax
 	mov [esp+4], ecx
 	mov dword [dword_512A9C], eax
@@ -119629,7 +119440,7 @@ loc_45BE1E:
 	cmp ecx, 0FFFFFFFFh
 	jz loc_45BF93
 	mov eax, [ebp+10h]
-	mov cl, byte dword [dword_4DAB08]
+	mov cl, byte [dword_4DAB08]
 	mov eax, [eax+8]
 	shl eax, cl
 	mov esi, ebp
@@ -119780,7 +119591,7 @@ sub_45BFE0: ;SUBROUTINE
 	ret
 ;sub_45BFE0 endp
 
-loc_45BFF0:
+sub_45BFF0: ;SUBROUTINE
 	push esi
 	push edi
 	push ebp
@@ -120504,8 +120315,9 @@ loc_45C8DB:
 	mov eax, dword [dword_512A94]
 	mov [eax], ebx
 	jmp loc_45C0C1
+;sub_45BFF0 endp
 
-loc_45C8F0:
+sub_45C8F0: ;SUBROUTINE
 	push esi
 	push edi
 	push ebp
@@ -121233,8 +121045,9 @@ loc_45D1F6:
 	mov eax, dword [dword_512A94]
 	mov [eax], ebx
 	jmp loc_45C9B8
+;sub_45C8F0 endp
 
-loc_45D210:
+sub_45D210: ;SUBROUTINE
 	push esi
 	push edi
 	push ebp
@@ -121828,8 +121641,9 @@ loc_45D94B:
 	mov eax, dword [dword_512A94]
 	mov [eax], ebx
 	jmp loc_45D2D5
+;sub_45D210 endp
 
-loc_45D960:
+sub_45D960: ;SUBROUTINE
 	push esi
 	push edi
 	push ebp
@@ -122403,8 +122217,9 @@ loc_45E02B:
 loc_45E036:
 	mov dword [dword_512A9C], ebx
 	jmp loc_45D9AD
+;sub_45D960 endp
 
-loc_45E050:
+sub_45E050: ;SUBROUTINE
 	push esi
 	push edi
 	push ebp
@@ -122961,6 +122776,7 @@ loc_45E6EB:
 loc_45E6F6:
 	mov dword [dword_512A9C], ebx
 	jmp loc_45E09D
+;sub_45E050 endp
 
 sub_45E710: ;SUBROUTINE
 	push ecx
@@ -124189,7 +124005,7 @@ loc_45FB3F:
 	call sub_45B910
 	test eax, eax
 	jz loc_45FB5E
-	xor byte dword [dword_512AA8], 1
+	xor byte [dword_512AA8], 1
 	jmp loc_45FA97
 
 loc_45FB5E:
@@ -124198,7 +124014,7 @@ loc_45FB5E:
 	call sub_45B910
 	test eax, eax
 	jz loc_45FB7D
-	xor byte dword [dword_512AA8], 1
+	xor byte [dword_512AA8], 1
 	jmp loc_45FA97
 
 loc_45FB7D:
@@ -124232,7 +124048,7 @@ loc_45FBCA:
 	call sub_45B910
 	test eax, eax
 	jz loc_45FBE9
-	xor byte dword [dword_512AA8], 1
+	xor byte [dword_512AA8], 1
 	jmp loc_45FA97
 
 loc_45FBE9:
@@ -124241,7 +124057,7 @@ loc_45FBE9:
 	call sub_45B910
 	test eax, eax
 	jz loc_45FC08
-	xor byte dword [dword_512AA8], 1
+	xor byte [dword_512AA8], 1
 	jmp loc_45FA97
 
 loc_45FC08:
@@ -126718,8 +126534,6 @@ loc_4618CE:
 	jmp loc_4617DE
 ;sub_4616E0 endp
 
-;	Attributes: bp-based frame
-
 sub_461960: ;SUBROUTINE
 	push ecx
 	push esi
@@ -127390,7 +127204,7 @@ loc_46214B:
 	ret 0Ch
 ;sub_462020 endp
 
-loc_462180:
+sub_462180: ;SUBROUTINE
 	push ecx
 	mov ecx, eax
 	cmp byte [eax+8Dh], 0
@@ -127434,6 +127248,7 @@ loc_46218E:
 	pop esi
 	pop ecx
 	ret
+;sub_462180 endp
 
 sub_462200: ;SUBROUTINE
 	push esi
@@ -129010,7 +128825,6 @@ loc_46358C:
 	call sub_4976B8
 	call sub_48561C
 	call sub_476C40
-	call j_nullsub_57
 	call sub_4301B0
 	pop ebp
 	pop ecx
@@ -129243,7 +129057,6 @@ loc_46387F:
 ;sub_463850 endp
 
 sub_463890: ;SUBROUTINE
-	call j_nullsub_57
 	jmp sub_4301B0
 ;sub_463890 endp
 
@@ -129285,7 +129098,7 @@ loc_463903:
 	mov eax, dword [dword_4D770C]
 	call sub_489F48
 	mov ax, [edx+2]
-	mov word dword [dword_513428+2], ax
+	mov word [dword_513428+2], ax
 	mov eax, dword [dword_4D770C]
 	call sub_489F60
 	pop ecx
@@ -129332,7 +129145,7 @@ loc_463977:
 	cmp eax, edx
 	jnz loc_4639AD
 	xor ecx, ecx
-	mov word dword [dword_513428+2], cx
+	mov word [dword_513428+2], cx
 
 loc_4639AD:
 	mov ebx, 4
@@ -129471,7 +129284,7 @@ loc_463AFC:
 	mov edi, 1
 	xor edx, edx
 	mov word [word_51345C], di
-	mov word dword [dword_513428+2], dx
+	mov word [dword_513428+2], dx
 	mov word [word_51345A], di
 	add esp, 0Ch
 	pop ebp
@@ -129485,7 +129298,7 @@ loc_463B4E:
 	mov ebx, 1
 	xor esi, esi
 	mov word [word_51345C], bx
-	mov word dword [dword_513428+2], si
+	mov word [dword_513428+2], si
 	mov word [word_51345A], bx
 	add esp, 0Ch
 	pop ebp
@@ -129520,7 +129333,7 @@ sub_463BC0: ;SUBROUTINE
 	push esi
 	push edi
 	mov esi, edx
-	cmp dword byte [byte_513420], 0
+	cmp dword [byte_513420], 0
 	jnz loc_463C1F
 
 loc_463BCE:
@@ -129543,11 +129356,11 @@ loc_463BD0:
 	and cl, 3
 	rep movsb
 	pop edi
-	mov ecx, dword byte [byte_513420]
+	mov ecx, dword [byte_513420]
 	mov word [word_513424], bx
 	test ecx, ecx
 	jnz loc_463C2B
-	mov dword byte [byte_513420], 1
+	mov dword [byte_513420], 1
 	pop edi
 	pop esi
 	pop ecx
@@ -129561,7 +129374,7 @@ loc_463C1F:
 loc_463C2B:
 	mov eax, dword [dword_4D7708]
 	call sub_489F60
-	mov dword byte [byte_513420], 1
+	mov dword [byte_513420], 1
 	pop edi
 	pop esi
 	pop ecx
@@ -129582,8 +129395,8 @@ sub_463C50: ;SUBROUTINE
 	xor edx, edx
 	mov byte [byte_5133C0], ah
 	mov word [word_513424], cx
-	mov word dword [dword_51340C], dx
-	mov word dword [dword_513408+2], bx
+	mov word [dword_51340C], dx
+	mov word [dword_513408+2], bx
 	mov ecx, dword_513378
 	mov al, byte [byte_51345F]
 	xor edx, edx
@@ -129602,7 +129415,7 @@ loc_463C9D:
 	xor edi, edi
 	mov edx, 2
 	mov word [word_513448], di
-	mov word dword [dword_51340C+2], di
+	mov word [dword_51340C+2], di
 
 loc_463CC5:
 	add edx, 2
@@ -129677,7 +129490,7 @@ loc_463D70:
 
 loc_463D88:
 	pop edi
-	inc word dword [dword_513408+2]
+	inc word [dword_513408+2]
 	jmp loc_463C9D
 
 loc_463D95:
@@ -129818,7 +129631,7 @@ loc_463EB8:
 	jnz loc_463EB8
 	xor edx, edx
 	mov ecx, 20h
-	mov dword byte [byte_513420], edx
+	mov dword [byte_513420], edx
 	call sub_40EAC0
 	mov dword [dword_4DABE8], ecx
 	call sub_48A270
@@ -129930,7 +129743,7 @@ sub_464030: ;SUBROUTINE
 	mov edx, 1
 	xor ecx, ecx
 	mov word [word_513458], dx
-	mov word dword [dword_513408+2], dx
+	mov word [dword_513408+2], dx
 	xor dl, dl
 	mov word [word_51345A], cx
 	mov byte [byte_51345E], dl
@@ -134991,7 +134804,7 @@ loc_4679CD:
 	ret
 ;sub_467940 endp
 
-loc_4679E0:
+sub_4679E0: ;SUBROUTINE
 	push edx
 	push esi
 	mov edx, eax
@@ -135050,6 +134863,7 @@ loc_467A85:
 	pop esi
 	pop edx
 	ret
+;sub_4679E0 endp
 
 sub_467A90: ;SUBROUTINE
 	push ebx
@@ -138545,7 +138359,6 @@ sub_46A210: ;SUBROUTINE
 	push edx
 	mov edx, [eax+1E8h]
 	shl edx, 6
-	cmp dword dword_512278[edx], 1
 	mov byte [eax+2DAh], 2
 	mov byte [eax+2D6h], 2
 	mov dword [eax+290h], 0
@@ -143679,7 +143492,7 @@ sub_46E208: ;SUBROUTINE
 	dec eax
 	cmp eax, 0Dh ; switch 14 cases
 	ja loc_46E233 ; jumptable 0046E20E default case
-	jmp dword off_46E1D0[eax*4] ; switch jump
+	jmp off_46E1D0[eax*4] ; switch jump
 
 loc_46E215:
 	mov eax, 4 ; jumptable 0046E20E cases 0,8,12
@@ -143867,8 +143680,6 @@ loc_46E3B8:
 	add ecx, 4
 	cmp ebx, 20h
 	jl loc_46E2FA
-
-loc_46E3C5:
 	mov eax, [esp+108h]
 	mov eax, [eax+21Ch]
 	cmp dword [eax], 0Fh
@@ -143933,9 +143744,7 @@ loc_46E42C:
 	jmp loc_46E2D8
 
 loc_46E4A5:
-	mov eax, 1
-	jmp loc_4A9F7D
-	jmp loc_46E3C5
+	jmp ExitProcess1
 
 loc_46E4B4:
 	imul eax, [eax], 6
@@ -145543,18 +145352,81 @@ loc_46F62C:
 	ret
 ;sub_46F5D0 endp
 
-;	Attributes: thunk
-
-j_nullsub_57: ;SUBROUTINE
-	jmp nullsub_57
-;j_nullsub_57 endp
 
 sub_46F660: ;SUBROUTINE
-
-;	FUNCTION CHUNK AT 00428EE0 SIZE 0000000A BYTES
-
 	call sub_470D40
-	jmp loc_428EE0
+	call sub_49C110
+	push ebx
+	push ecx
+	push edx
+	push esi
+	push edi
+	push ebp
+	mov ecx, sub_42A8B0
+	mov esi, nullsub_9
+	mov ebp, sub_42C4C0
+	mov edx, nullsub_11
+	mov ebx, sub_42A7D0
+	mov edi, sub_42AD80
+	mov eax, sub_42AAC0
+	mov dword [dword_4EC544], ecx
+	mov dword [dword_4EC504], esi
+	mov dword [dword_4EC508], esi
+	mov dword [dword_4EC50C], ebp
+	mov dword [dword_4EC510], ebp
+	mov dword [dword_4EC514], ebp
+	mov dword [dword_4EC558], ebp
+	mov dword [dword_4EC500], edx
+	mov dword [dword_4EC548], ebx
+	mov dword [dword_4EC554], edi
+	mov dword [dword_4EC54C], eax
+	mov ecx, sub_42C8B0
+	mov esi, sub_42AD80
+	mov ebp, sub_42ABF0
+	mov edx, sub_42A980
+	mov ebx, sub_42BCD0
+	mov edi, sub_42B320
+	mov eax, sub_42B970
+	mov dword [dword_4EC518], ecx
+	mov dword [dword_4EC550], esi
+	mov dword [dword_4EC578], ebp
+	mov dword [dword_4EC574], edx
+	mov dword [dword_4EC584], ebx
+	mov dword [dword_4EC580], edi
+	mov dword [dword_4EC528], eax
+	mov ecx, sub_42C0D0
+	mov esi, sub_42B6B0
+	mov edx, sub_42BBA0
+	mov ebx, sub_42AF00
+	mov eax, sub_42A710
+	mov edi, sub_42A680
+	mov dword [dword_4EC51C], ecx
+	mov dword [dword_4EC520], esi
+	mov dword [dword_4EC524], esi
+	mov dword [dword_4EC52C], edx
+	mov dword [dword_4EC57C], ebx
+	mov dword [dword_4EC560], eax
+	mov dword [dword_4EC56C], edi
+	mov ecx, sub_42B170
+	mov edx, sub_42A700
+	mov ebx, nullsub_10
+	mov esi, sub_42A6D0
+	mov dword [dword_4EC530], ecx
+	mov dword [dword_4EC534], ecx
+	mov dword [dword_4EC538], ecx
+	mov dword [dword_4EC53C], ecx
+	mov dword [dword_4EC55C], edx
+	mov dword [dword_4EC570], ebx
+	mov ecx, sub_42A6F0
+	mov dword [dword_4EC568], esi
+	mov dword [dword_4EC564], ecx
+	pop ebp
+	pop edi
+	pop esi
+	pop edx
+	pop ecx
+	pop ebx
+	ret
 ;sub_46F660 endp
 
 sub_46F670: ;SUBROUTINE
@@ -145829,7 +145701,7 @@ sub_46F980: ;SUBROUTINE
 	call sub_44EEC0
 	cmp esi, 3 ; switch 4 cases
 	ja loc_46F9DD ; jumptable 0046F9C5 default case
-	jmp dword off_46F970[esi*4] ; switch jump
+	jmp off_46F970[esi*4] ; switch jump
 
 loc_46F9CC:
 	mov eax, dword_5222DC ; jumptable 0046F9C5 cases 0,1
@@ -146679,10 +146551,10 @@ loc_470254:
 	mov edx, dword [dword_5227A0]
 	cmp edx, 3 ; switch 4 cases
 	ja loc_4701CC ; jumptable 00470284 default case
-	jmp dword off_470100[edx*4] ; switch jump
+	jmp off_470100[edx*4] ; switch jump
 
 loc_47028B:
-	xor byte dword [dword_522790], 1 ; jumptable 00470284 case 0
+	xor byte [dword_522790], 1 ; jumptable 00470284 case 0
 	cmp dword [dword_540F2C], 0
 	jnz loc_4703B8
 	pop ebp
@@ -146793,7 +146665,7 @@ loc_4703B8:
 	ret
 ;sub_470110 endp
 
-loc_4703D0:
+sub_4703D0: ;SUBROUTINE
 	push edx
 	mov edx, dword [dword_540D94]
 	test edx, edx
@@ -146812,6 +146684,7 @@ loc_4703ED:
 	call sub_4704E0
 	pop edx
 	ret
+;sub_4703D0 endp
 
 sub_470400: ;SUBROUTINE
 	push ebx
@@ -146963,7 +146836,7 @@ loc_470592:
 	mov bl, byte byte_522390[ecx+eax]
 	sub bl, 40h
 	shl bl, 2
-	mov byte dword [dword_512A35+3], bl
+	mov byte [dword_512A35+3], bl
 	mov bl, byte byte_5223B0[ecx+eax]
 	shl bl, 3
 	mov byte [byte_512A39], bl
@@ -146981,7 +146854,7 @@ loc_4705ED:
 	mov byte [byte_512A39], bh
 	mov byte [byte_512A3A], bh
 	mov byte [byte_512A3B], bh
-	mov byte dword [dword_512A35+3], bh
+	mov byte [dword_512A35+3], bh
 	jmp loc_470513
 
 loc_470615:
@@ -148798,7 +148671,7 @@ loc_471739:
 	mov dword [dword_51220C], ebp
 
 loc_47176E:
-	mov word dword [dword_51340C], ax
+	mov word [dword_51340C], ax
 	mov word [word_513458], di
 
 loc_47177B:
@@ -148860,7 +148733,7 @@ loc_4717D6:
 	mov esi, 1
 	mov word [word_513458], cx
 	mov dword [dword_51220C], edi
-	mov word dword [dword_51340C], si
+	mov word [dword_51340C], si
 	mov eax, 1
 	add esp, 14h
 	pop ebp
@@ -148889,7 +148762,7 @@ loc_47182D:
 	mov ebx, 1
 	mov word [word_513458], cx
 	mov dword [dword_51220C], esi
-	mov word dword [dword_51340C], bx
+	mov word [dword_51340C], bx
 	mov eax, 1
 	add esp, 14h
 	pop ebp
@@ -148925,7 +148798,7 @@ sub_471880: ;SUBROUTINE
 	call sub_421430
 	mov ebx, 2
 	mov ah, byte [byte_51345E]
-	mov word dword [dword_513408+2], bx
+	mov word [dword_513408+2], bx
 	cmp ah, 1
 	jz loc_47192A
 	mov eax, [edx]
@@ -149197,8 +149070,6 @@ sub_471B80: ;SUBROUTINE
 	add esi, 2710h
 	test edx, edx
 	jle loc_471D40
-
-loc_471BAC:
 	mov eax, dword [dword_512A3C]
 	xor ebx, ebx
 	xor edx, edx
@@ -149331,9 +149202,7 @@ loc_471D29:
 	ret
 
 loc_471D40:
-	mov eax, 1
-	jmp loc_4A9F7D
-	jmp loc_471BAC
+	jmp ExitProcess1
 
 loc_471D4F:
 	mov eax, dword [dword_512A3C]
@@ -149795,12 +149664,7 @@ loc_47223F:
 	call sub_4635D0
 	call sub_48561C
 	call sub_463890
-	mov eax, 1
-	jmp loc_4A9F7D
-	pop esi
-	pop edx
-	pop ecx
-	ret
+	jmp ExitProcess1
 
 loc_4722B4:
 	call sub_4287F0
@@ -149993,7 +149857,7 @@ loc_4724C8:
 loc_4724DE:
 	call sub_453F20
 	call sub_474EA0
-	test byte dword [dword_540F48], 1
+	test byte [dword_540F48], 1
 	jnz loc_472507
 	xor eax, eax
 	call sub_483EB0
@@ -150005,7 +149869,7 @@ loc_472507:
 	mov eax, dword [dword_540F50]
 	call sub_4713F0
 	inc dword [dword_540F48]
-	test byte dword [dword_540F48], 1
+	test byte [dword_540F48], 1
 	jz loc_472610
 	call sub_474EE0
 	pop edi
@@ -150130,7 +149994,7 @@ sub_472690: ;SUBROUTINE
 	call sub_42A390
 	mov dword [dword_512244], eax
 	mov byte [byte_512ECF], al
-	mov al, byte dword [dword_512248]
+	mov al, byte [dword_512248]
 	mov byte [byte_512ED1], al
 	call sub_4466A0
 	mov dword [dword_51224C], eax
@@ -150679,7 +150543,7 @@ sub_472E00: ;SUBROUTINE
 	cmp al, 3
 	ja loc_472E27
 	and eax, 0FFh ; switch 4 cases
-	jmp dword off_472DF0[eax*4] ; switch jump
+	jmp off_472DF0[eax*4] ; switch jump
 
 loc_472E16:
 	cmp dword [dword_51220C], 0 ; jumptable 00472E0F case 0
@@ -150717,21 +150581,21 @@ loc_472E61:
 	ret
 
 loc_472E77:
-	mov word dword [dword_513428+2], 12h
+	mov word [dword_513428+2], 12h
 	pop ecx
 	ret
 
 loc_472E82:
 	cmp word [word_513458], 0 ; jumptable 00472E0F case 2
 	jnz loc_472E27
-	mov word dword [dword_513428+2], 15h
+	mov word [dword_513428+2], 15h
 	pop ecx
 	ret
 
 loc_472E97:
 	cmp word [word_513458], 0 ; jumptable 00472E0F case 3
 	jnz loc_472EAC
-	mov word dword [dword_513428+2], 16h
+	mov word [dword_513428+2], 16h
 	pop ecx
 	ret
 
@@ -150969,7 +150833,7 @@ loc_4730FD:
 	ret
 
 loc_473122:
-	mov ax, word dword [dword_513428+2]
+	mov ax, word [dword_513428+2]
 	cmp ax, 15h
 	jnb loc_47316B
 	cmp ax, 12h
@@ -151246,7 +151110,7 @@ sub_473424: ;SUBROUTINE
 	mov edx, dword [dword_512208]
 	cmp edx, 4 ; switch 5 cases
 	ja loc_473551 ; jumptable 00473438 default case
-	jmp dword off_473410[edx*4] ; switch jump
+	jmp off_473410[edx*4] ; switch jump
 
 loc_47343F:
 	mov ebp, dword [dword_5423CC] ; jumptable 00473438 case 0
@@ -151403,7 +151267,7 @@ sub_473594: ;SUBROUTINE
 	mov eax, dword [dword_512208]
 	cmp eax, 4 ; switch 5 cases
 	ja loc_4735B8 ; jumptable 004735AC default case
-	jmp dword off_473580[eax*4] ; switch jump
+	jmp off_473580[eax*4] ; switch jump
 
 loc_4735B3:
 	mov edx, 4 ; jumptable 004735AC cases 0,1
@@ -151422,7 +151286,7 @@ loc_4735C7:
 	mov ebx, 2
 	mov ecx, 10h
 	mov edx, 8
-	mov dword byte [byte_540FA0], ebx
+	mov dword [byte_540FA0], ebx
 	pop ebx
 	mov dword [dword_5423C8], ecx
 	mov dword [dword_5423CC], edx
@@ -151433,7 +151297,7 @@ loc_4735C7:
 loc_4735F6:
 	mov edx, 10h
 	mov ecx, 20h
-	mov dword byte [byte_540FA0], edx
+	mov dword [byte_540FA0], edx
 	mov dword [dword_5423C8], ecx
 	mov dword [dword_5423CC], edx
 	pop edx
@@ -151493,8 +151357,8 @@ loc_473688:
 
 loc_47369E:
 	push ebx
-	mov bh, byte dword [dword_5423A4]
-	mov al, byte dword [dword_5423A8]
+	mov bh, byte [dword_5423A4]
+	mov al, byte [dword_5423A8]
 	sub al, bh
 	pop ebx
 	pop edx
@@ -151731,7 +151595,7 @@ sub_4738E0: ;SUBROUTINE
 	push esi
 	push ecx
 	push ebx
-	mov ebx, dword byte [byte_540FA0]
+	mov ebx, dword [byte_540FA0]
 	mov ecx, dword [dword_5423A8]
 	mov esi, dword dword_5423A8[edx]
 	add ecx, ebx
@@ -151885,7 +151749,7 @@ loc_473A8C:
 	mov dword dword_5423A8[edx], ecx
 	cmp eax, 4 ; switch 5 cases
 	ja loc_473ADB ; jumptable 00473ACE default case
-	jmp dword off_473A00[eax*4] ; switch jump
+	jmp off_473A00[eax*4] ; switch jump
 
 loc_473AD5:
 	inc dword [dword_4D9678] ; jumptable 00473ACE case 0
@@ -152930,7 +152794,7 @@ loc_474709:
 	mov dword [dword_5450F8], ebp
 	cmp eax, 8 ; switch 9 cases
 	ja loc_474732 ; jumptable 00474719 default case
-	jmp dword off_474650[eax*4] ; switch jump
+	jmp off_474650[eax*4] ; switch jump
 
 loc_474720:
 	mov eax, edx ; jumptable 00474719 cases 0-2,5
@@ -155064,9 +154928,7 @@ sub_475E70: ;SUBROUTINE
 	ret
 
 loc_475E86:
-	call loc_49ADA5
-	pop ebp
-	ret
+	jmp ExitProcess0
 
 loc_475E8D:
 	push edi
@@ -155117,12 +154979,7 @@ loc_475ED0:
 	call sub_487958
 	test eax, eax
 	jnz loc_475EC7
-	call loc_49ADA5
-	mov al, [esp]
-	add esp, 4
-	pop edx
-	pop ebx
-	ret
+	jmp ExitProcess0
 ;sub_475EB0 endp
 
 sub_475F00: ;SUBROUTINE
@@ -155151,12 +155008,7 @@ loc_475F21:
 	call sub_487958
 	test eax, eax
 	jnz loc_475F18
-	call loc_49ADA5
-	mov eax, [esp]
-	add esp, 4
-	pop edx
-	pop ebx
-	ret
+	jmp ExitProcess0
 ;sub_475F00 endp
 
 sub_475F50: ;SUBROUTINE
@@ -156392,15 +156244,69 @@ loc_476C73:
 ;sub_476C40 endp
 
 sub_476CA0: ;SUBROUTINE
-
-;	FUNCTION CHUNK AT 0049FD50 SIZE 00000097 BYTES
-
 	cmp dword [dword_4D5A1C], 0
-	jnz loc_49FD50
+	jnz sub_49FD50
 	cmp dword [dword_4D5A20], 0
-	jnz loc_49FD50
+	jnz sub_49FD50
 	ret
 ;sub_476CA0 endp
+
+sub_49FD50: ;SUBROUTINE
+	cmp byte [byte_4DDA74], 0
+	jnz loc_49FD5F
+	mov eax, 0FFFFFFF6h
+	ret
+
+loc_49FD5F:
+	call sub_49DB20
+	cmp dword [dword_4DDA94], 0
+	jz loc_49FD73
+	call dword [dword_4DDA94]
+
+loc_49FD73:
+	cmp dword [dword_4DDA98], 0
+	jz loc_49FD82
+	call dword [dword_4DDA98]
+
+loc_49FD82:
+	cmp dword [dword_4DDA9C], 0
+	jz loc_49FD91
+	call dword [dword_4DDA9C]
+
+loc_49FD91:
+	cmp dword [dword_4DDA8C], 0
+	jz loc_49FDA5
+	mov eax, 0FFFFFFFFh
+	call dword [dword_4DDA8C]
+
+loc_49FDA5:
+	cmp dword [dword_4DDAA0], 0
+	jz loc_49FDB4
+	call dword [dword_4DDAA0]
+
+loc_49FDB4:
+	cmp dword [dword_4DDA90], 0
+	jz loc_49FDC3
+	call dword [dword_4DDA90]
+
+loc_49FDC3:
+	push edx
+	call sub_488BA4
+	mov edx, eax
+	test eax, eax
+	jl loc_49FDD9
+	push ebx
+	xor bl, bl
+	mov byte [byte_4DDA74], bl
+	pop ebx
+
+loc_49FDD9:
+	mov eax, dword [dword_59C600]
+	call sub_489F74
+	mov eax, edx
+	pop edx
+	ret
+;sub_49FD50 endp
 
 sub_476CC0: ;SUBROUTINE
 	push ebx
@@ -156833,7 +156739,7 @@ loc_47712D:
 loc_477131:
 	call sub_435104
 	mov edx, [esp+5Ch]
-	mov ax, word dword [dword_4D97B0]
+	mov ax, word [dword_4D97B0]
 	mov bx, [edx+84h]
 	mov edx, eax
 	mov eax, [esp+68h]
@@ -157010,7 +156916,7 @@ loc_47733A:
 	mov ebx, [esp+8]
 	call sub_4352A0
 	mov edx, [esp+20h]
-	mov ax, word dword [dword_4D97B0]
+	mov ax, word [dword_4D97B0]
 	mov bx, [edx+618h]
 	mov edx, eax
 	mov eax, [edi+4]
@@ -157334,37 +157240,37 @@ sub_4777A0: ;SUBROUTINE
 sub_4777B0: ;SUBROUTINE
 	and eax, 0FFh
 	jnz loc_477810
-	test byte dword [dword_557968], 20h
+	test byte [dword_557968], 20h
 	jnz loc_47780A
 
 loc_4777C4:
 	cmp eax, 4Bh
 	jnz loc_4777D2
-	test byte dword [dword_557968], 4
+	test byte [dword_557968], 4
 	jnz loc_47780A
 
 loc_4777D2:
 	cmp eax, 4Dh
 	jnz loc_4777E0
-	test byte dword [dword_557968], 8
+	test byte [dword_557968], 8
 	jnz loc_47780A
 
 loc_4777E0:
 	cmp eax, 48h
 	jnz loc_4777EE
-	test byte dword [dword_557968], 1
+	test byte [dword_557968], 1
 	jnz loc_47780A
 
 loc_4777EE:
 	cmp eax, 50h
 	jnz loc_4777FC
-	test byte dword [dword_557968], 2
+	test byte [dword_557968], 2
 	jnz loc_47780A
 
 loc_4777FC:
 	cmp eax, 1Ch
 	jnz loc_47781B
-	test byte dword [dword_557968], 10h
+	test byte [dword_557968], 10h
 	jz loc_47781B
 
 loc_47780A:
@@ -157718,13 +157624,13 @@ loc_477ABA:
 	mov eax, [esp]
 	cmp eax, 4000h
 	jge loc_477B40
-	or byte dword [dword_557968], 4
+	or byte [dword_557968], 4
 
 loc_477AE4:
 	mov ecx, [esp+4]
 	cmp ecx, 4000h
 	jge loc_477B50
-	or byte dword [dword_557968], 1
+	or byte [dword_557968], 1
 
 loc_477AF7:
 	mov edx, dword [dword_557968]
@@ -157753,13 +157659,13 @@ loc_477B21:
 loc_477B40:
 	cmp eax, 0C000h
 	jle loc_477AE4
-	or byte dword [dword_557968], 8
+	or byte [dword_557968], 8
 	jmp loc_477AE4
 
 loc_477B50:
 	cmp ecx, 0C000h
 	jle loc_477AF7
-	or byte dword [dword_557968], 2
+	or byte [dword_557968], 2
 	jmp loc_477AF7
 
 loc_477B61:
@@ -158464,7 +158370,7 @@ loc_478292:
 	mov ebp, 2710h
 	mov ecx, 72E4h
 	mov edx, esp
-	mov word dword [dword_55797E+2], ax
+	mov word [dword_55797E+2], ax
 	mov [esp+8], esi
 	mov [esp+0Ch], esi
 	mov [esp], bl
@@ -158477,7 +158383,7 @@ loc_478292:
 	test ax, ax
 	jl loc_478287
 	mov bh, 9
-	mov word dword [dword_557982], ax
+	mov word [dword_557982], ax
 	mov [esp+4], esi
 	mov [esp+0Ch], ebp
 	mov [esp+8], ebp
@@ -158499,7 +158405,7 @@ loc_478292:
 	call sub_422A34
 	test ax, ax
 	jl loc_478287
-	mov word dword [dword_557982+2], ax
+	mov word [dword_557982+2], ax
 	mov eax, 1
 	add esp, 58h
 	pop ebp
@@ -158685,8 +158591,6 @@ off_478520: dd loc_47859D
 	dd loc_47859D
 	dd loc_47859D
 
-;	Attributes: bp-based frame
-
 sub_47855C: ;SUBROUTINE
 	push ebx
 	push ecx
@@ -158712,7 +158616,7 @@ loc_478585:
 	dec eax
 	cmp eax, 0Eh ; switch 15 cases
 	ja loc_47859D ; jumptable 00478596 default case
-	jmp dword off_478520[eax*4] ; switch jump
+	jmp off_478520[eax*4] ; switch jump
 
 loc_47859D:
 	call sub_4781C0 ; jumptable 00478596 default case
@@ -159081,7 +158985,7 @@ loc_4789E1:
 	xor esi, eax
 
 loc_4789E9:
-	mov cl, byte dword [dword_4D9904]
+	mov cl, byte [dword_4D9904]
 	sar ebp, cl
 	and ebp, 0FFFFFFF8h
 	mov ecx, ebp
@@ -159111,7 +159015,7 @@ loc_478A2A:
 	mov eax, edx
 	cmp ecx, 0Eh ; switch 15 cases
 	ja loc_478A3F ; jumptable 00478A38 default case
-	jmp dword off_478920[ecx*4] ; switch jump
+	jmp off_478920[ecx*4] ; switch jump
 
 loc_478A3F:
 	mov edx, eax ; jumptable 00478A38 default case
@@ -159761,7 +159665,7 @@ sub_4790E0: ;SUBROUTINE
 	jz loc_479185
 	cmp dword [dword_4D98EC], 0
 	jz loc_479185
-	cmp byte dword [dword_512ED4], 0
+	cmp byte [dword_512ED4], 0
 	jz loc_479185
 	push edx
 	push ecx
@@ -159778,7 +159682,7 @@ sub_4790E0: ;SUBROUTINE
 	mov dword [dword_4D98F0], ecx
 	cmp eax, 0Bh ; switch 12 cases
 	ja loc_479190 ; jumptable 00479143 default case
-	jmp dword off_4790B0[eax*4] ; switch jump
+	jmp off_4790B0[eax*4] ; switch jump
 
 loc_47914A:
 	push edi ; jumptable 00479143 cases 0,1,6,7,10
@@ -159828,7 +159732,7 @@ sub_4791B4: ;SUBROUTINE
 	xor ebx, ebx
 	cmp eax, 4 ; switch 5 cases
 	ja loc_4791D0 ; jumptable 004791C3 default case
-	jmp dword off_4791A0[eax*4] ; switch jump
+	jmp off_4791A0[eax*4] ; switch jump
 
 loc_4791CA:
 	mov ebx, dword [dword_51220C] ; jumptable 004791C3 cases 0,2-4
@@ -160052,7 +159956,7 @@ loc_4793C7:
 	push ebx
 	call sub_4421F0
 	mov eax, 10h
-	mov dl, byte dword [dword_512ED4]
+	mov dl, byte [dword_512ED4]
 	call sub_422D60
 	xor ebx, ebx
 	xor edx, edx
@@ -160153,7 +160057,7 @@ loc_47956B:
 	jz loc_4796C8
 	cmp edx, 3
 	ja loc_4795C8
-	jmp dword off_4794F0[edi]
+	jmp off_4794F0[edi]
 
 loc_479592:
 	mov ecx, 14h
@@ -160261,7 +160165,7 @@ loc_47969B:
 loc_4796C8:
 	cmp edx, 3
 	ja loc_4795C8
-	jmp dword off_479500[edi]
+	jmp off_479500[edi]
 
 loc_4796D7:
 	mov ecx, 14h
@@ -161508,7 +161412,7 @@ loc_47A467:
 	cmp al, 5
 	ja loc_47A553 ; jumptable 0047A54C case 0
 	and eax, 0FFh ; switch 6 cases
-	jmp dword off_47A400[eax*4] ; switch jump
+	jmp off_47A400[eax*4] ; switch jump
 
 loc_47A553:
 	mov eax, [esp+38h] ; jumptable 0047A54C case 0
@@ -162773,7 +162677,7 @@ loc_47B3BD:
 	cmp al, 9
 	ja loc_47B43A
 	and eax, 0FFh ; switch 10 cases
-	jmp dword off_47B280[eax*4] ; switch jump
+	jmp off_47B280[eax*4] ; switch jump
 
 loc_47B41F:
 	push 18h ; jumptable 0047B418 case 0
@@ -162945,7 +162849,7 @@ loc_47B5B8:
 	cmp al, 7
 	ja loc_47B43A
 	and eax, 0FFh ; switch 8 cases
-	jmp dword off_47B2A8[eax*4] ; switch jump
+	jmp off_47B2A8[eax*4] ; switch jump
 
 loc_47B5DD:
 	push 18h ; jumptable 0047B5D6 case 0
@@ -163026,7 +162930,7 @@ loc_47B6A7:
 	cmp al, 9
 	ja loc_47B43A
 	and eax, 0FFh ; switch 10 cases
-	jmp dword off_47B2C8[eax*4] ; switch jump
+	jmp off_47B2C8[eax*4] ; switch jump
 
 loc_47B6C3:
 	push 1Ah ; jumptable 0047B6BC case 0
@@ -166392,7 +166296,7 @@ loc_47DE7F:
 	ret
 ;sub_47DE50 endp
 
-loc_47DEC0:
+sub_47DEC0: ;SUBROUTINE
 	cmp dword [dword_4DA1B8], 0
 	jnz loc_47DED4
 	mov ebx, dword [dword_562A70]
@@ -166412,8 +166316,9 @@ loc_47DED7:
 	mov eax, 1
 	pop esi
 	ret
+;sub_47DEC0 endp
 
-loc_47DEF0:
+sub_47DEF0: ;SUBROUTINE
 	push esi
 	push edi
 	push ebp
@@ -166515,8 +166420,9 @@ loc_47DFD6:
 	pop edi
 	pop esi
 	ret
+;sub_47DEF0 endp
 
-loc_47DFE0:
+sub_47DFE0: ;SUBROUTINE
 	push esi
 	push edi
 	mov edi, eax
@@ -166617,6 +166523,7 @@ loc_47E0F8:
 	add eax, edx
 	mov edx, esi
 	jmp loc_47E050
+;sub_47DFE0 endp
 
 sub_47E120: ;SUBROUTINE
 	push ecx
@@ -166641,7 +166548,7 @@ sub_47E120: ;SUBROUTINE
 	mov dword [dword_562A74], ebp
 	mov ebx, esi
 	mov edx, edi
-	mov eax, loc_47DFE0
+	mov eax, sub_47DFE0
 	mov dword [dword_4DA1C0], ebp
 	call sub_48B02C
 	test eax, eax
@@ -167007,7 +166914,7 @@ loc_47E595:
 
 loc_47E5A8:
 	mov dword [dword_4DB1DC], 2E6h
-	mov eax, dword word [word_513456]
+	mov eax, dword [word_513456]
 	sar eax, 10h
 	push eax
 	mov esi, dword [dword_51220C]
@@ -167162,10 +167069,10 @@ loc_47E744:
 
 loc_47E754:
 	mov edx, 1
-	mov bx, word dword [dword_513408+2]
+	mov bx, word [dword_513408+2]
 	add ebx, edx
 	mov [esp+30h], dx
-	mov word dword [dword_513408+2], bx
+	mov word [dword_513408+2], bx
 	mov dword [dword_4DA1BC], 0FFFFFFFh
 	jmp loc_47E677
 
@@ -167301,7 +167208,7 @@ sub_47E8B0: ;SUBROUTINE
 	mov eax, 1
 	xor ebx, ebx
 	call sub_464030
-	mov word dword [dword_51340C], dx
+	mov word [dword_51340C], dx
 	xor ah, ah
 	mov dl, 3
 	mov byte [byte_5133C0], ah
@@ -167506,12 +167413,12 @@ sub_47EAE0: ;SUBROUTINE
 	call sub_464030
 	mov ah, 3
 	mov byte [byte_5133C0], dl
-	mov word dword [dword_513408+2], bx
-	mov word dword [dword_51340C+2], si
+	mov word [dword_513408+2], bx
+	mov word [dword_51340C+2], si
 	mov byte [byte_51345E], ah
 	xor dh, dh
 	mov esi, ecx
-	mov word dword [dword_51340C], dx
+	mov word [dword_51340C], dx
 	push edi
 
 loc_47EB39:
@@ -167638,7 +167545,7 @@ loc_47EC71:
 	cmp byte [edx+eax+0Fh], 0
 	jz loc_47ED18
 	mov ebp, 20h
-	mov ecx, loc_47DEC0
+	mov ecx, sub_47DEC0
 	lea ebx, [esp+0Ch]
 	mov edx, dword_562948
 	mov eax, dword_56289C
@@ -167736,7 +167643,7 @@ sub_47ED30: ;SUBROUTINE
 loc_47EDAA:
 	mov esi, dword_5622F4
 	lea ecx, [esp+64h]
-	mov edx, loc_47DEF0
+	mov edx, sub_47DEF0
 	mov eax, dword_56289C
 	mov ebx, ebp
 	mov dword [dword_4DA1D4], esi
@@ -167963,7 +167870,7 @@ loc_47EFFB:
 sub_47F010: ;SUBROUTINE
 	push ecx
 	push edx
-	mov ecx, loc_47F030
+	mov ecx, sub_47F030
 	mov edx, nullsub_46
 	mov dword [off_4DB214], ecx
 	mov dword [off_4DB210], edx
@@ -167972,7 +167879,7 @@ sub_47F010: ;SUBROUTINE
 	ret
 ;sub_47F010 endp
 
-loc_47F030:
+sub_47F030: ;SUBROUTINE
 	push ecx
 	mov ecx, eax
 	mov eax, edx
@@ -167985,6 +167892,7 @@ loc_47F03B:
 	call sub_484DA8
 	pop ecx
 	ret
+;sub_47F030 endp
 
 nullsub_46: ;SUBROUTINE
 	ret
@@ -169655,7 +169563,7 @@ sub_4802B0: ;SUBROUTINE
 	shl eax, 3
 	add eax, edx
 	add eax, 32h
-	mov word dword [dword_56312A+2], cx
+	mov word [dword_56312A+2], cx
 	mov dword [dword_56310C], eax
 	pop edx
 	pop ecx
@@ -170370,28 +170278,28 @@ loc_480C80:
 	mov dword [dword_5635CC], esi
 	mov byte [byte_5635E0], dl
 
-	push loc_481CC0
+	push sub_481CC0
 	push 7
 	call sub_482270
-	push loc_481C60
+	push sub_481C60
 	push 8
 	call sub_482270
 
-	push loc_481BB0
+	push sub_481BB0
 	push 2
 	call sub_482270
 
 	push sub_4818B0
 	push 100h
 	call sub_482270
-	push loc_481860
+	push sub_481860
 	push 101h
 	call sub_482270
-	push loc_4819D0
+	push sub_4819D0
 	push 102h
 	call sub_482270
 
-	push loc_481BE0
+	push sub_481BE0
 	push 466h
 	call sub_482270
 loc_480EDC:
@@ -170401,7 +170309,6 @@ loc_480EDC:
 	mov dword [dword_563D74], eax
 	mov eax, [esp+3Ch]
 	xor edx, edx
-;	mov dword_563918, eax
 	lea eax, [esp+28h]
 	mov ebx, 1
 	push eax
@@ -170638,7 +170545,7 @@ sub_481290: ;SUBROUTINE
 	mov esi, dword [dword_4DAB34]
 	test ah, ah
 	jnz loc_4813CF
-	mov dl, byte dword [dword_4DAB88]
+	mov dl, byte [dword_4DAB88]
 	or esi, 0CA0000h
 	test dl, 20h
 	jz loc_481409
@@ -170679,7 +170586,7 @@ loc_4812EA:
 
 loc_481339:
 	push sub_481590
-	call CreateWindow
+	call WrapperCreateWindow
 	add esp, 4
 	mov esi, eax
 	call sub_497244
@@ -170713,8 +170620,6 @@ loc_481414:
 	jmp loc_4812EA
 ;sub_481290 endp
 
-;	Attributes: bp-based frame
-
 sub_481590: ;SUBROUTINE
 	push ebx
 	push esi
@@ -170724,7 +170629,7 @@ sub_481590: ;SUBROUTINE
 	sub esp, 10h
 	mov esi, [ebp+18h]
 	mov ecx, dword_563900
-	push loc_4823D0
+	push sub_4823D0
 	mov edx, dword_5631B0
 	lea eax, [ebp-10h]
 	mov ebx, dword [dword_4DAB10]
@@ -170779,7 +170684,7 @@ loc_481675:
 	ret 10h
 ;sub_481590 endp
 
-loc_481860:
+sub_481860: ;SUBROUTINE
 	cmp dword [esp+4], 0
 	jz loc_4818A1
 	mov eax, [esp+14h]
@@ -170799,6 +170704,7 @@ loc_481885:
 loc_4818A1:
 	xor eax, eax
 	ret 18h
+;sub_481860 endp
 
 sub_4818B0: ;SUBROUTINE
 	push ebx
@@ -170881,7 +170787,7 @@ loc_4819A8:
 	ret 18h
 ;sub_4818B0 endp
 
-loc_4819D0:
+sub_4819D0: ;SUBROUTINE
 	push edi
 	push ebp
 	mov ebp, [esp+18h]
@@ -170926,8 +170832,9 @@ loc_481A30:
 	pop ebp
 	pop edi
 	ret 18h
+;sub_4819D0 endp
 
-loc_481BB0:
+sub_481BB0: ;SUBROUTINE
 	mov eax, [esp+4]
 	test eax, eax
 	jnz loc_481BBD
@@ -170938,8 +170845,9 @@ loc_481BBD:
 	mov dword [eax+454h], 0
 	xor eax, eax
 	ret 18h
+;sub_481BB0 endp
 
-loc_481BE0:
+sub_481BE0: ;SUBROUTINE
 	cmp dword [esp+4], 0
 	jnz loc_481BEF
 	mov eax, 1
@@ -170950,8 +170858,9 @@ loc_481BEF:
 	mov dword [dword_4DAB18], ecx
 	mov eax, 1
 	ret 18h
+;sub_481BE0 endp
 
-loc_481C60:
+sub_481C60: ;SUBROUTINE
 	mov edx, [esp+8]
 	cmp edx, dword [dword_563D54]
 	jz loc_481C71
@@ -170973,8 +170882,9 @@ loc_481C97:
 	call sub_48A01C
 	xor eax, eax
 	ret 18h
+;sub_481C60 endp
 
-loc_481CC0:
+sub_481CC0: ;SUBROUTINE
 	mov edx, [esp+4]
 	test edx, edx
 	jz loc_481D2D
@@ -171006,6 +170916,7 @@ loc_481D32:
 	mov eax, 1
 	call dword [dword_5635D4]
 	jmp loc_481CDD
+;sub_481CC0 endp
 
 sub_481D80: ;SUBROUTINE
 	cmp eax, 104h
@@ -171342,9 +171253,7 @@ sub_4821A0: ;SUBROUTINE
 	call sub_4824BC
 	mov eax, sub_4821A0
 	call sub_483E64
-	call loc_49ADA5
-	xor eax, eax
-	ret
+	jmp ExitProcess0
 ;sub_4821A0 endp
 
 sub_4821D0: ;SUBROUTINE
@@ -171414,7 +171323,7 @@ loc_482290:
 	mov edx, dword_5631B0
 	call sub_489F48
 	mov eax, [esp+18h]
-	push loc_4823D0
+	push sub_4823D0
 	mov ebx, dword [dword_4DAB10]
 	mov [esp+4], eax
 	lea eax, [esp+4]
@@ -171423,7 +171332,7 @@ loc_482290:
 	jz loc_48230D
 	test edi, edi
 	jnz loc_482308
-	mov ecx, loc_4823D0
+	mov ecx, sub_4823D0
 	mov ebx, 8
 	mov edx, dword [dword_4DAB10]
 	mov dword [eax], 0FFFFFFFFh
@@ -171460,7 +171369,7 @@ loc_48230D:
 	mov dword dword_5631B4[ecx*8], edi
 	mov dword [dword_4DAB10], ebx
 	mov dword dword_5631B0[ecx*8], edx
-	mov ecx, loc_4823D0
+	mov ecx, sub_4823D0
 	mov edx, ebx
 	mov ebx, 8
 	mov esi, 1
@@ -171485,7 +171394,7 @@ loc_48237B:
 	mov edx, dword_5631B0
 	call sub_489F48
 	mov eax, [esp+14h]
-	push loc_4823D0
+	push sub_4823D0
 	mov ebx, dword [dword_4DAB10]
 	mov [esp+4], eax
 	lea eax, [esp+4]
@@ -171504,13 +171413,14 @@ loc_4823B2:
 	ret 4
 ;sub_482360 endp
 
-loc_4823D0:
+sub_4823D0: ;SUBROUTINE
 	push ecx
 	mov ecx, [edx]
 	mov eax, [eax]
 	sub eax, ecx
 	pop ecx
 	ret
+;sub_4823D0 endp
 
 sub_4823E0: ;SUBROUTINE
 	push ebx
@@ -171947,9 +171857,6 @@ sub_4827E4: ;SUBROUTINE
 	mov [edx+3], al
 	add esp, 4
 	pop ecx
-	nop
-
-locret_482838:
 	ret
 ;sub_4827E4 endp
 
@@ -172299,7 +172206,7 @@ loc_482B36:
 	ret
 ;sub_482B2C endp
 
-loc_482BD4:
+sub_482BD4: ;SUBROUTINE
 	push ecx
 	push esi
 	push edi
@@ -172363,6 +172270,7 @@ loc_482C67:
 	pop esi
 	pop ecx
 	ret
+;sub_482BD4 endp
 
 sub_482C78: ;SUBROUTINE
 	push edi
@@ -172408,7 +172316,7 @@ loc_482CE5:
 	mov dword [dword_5636E4], eax
 
 loc_482D12:
-	mov ebx, loc_482BD4
+	mov ebx, sub_482BD4
 	mov esi, 7Bh
 	mov dword [dword_4DAD7C], ebx
 	mov dword [dword_4DAD84], esi
@@ -173036,7 +172944,7 @@ loc_483283:
 	jmp loc_48326B
 ;sub_4831A8 endp
 
-loc_483288:
+sub_483288: ;SUBROUTINE
 	push ecx
 	push esi
 	push edi
@@ -173092,6 +173000,7 @@ loc_483300:
 	pop esi
 	pop ecx
 	ret
+;sub_483288 endp
 
 sub_48330C: ;SUBROUTINE
 	push ecx
@@ -173114,7 +173023,7 @@ sub_48330C: ;SUBROUTINE
 	jnz loc_483369
 	mov edx, esp
 	mov eax, esi
-	mov ebp, loc_483288
+	mov ebp, sub_483288
 	call sub_499EC0
 	mov dword [dword_5636EC], eax
 	mov eax, 7Bh
@@ -173530,7 +173439,7 @@ loc_48394A:
 	ret
 ;sub_4838CC endp
 
-loc_483960:
+sub_483960: ;SUBROUTINE
 	push edx
 	xor eax, eax
 
@@ -173542,6 +173451,7 @@ loc_483963:
 	jnz loc_483963
 	pop edx
 	ret
+;sub_483960 endp
 
 sub_483A70: ;SUBROUTINE
 	push ebx
@@ -173831,7 +173741,7 @@ loc_483D93:
 loc_483DA1:
 	cmp dword [dword_4DABCC], 0
 	jz loc_483C93
-	mov dword [dword_4DAC08], loc_483960
+	mov dword [dword_4DAC08], sub_483960
 	add esp, 8
 	pop ebp
 	pop edi
@@ -174173,8 +174083,7 @@ loc_48427C:
 	call sub_489BE8
 	test eax, eax
 	jz loc_4842E1
-	xor eax, eax
-	jmp loc_4A9F7D
+	jmp ExitProcess0
 
 loc_48428E:
 	add esp, 304h
@@ -175192,7 +175101,7 @@ loc_484F0E:
 	and ebx, 3
 	cmp esi, 0Fh ; switch 16 cases
 	ja loc_484FF3 ; jumptable 00484F2D default case
-	jmp dword off_484EB0[esi*4] ; switch jump
+	jmp off_484EB0[esi*4] ; switch jump
 
 loc_484F34:
 	dec ebp ; jumptable 00484F2D case 0
@@ -176283,7 +176192,7 @@ loc_485CA8:
 	jmp loc_485C60
 
 loc_485CE0:
-	jmp dword off_485C28[edx*4] ; switch jump
+	jmp off_485C28[edx*4] ; switch jump
 
 loc_485CE7:
 	mov edi, esp ; jumptable 00485CE0 case 0
@@ -177150,14 +177059,6 @@ sub_486550: ;SUBROUTINE
 	ret
 ;sub_486550 endp
 
-nullsub_64: ;SUBROUTINE
-	ret
-;nullsub_64 endp
-
-nullsub_66: ;SUBROUTINE
-	ret
-;nullsub_66 endp
-
 sub_486560: ;SUBROUTINE
 	push ebx
 	push ecx
@@ -177854,7 +177755,7 @@ loc_486C86:
 	mov eax, esi
 	mov ecx, 7Bh
 	call sub_499EC0
-	mov edx, loc_4A66EC
+	mov edx, sub_4A66EC
 	mov dword [dword_563F28], eax
 	mov dword [dword_4DB56C], ecx
 	mov dword [dword_4DB564], edx
@@ -177948,9 +177849,7 @@ loc_486DD5:
 	jmp loc_486D9D
 
 loc_486DDC:
-	xor eax, eax
-	jmp loc_4A9F7D
-	jmp loc_486D9D
+	jmp ExitProcess0
 
 loc_486DE5:
 	cmp byte [byte_4DB31E], 0
@@ -177996,12 +177895,47 @@ sub_486E38: ;SUBROUTINE
 ;sub_486E38 endp
 
 sub_486E44: ;SUBROUTINE
-
-;	FUNCTION CHUNK AT 004A67A8 SIZE 00000050 BYTES
-
 	call sub_482030
 	and eax, 0FFFFh
 	jmp loc_4A67A8
+
+loc_4A67A8:
+	push edx
+	dec dword [dword_4DDC4A]
+	jnz loc_4A67F0
+	mov edx, eax
+	or dl, dl
+	jz loc_4A67D8
+	and edx, 7Fh
+	mov dl, byte byte_4DDB44[edx]
+
+loc_4A67C0:
+	dec edx
+	jl loc_4A67F0
+	push edi
+	push esi
+	call dword dword_4DDC4E[edx*4]
+	pop esi
+	pop edi
+	xor eax, eax
+	inc dword [dword_4DDC4A]
+	pop edx
+	ret
+
+loc_4A67D8:
+	movzx edx, dh
+	cmp edx, 84h
+	jl loc_4A67E8
+	mov edx, 84h
+
+loc_4A67E8:
+	mov dl, byte byte_4DDBC4[edx]
+	jmp loc_4A67C0
+
+loc_4A67F0:
+	inc dword [dword_4DDC4A]
+	pop edx
+	ret
 ;sub_486E44 endp
 
 sub_486E54: ;SUBROUTINE
@@ -178241,7 +178175,7 @@ sub_487060: ;SUBROUTINE
 	jle loc_48717E
 
 loc_487146:
-	mov dword [dword_4DD788], loc_4A688C
+	mov dword [dword_4DD788], sub_4A688C
 
 loc_487150:
 	mov edx, 10h
@@ -178268,7 +178202,7 @@ loc_48717E:
 	shr eax, cl
 	cmp eax, 0FFh
 	ja loc_487146
-	mov dword [dword_4DD788], loc_4A6860
+	mov dword [dword_4DD788], sub_4A6860
 	jmp loc_487150
 ;sub_487060 endp
 
@@ -179764,9 +179698,6 @@ sub_4880DA: ;SUBROUTINE
 ;sub_4880DA endp
 
 sub_488128: ;SUBROUTINE
-
-;	FUNCTION CHUNK AT 004881A6 SIZE 000001F0 BYTES
-
 	push ecx
 	push esi
 	push edi
@@ -179794,18 +179725,6 @@ loc_48815D:
 	pop esi
 	pop ecx
 	ret
-;sub_488128 endp
-
-sub_488168: ;SUBROUTINE
-	push ebx
-	mov ebx, 1
-	call sub_4848EC
-	call sub_488128
-	pop ebx
-	ret
-;sub_488168 endp
-
-;	START OF FUNCTION CHUNK FOR sub_488128
 
 loc_4881A6:
 	mov [esp], eax
@@ -180016,7 +179935,16 @@ loc_48838C:
 	pop esi
 	pop ecx
 	ret
-;	END OF FUNCTION CHUNK FOR sub_488128
+;sub_488128 endp
+
+sub_488168: ;SUBROUTINE
+	push ebx
+	mov ebx, 1
+	call sub_4848EC
+	call sub_488128
+	pop ebx
+	ret
+;sub_488168 endp
 
 sub_488396: ;SUBROUTINE
 	push ecx
@@ -180357,7 +180285,7 @@ loc_4886AE:
 	jmp loc_488646
 ;sub_488620 endp
 
-loc_4886D0:
+sub_4886D0: ;SUBROUTINE
 	push ecx
 	mov ecx, eax
 	mov eax, dword [dword_59C600]
@@ -180382,6 +180310,7 @@ loc_488704:
 	call sub_489F60
 	pop ecx
 	ret
+;sub_4886D0 endp
 
 sub_488718: ;SUBROUTINE
 	cmp dword [dword_4DB67C], 0
@@ -180398,11 +180327,11 @@ loc_48872A:
 
 	call iSNDdllversion_
 	cmp eax, 60002h
-	jz sub_488718_sndsetfunc
+	jz loc_488718_sndsetfunc
 	mov eax, 0FFFFFFF5h
-	jmp sub_488718_end
+	jmp loc_488718_end
 
-sub_488718_sndsetfunc:
+loc_488718_sndsetfunc:
 	mov ecx, sub_4A5170
 	mov eax, sub_4A7CBC
 	xor edx, edx
@@ -180412,7 +180341,7 @@ sub_488718_sndsetfunc:
 
 	xor eax, eax
 
-sub_488718_end:
+loc_488718_end:
 	pop ecx
 	pop ebx
 	pop edx
@@ -180443,12 +180372,13 @@ sub_488898: ;SUBROUTINE
 	ret
 ;sub_488898 endp
 
-loc_48890C:
+sub_48890C: ;SUBROUTINE
 	mov eax, dword [dword_59C600]
 	call sub_489F48
 	call iSNDdirectserve_
 	mov eax, dword [dword_59C600]
 	jmp sub_489F60
+;sub_48890C endp
 
 sub_488928: ;SUBROUTINE
 	push ebx
@@ -180498,7 +180428,7 @@ loc_4889A8:
 	mov dword [dword_564254], eax
 	test dl, dl
 	jnz loc_4889CC
-	mov eax, loc_49FD50
+	mov eax, sub_49FD50
 	mov dh, 1
 	call atexit_
 	mov byte [byte_4DB66E], dh
@@ -180521,7 +180451,7 @@ loc_4889CC:
 	jl loc_488966
 	cmp byte [byte_4DB66C], 0
 	jnz loc_488A27
-	mov eax, loc_48890C
+	mov eax, sub_48890C
 	mov bh, 1
 	call sub_4838CC
 	mov byte [byte_4DB66C], bh
@@ -180529,7 +180459,7 @@ loc_4889CC:
 loc_488A27:
 	cmp byte [byte_4DB66D], 0
 	jnz loc_488A42
-	mov eax, loc_4886D0
+	mov eax, sub_4886D0
 	mov ch, 1
 	call sub_4821D0
 	mov byte [byte_4DB66D], ch
@@ -181004,7 +180934,7 @@ loc_488FF5:
 	ret 1Ch
 
 loc_489003:
-	jmp dword off_488EF0[eax*4] ; switch jump
+	jmp off_488EF0[eax*4] ; switch jump
 
 loc_48900A:
 	mov edx, ecx ; jumptable 00489003 case 0
@@ -181283,9 +181213,6 @@ loc_4892E8:
 	pop edi
 	pop esi
 	pop ecx
-	nop
-
-locret_4892FC:
 	ret
 
 loc_4892FD:
@@ -182038,7 +181965,6 @@ sub_489A48: ;SUBROUTINE
 	jl loc_489A73
 
 loc_489A67:
-	cmp ebx, 102h
 	xor eax, eax
 	pop edi
 	pop esi
@@ -182256,7 +182182,7 @@ loc_489CEF:
 	lea eax, [ebx+3] ; switch 7 cases
 	cmp eax, 6
 	ja loc_489D65 ; jumptable 00489D01 default case
-	jmp dword off_489CC4[eax*4] ; switch jump
+	jmp off_489CC4[eax*4] ; switch jump
 
 loc_489D08:
 	mov eax, 0FFFFFFF1h ; jumptable 00489D01 case -3
@@ -182281,7 +182207,7 @@ loc_489D22:
 	lea eax, [ebx+3] ; switch 7 cases
 	cmp eax, 6
 	ja loc_489D65 ; jumptable 00489D01 default case
-	jmp dword off_489CC4[eax*4] ; switch jump
+	jmp off_489CC4[eax*4] ; switch jump
 
 loc_489D38:
 	call GetCurrentThread_wrap
@@ -182289,7 +182215,7 @@ loc_489D38:
 	lea eax, [ebx+3] ; switch 7 cases
 	cmp eax, 6
 	ja loc_489D65 ; jumptable 00489D01 default case
-	jmp dword off_489CC4[eax*4] ; switch jump
+	jmp off_489CC4[eax*4] ; switch jump
 
 loc_489D50:
 	mov eax, 0Fh ; jumptable 00489D01 case 3
@@ -183141,8 +183067,8 @@ sub_48AB4C: ;SUBROUTINE
 	push 0 ; flags
 	push 42h ; len
 	push buf ; buf
-	mov edx, dword [s]
-	push edx ; s
+	mov edx, dword [dword_5642CC]
+	push edx ; dword_5642CC
 	call sendto_wrap
 	mov eax, dword [dword_4DB6A0]
 	call sub_489F60
@@ -183298,7 +183224,7 @@ sub_48ACA0: ;SUBROUTINE
 
 loc_48ACEC:
 	mov ecx, 1
-	mov eax, dword [s]
+	mov eax, dword [dword_5642CC]
 	mov edx, ebx
 	mov [esp+200h], ecx
 	mov [esp+204h], eax
@@ -183337,8 +183263,8 @@ loc_48ACEC:
 	push 200h ; len
 	lea eax, [esp+10h]
 	push eax ; buf
-	mov eax, dword [s]
-	push eax ; s
+	mov eax, dword [dword_5642CC]
+	push eax ; dword_5642CC
 	call recvfrom_wrap
 	mov edx, eax
 	mov eax, dword [dword_4DB6A0]
@@ -183420,7 +183346,7 @@ loc_48AE52:
 loc_48AE5B:
 	mov eax, dword_5642D4
 	call sub_48ABD4
-	mov dword [s], eax
+	mov dword [dword_5642CC], eax
 	cmp eax, 0FFFFFFFFh
 	jz loc_48AE52
 	mov ebx, 2
@@ -183470,8 +183396,8 @@ loc_48AEF5:
 loc_48AF10:
 	cmp dword [dword_5642C4], 0
 	jz loc_48AE52
-	mov eax, dword [s]
-	push eax ; s
+	mov eax, dword [dword_5642CC]
+	push eax ; dword_5642CC
 	call closesocket_wrap
 	mov eax, dword [dword_5642C8]
 	pop edi
@@ -183495,9 +183421,9 @@ loc_48AF40:
 	ret
 
 loc_48AF49:
-	mov ebx, dword [s]
+	mov ebx, dword [dword_5642CC]
 	xor ecx, ecx
-	push ebx ; s
+	push ebx ; dword_5642CC
 	mov dword [dword_5642C8], ecx
 	call closesocket_wrap
 	cmp dword [dword_5642C4], 0
@@ -183573,7 +183499,7 @@ loc_48AFE7:
 	ret
 ;sub_48AF90 endp
 
-loc_48AFF4:
+sub_48AFF4: ;SUBROUTINE
 	push edx
 	cmp dword [dword_4DBAE0], 0
 	jz loc_48B029
@@ -183598,6 +183524,7 @@ loc_48B015:
 loc_48B029:
 	pop edx
 	ret
+;sub_48AFF4 endp
 
 sub_48B02C: ;SUBROUTINE
 	push esi
@@ -183740,7 +183667,7 @@ loc_48B17B:
 	mov eax, dword_564364
 	xor ebx, ebx
 	call sub_48BA2C
-	mov eax, loc_48AFF4
+	mov eax, sub_48AFF4
 	call atexit_
 	cmp dword [dword_4DBAD4], 0
 	jnz loc_48B1B4
@@ -183925,8 +183852,6 @@ loc_48B30A:
 	pop esi
 	ret
 ;sub_48B2FC endp
-
-;	Attributes: bp-based frame
 
 sub_48B724: ;SUBROUTINE
 	push esi
@@ -187686,7 +187611,7 @@ loc_48DF6F:
 
 dword_48DF80: dd 0EA67616Dh, 0FFFFFFFFh, 0FF2E5251h
 
-loc_48DFA8:
+sub_48DFA8: ;SUBROUTINE
 	push ecx
 	mov eax, edx
 	mov ecx, ebx
@@ -187703,6 +187628,7 @@ loc_48DFBA:
 	mov dword [dword_5643F0], ecx
 	pop ecx
 	ret
+;sub_48DFA8 endp
 
 sub_48DFD4: ;SUBROUTINE
 	push esi
@@ -187929,7 +187855,7 @@ loc_48E223:
 	mov ebp, (dword_48DF80+8)
 	call sub_48A01C
 	mov dword [dword_5643A4], ebp
-	mov dword [dword_5643B0], loc_48DFA8
+	mov dword [dword_5643B0], sub_48DFA8
 	call SDL_GetTicks
 	add eax, ebx
 	mov dword [dword_5643E4], eax
@@ -189033,7 +188959,7 @@ loc_48EE0A:
 	ja loc_48EDEE
 	xor eax, eax
 	mov al, dl
-	jmp dword off_48ED5C[eax*4]
+	jmp off_48ED5C[eax*4]
 
 loc_48EE1F:
 	cmp ebx, 2
@@ -189578,7 +189504,7 @@ loc_48F5E1:
 	ret
 ;sub_48F590 endp
 
-loc_48F6A0:
+sub_48F6A0: ;SUBROUTINE
 	push edx
 	xor edx, edx
 	cmp dword [dword_4DBED0], 0
@@ -189596,6 +189522,7 @@ loc_48F6AC:
 loc_48F6C2:
 	pop edx
 	ret
+;sub_48F6A0 endp
 
 sub_48F6C4: ;SUBROUTINE
 	push ecx
@@ -190261,7 +190188,7 @@ loc_48FF22:
 	ret
 
 loc_48FF30:
-	mov eax, loc_48F6A0
+	mov eax, sub_48F6A0
 	call atexit_
 	cmp dword [dword_4DBED8], 0
 	jnz loc_48FF4D
@@ -193331,7 +193258,7 @@ loc_493FD4:
 	dec edx
 	cmp edx, 13h ; switch 20 cases
 	ja loc_493FA6 ; jumptable 00493FF5 default case
-	jmp dword off_493F28[edx*4] ; switch jump
+	jmp off_493F28[edx*4] ; switch jump
 
 loc_493FFC:
 	mov eax, dword [dword_4DCE4C] ; jumptable 00493FF5 cases 0,16-18
@@ -195700,7 +195627,7 @@ loc_495C74:
 	ret
 ;sub_495C28 endp
 
-loc_495CAC:
+sub_495CAC: ;SUBROUTINE
 	push edx
 	mov edx, eax
 	cmp byte [byte_4DDA74], 0
@@ -195745,6 +195672,7 @@ loc_495D1C:
 	call sub_4A50F8
 	pop edx
 	ret
+;sub_495CAC endp
 
 sub_495D24: ;SUBROUTINE
 	push ecx
@@ -196269,7 +196197,7 @@ sub_496314: ;SUBROUTINE
 	cmp al, 3
 	ja loc_49633E ; jumptable 00496337 case 0
 	and eax, 0FFh ; switch 4 cases
-	jmp dword off_496304[eax*4] ; switch jump
+	jmp off_496304[eax*4] ; switch jump
 
 loc_49633E:
 	call sub_4A5374 ; jumptable 00496337 case 0
@@ -196627,7 +196555,7 @@ loc_49671A:
 	mov byte [byte_4DCED8], dl
 	xor ebx, ebx
 	mov word [word_4DCEE2], bx
-	mov eax, loc_495CAC
+	mov eax, sub_495CAC
 	call sub_4A5060
 	pop ebx
 	mov eax, dword [dword_4DCE6C]
@@ -197201,7 +197129,7 @@ loc_4972D0:
 ;sub_4972BC endp
 
 sub_4972FC: ;SUBROUTINE
-	test byte dword [dword_4DCFE4], 2
+	test byte [dword_4DCFE4], 2
 	jnz loc_497306
 	ret
 
@@ -197209,7 +197137,7 @@ loc_497306:
 	push edx
 	push ecx
 	call grSstWinClose
-	and byte dword [dword_4DCFE4], 0FDh
+	and byte [dword_4DCFE4], 0FDh
 	pop ecx
 	pop edx
 	ret
@@ -197328,7 +197256,7 @@ loc_497422:
 	push edx
 	push 65h
 	call sub_497738
-	or byte dword [dword_4DCFE4], 2
+	or byte [dword_4DCFE4], 2
 	pop esi
 	mov eax, ebx
 	pop ebx
@@ -197574,7 +197502,7 @@ sub_497680: ;SUBROUTINE
 
 sub_49769C: ;SUBROUTINE
 	xor eax, eax
-	mov ax, word dword [dword_4DCFEC]
+	mov ax, word [dword_4DCFEC]
 	push eax
 	push 0
 	mov edx, dword [dword_4DCFE8]
@@ -198535,9 +198463,6 @@ sub_498EE0: ;SUBROUTINE
 sub_499540: ;SUBROUTINE
 	inc ebx
 	sar ebx, 1
-	nop
-
-loc_499544:
 	jmp sub_48A980
 ;sub_499540 endp
 
@@ -199449,33 +199374,7 @@ sub_499C48: ;SUBROUTINE
 	jmp sub_48A980
 ;sub_499C48 endp
 
-;	START OF FUNCTION CHUNK FOR sub_499C98
-
-loc_499C73:
-	mov eax, 3
-	ret
-;	END OF FUNCTION CHUNK FOR sub_499C98
-
-;	START OF FUNCTION CHUNK FOR sub_499C98
-
-loc_499C80:
-	mov eax, 5
-	ret
-;	END OF FUNCTION CHUNK FOR sub_499C98
-
-;	START OF FUNCTION CHUNK FOR sub_499C98
-
-loc_499C89:
-	mov eax, 2
-	ret
-;	END OF FUNCTION CHUNK FOR sub_499C98
-
 sub_499C98: ;SUBROUTINE
-
-;	FUNCTION CHUNK AT 00499C73 SIZE 00000006 BYTES
-;	FUNCTION CHUNK AT 00499C80 SIZE 00000006 BYTES
-;	FUNCTION CHUNK AT 00499C89 SIZE 00000006 BYTES
-
 	cmp eax, 78h
 	jnb loc_499CAC
 	cmp eax, 42h
@@ -199528,6 +199427,18 @@ loc_499CE9:
 
 loc_499CEF:
 	mov eax, 0FFFFFFFFh
+	ret
+
+loc_499C73:
+	mov eax, 3
+	ret
+
+loc_499C80:
+	mov eax, 5
+	ret
+
+loc_499C89:
+	mov eax, 2
 	ret
 ;sub_499C98 endp
 
@@ -200480,7 +200391,6 @@ loc_49A741:
 	mov dword [esp+21Ch], sub_4A8F65
 
 loc_49A786:
-	test ecx, ecx
 	mov eax, [esp+220h]
 	push eax
 	mov ebx, [esp+20Ch]
@@ -200853,9 +200763,15 @@ atexit_: ;SUBROUTINE
 	ret
 ;atexit_ endp
 
-loc_49ADA5:
-	xor eax, eax
-	jmp loc_4A9F7D
+ExitProcess0: ;SUBROUTINE
+	push 0
+	call ExitProcess_wrap
+;ExitProcess0 endp
+
+ExitProcess1: ;SUBROUTINE
+	push 1
+	call ExitProcess_wrap
+;ExitProcess1 endp
 
 sub_49ADB0: ;SUBROUTINE
 	push ebx
@@ -200885,9 +200801,6 @@ loc_49ADE3:
 ;sub_49ADB0 endp
 
 sub_49ADEC: ;SUBROUTINE
-
-;	FUNCTION CHUNK AT 0049B0BC SIZE 0000002E BYTES
-
 	cmp dword [dword_56F344], 0
 	jz loc_49B0BC
 	push edx
@@ -200902,6 +200815,22 @@ sub_49ADEC: ;SUBROUTINE
 	pop ebx
 	pop ecx
 	pop edx
+	ret
+
+loc_49B0BC:
+	push ecx
+	push edx
+	mov edx, dword [dword_56F340]
+	push edx
+	call sub_497A84
+	xor ecx, ecx
+	mov eax, dword [dword_4DB26C]
+	mov dword [dword_56F340], ecx
+	call sub_49B24C
+	mov eax, dword [dword_4DB270]
+	call sub_49B24C
+	pop edx
+	pop ecx
 	ret
 ;sub_49ADEC endp
 
@@ -201022,7 +200951,7 @@ loc_49AEEF:
 	mov [ebx+14h], eax
 	mov eax, dword [dword_4DAB80]
 	mov [ebx+18h], eax
-	mov al, byte dword [dword_4DAB84]
+	mov al, byte [dword_4DAB84]
 	mov [ebx+1Ch], al
 	mov al, [esp+14h]
 	mov [ebx+1Eh], al
@@ -201080,25 +201009,6 @@ loc_49AFBB:
 	jz sub_49B0F0
 	ret
 ;sub_49AFA0 endp
-
-;	START OF FUNCTION CHUNK FOR sub_49ADEC
-
-loc_49B0BC:
-	push ecx
-	push edx
-	mov edx, dword [dword_56F340]
-	push edx
-	call sub_497A84
-	xor ecx, ecx
-	mov eax, dword [dword_4DB26C]
-	mov dword [dword_56F340], ecx
-	call sub_49B24C
-	mov eax, dword [dword_4DB270]
-	call sub_49B24C
-	pop edx
-	pop ecx
-	ret
-;	END OF FUNCTION CHUNK FOR sub_49ADEC
 
 sub_49B0F0: ;SUBROUTINE
 	push ebx
@@ -201967,7 +201877,7 @@ loc_49D0C6:
 	mov eax, sub_486E44
 	mov edx, 14h
 	call sub_486E54
-	call W?_fn_init$n__v ; .fn_init(void)
+	call fn_init ; .fn_init(void)
 	call sub_4B0BCC
 	mov eax, 1Eh
 	mov ecx, dword [dword_4DAB80]
@@ -202002,7 +201912,7 @@ loc_49D18C:
 	ret
 ;sub_49D180 endp
 
-strstr_:
+strstr_: ;SUBROUTINE
 	push ebx
 	push ecx
 	push esi
@@ -202048,15 +201958,18 @@ loc_49D23B:
 	mov edi, esi
 	xor al, al
 	push es
-	jecxz loc_49D250+2
+	jecxz loc_49D250
 	mov edx, ds
 	mov es, dx
 	repne scasb
-	jnz loc_49D250+2
+	jnz loc_49D250
 	dec edi
+	jmp loc_49D252
 
 loc_49D250:
-	test ax, 0CF89h
+	mov edi, ecx
+
+loc_49D252:
 	pop es
 	mov [esp], edi
 	mov edi, ebx
@@ -202080,15 +201993,18 @@ loc_49D26C:
 	mov edi, esi
 	mov al, [ebx]
 	push es
-	jecxz loc_49D285+2
+	jecxz loc_49D285
 	mov edx, ds
 	mov es, dx
 	repne scasb
-	jnz loc_49D285+2
+	jnz loc_49D285
 	dec edi
+	jmp loc_49D287
 
 loc_49D285:
-	test ax, 0CF89h
+	mov edi, ecx
+
+loc_49D287:
 	pop es
 	mov edx, edi
 	test edi, edi
@@ -202127,6 +202043,7 @@ loc_49D2B6:
 	pop ecx
 	pop ebx
 	ret
+;strstr_ endp
 
 sub_49D2C0: ;SUBROUTINE
 	push ecx
@@ -202599,19 +202516,11 @@ loc_49D805:
 	shr eax, 18h
 	adc eax, 0
 	movzx eax, byte byte_4DFC78[eax]
-	jmp dword off_49D829[ebx]
+	jmp off_49D829[ebx]
 
 loc_49D81D:
 	mov eax, 80h
-	jmp dword off_49D829[ebx]
-off_49D829: dd loc_49D850
-	dd loc_49D849
-	dd loc_49D853
-	dd loc_49D85D
-	dd loc_49D865
-	dd loc_49D86A
-	dd loc_49D872
-	dd loc_49D87A
+	jmp off_49D829[ebx]
 
 loc_49D849:
 	neg eax
@@ -202660,6 +202569,15 @@ loc_49D87A:
 	pop ebx
 	ret
 ;sub_49D7E0 endp
+
+off_49D829: dd loc_49D850
+	dd loc_49D849
+	dd loc_49D853
+	dd loc_49D85D
+	dd loc_49D865
+	dd loc_49D86A
+	dd loc_49D872
+	dd loc_49D87A
 
 sub_49D890: ;SUBROUTINE
 	push ecx
@@ -203000,7 +202918,7 @@ sub_49DC10: ;SUBROUTINE
 	push ebx
 	push ecx
 	push edx
-	cmp word dword [dword_4DD448], 0
+	cmp word [dword_4DD448], 0
 	jl loc_49DCE4
 	movsx eax, word [word_4DD3B8]
 	shl eax, 2
@@ -203015,7 +202933,7 @@ sub_49DC10: ;SUBROUTINE
 	mov al, [eax+7]
 	and eax, 0FFh
 	imul eax, edx
-	movsx edx, word dword [dword_4DD448]
+	movsx edx, word [dword_4DD448]
 	add eax, edx
 	mov edx, dword [dword_4DD3C0]
 	mov al, [edx+eax]
@@ -203023,9 +202941,9 @@ sub_49DC10: ;SUBROUTINE
 	mov word [word_4DD3B8], ax
 	mov eax, dword [dword_4DD44C]
 	mov dword [dword_4DD448], eax
-	mov word dword [dword_4DD44C], 0FFFFh
+	mov word [dword_4DD44C], 0FFFFh
 	xor ecx, ecx
-	mov word dword [dword_4DD44C+2], cx
+	mov word [dword_4DD44C+2], cx
 
 loc_49DC84:
 	inc dword [dword_4DD3BC]
@@ -203105,7 +203023,7 @@ loc_49DD2E:
 	jmp loc_49DC84
 
 loc_49DD78:
-	cmp word dword [dword_4DD448], 0
+	cmp word [dword_4DD448], 0
 	jge loc_49DCDE
 	xor ecx, ecx
 	mov dword [dword_4DDA80], ecx
@@ -203116,7 +203034,7 @@ loc_49DD78:
 	ret
 ;sub_49DC10 endp
 
-loc_49DD94:
+sub_49DD94: ;SUBROUTINE
 	push edx
 	call sub_496090
 	cmp eax, dword [dword_4DD3BC]
@@ -203135,8 +203053,9 @@ loc_49DDA4:
 	call sub_49DC10
 	pop edx
 	ret
+;sub_49DD94 endp
 
-loc_49DDC0:
+sub_49DDC0: ;SUBROUTINE
 	test eax, eax
 	jnz loc_49DDCA
 	mov ax, word [word_4DD3B4]
@@ -203144,6 +203063,7 @@ loc_49DDC0:
 loc_49DDCA:
 	mov word [word_4DD3B6], ax
 	ret
+;sub_49DDC0 endp
 
 sub_49DDD4: ;SUBROUTINE
 	cmp byte [byte_4DDA74], 0
@@ -203257,9 +203177,9 @@ loc_49DEF9:
 	call sub_4958D0
 	mov eax, ecx
 	xor edx, edx
-	mov ebx, loc_49DDC0
+	mov ebx, sub_49DDC0
 	call sub_4959EC
-	mov ecx, loc_49DD94
+	mov ecx, sub_49DD94
 	mov dword [dword_4DCFE0], ebx
 	xor eax, eax
 	mov dword [dword_4DDA80], ecx
@@ -203305,10 +203225,10 @@ sub_49DF64: ;SUBROUTINE
 	jge loc_49DFAC
 	cmp edx, 1
 	jz loc_49DFB3
-	cmp word dword [dword_4DD448+2], 1
+	cmp word [dword_4DD448+2], 1
 	jnz loc_49DFD8
-	mov word dword [dword_4DD44C], ax
-	mov word dword [dword_4DD44C+2], dx
+	mov word [dword_4DD44C], ax
+	mov word [dword_4DD44C+2], dx
 	xor eax, eax
 	pop ecx
 	ret
@@ -203325,19 +203245,19 @@ loc_49DFAC:
 
 loc_49DFB3:
 	push esi
-	mov word dword [dword_4DD448], ax
-	mov word dword [dword_4DD448+2], dx
-	mov word dword [dword_4DD44C], 0FFFFh
+	mov word [dword_4DD448], ax
+	mov word [dword_4DD448+2], dx
+	mov word [dword_4DD44C], 0FFFFh
 	xor esi, esi
-	mov word dword [dword_4DD44C+2], si
+	mov word [dword_4DD44C+2], si
 	pop esi
 	xor eax, eax
 	pop ecx
 	ret
 
 loc_49DFD8:
-	mov word dword [dword_4DD448], ax
-	mov word dword [dword_4DD448+2], dx
+	mov word [dword_4DD448], ax
+	mov word [dword_4DD448+2], dx
 	xor eax, eax
 	pop ecx
 	ret
@@ -204066,7 +203986,7 @@ loc_49E63F:
 	mov eax, 2000h
 	cmp ecx, 7 ; switch 8 cases
 	ja loc_49E654 ; jumptable 0049E64D default case
-	jmp dword off_49E610[ecx*4] ; switch jump
+	jmp off_49E610[ecx*4] ; switch jump
 
 loc_49E654:
 	add esp, 8 ; jumptable 0049E64D default case
@@ -204117,7 +204037,7 @@ loc_49E677:
 	pop ebx
 	cmp ecx, 7 ; switch 8 cases
 	ja loc_49E654 ; jumptable 0049E64D default case
-	jmp dword off_49E610[ecx*4] ; switch jump
+	jmp off_49E610[ecx*4] ; switch jump
 
 loc_49E6CE:
 	neg eax ; jumptable 0049E64D case 1
@@ -204498,7 +204418,7 @@ sub_49EA20: ;SUBROUTINE
 	and eax, 0FFh
 	cmp ecx, 3 ; switch 4 cases
 	ja loc_49EA54 ; jumptable 0049EA34 default case
-	jmp dword off_49EA10[ecx*4] ; switch jump
+	jmp off_49EA10[ecx*4] ; switch jump
 
 loc_49EA3B:
 	mov ecx, dword dword_4DB6B4[eax*4] ; jumptable 0049EA34 case 0
@@ -205157,65 +205077,6 @@ loc_49FD44:
 	ret
 ;sub_49FD00 endp
 
-;	START OF FUNCTION CHUNK FOR sub_476CA0
-
-loc_49FD50:
-	cmp byte [byte_4DDA74], 0
-	jnz loc_49FD5F
-	mov eax, 0FFFFFFF6h
-	ret
-
-loc_49FD5F:
-	call sub_49DB20
-	cmp dword [dword_4DDA94], 0
-	jz loc_49FD73
-	call dword [dword_4DDA94]
-
-loc_49FD73:
-	cmp dword [dword_4DDA98], 0
-	jz loc_49FD82
-	call dword [dword_4DDA98]
-
-loc_49FD82:
-	cmp dword [dword_4DDA9C], 0
-	jz loc_49FD91
-	call dword [dword_4DDA9C]
-
-loc_49FD91:
-	cmp dword [dword_4DDA8C], 0
-	jz loc_49FDA5
-	mov eax, 0FFFFFFFFh
-	call dword [dword_4DDA8C]
-
-loc_49FDA5:
-	cmp dword [dword_4DDAA0], 0
-	jz loc_49FDB4
-	call dword [dword_4DDAA0]
-
-loc_49FDB4:
-	cmp dword [dword_4DDA90], 0
-	jz loc_49FDC3
-	call dword [dword_4DDA90]
-
-loc_49FDC3:
-	push edx
-	call sub_488BA4
-	mov edx, eax
-	test eax, eax
-	jl loc_49FDD9
-	push ebx
-	xor bl, bl
-	mov byte [byte_4DDA74], bl
-	pop ebx
-
-loc_49FDD9:
-	mov eax, dword [dword_59C600]
-	call sub_489F74
-	mov eax, edx
-	pop edx
-	ret
-;	END OF FUNCTION CHUNK FOR sub_476CA0
-
 sub_49FDE8: ;SUBROUTINE
 	push edx
 	xor eax, eax
@@ -205806,8 +205667,6 @@ sub_4A0704: ;SUBROUTINE
 	ret
 ;sub_4A0704 endp
 
-;	Attributes: bp-based frame
-
 sub_4A0796: ;SUBROUTINE
 	push esi
 	push edi
@@ -205969,8 +205828,6 @@ loc_4A087A:
 	pop es
 	ret
 ;sub_4A0856 endp
-
-;	Attributes: bp-based frame
 
 sub_4A087C: ;SUBROUTINE
 	push esi
@@ -206418,7 +206275,12 @@ loc_4A0C93:
 
 locret_4A0CA1:
 	leave
-	jmp loc_4A084E
+	pop gs
+	pop fs
+	pop es
+	pop edi
+	pop esi
+	ret
 ;sub_4A087C endp
 
 sub_4A1080: ;SUBROUTINE
@@ -206426,7 +206288,7 @@ sub_4A1080: ;SUBROUTINE
 	ret
 ;sub_4A1080 endp
 
-loc_4A1090:
+sub_4A1090: ;SUBROUTINE
 	push ecx
 	push esi
 	sub esp, 1400h
@@ -206442,6 +206304,7 @@ loc_4A1090:
 	pop esi
 	pop ecx
 	ret
+;sub_4A1090 endp
 
 sub_4A10BC: ;SUBROUTINE
 	push esi
@@ -206776,7 +206639,7 @@ loc_4A1422:
 
 loc_4A1436:
 	mov eax, [esp+38h]
-	mov ebx, loc_4A1090
+	mov ebx, sub_4A1090
 	mov dword [dword_571260], eax
 	mov [esp+38h], ebx
 	jmp loc_4A12A4
@@ -206810,7 +206673,7 @@ loc_4A146C:
 loc_4A148E:
 	cmp dword [esp+20h], 0
 	jnz loc_4A146C
-	cmp dword [esp+38h], loc_4A1090
+	cmp dword [esp+38h], sub_4A1090
 	jz loc_4A146C
 	mov ebx, ebp
 	imul ebx, edi
@@ -208072,7 +207935,13 @@ loc_4A4B11:
 	ret
 ;sub_4A4AD0 endp
 
-;	START OF FUNCTION CHUNK FOR sub_4A4C20
+sub_4A4C20: ;SUBROUTINE
+	cmp dword [eax], 6C544150h
+	jz loc_4A4B40
+	cmp word [eax], 5450h
+	jz loc_4A8904
+	mov eax, 0FFFFFFFFh
+	ret
 
 loc_4A4B40:
 	push ecx
@@ -208185,18 +208054,95 @@ loc_4A4C10:
 	pop ebp
 	pop ecx
 	ret
-;	END OF FUNCTION CHUNK FOR sub_4A4C20
 
-sub_4A4C20: ;SUBROUTINE
+loc_4A8904:
+	push edi
+	push ebp
+	sub esp, 4
+	mov [esp], eax
+	mov ebp, edx
+	mov edi, ebx
+	mov dx, [eax]
+	mov ebx, 0FFFFFFFFh
+	cmp dx, 5450h
+	jnz loc_4A8971
+	mov dl, [eax+3]
+	test dl, 1
+	jnz loc_4A897C
+	push esi
+	push ecx
+	test dl, 2
+	jz loc_4A8980
+	lea ecx, [eax+8]
 
-;	FUNCTION CHUNK AT 004A4B40 SIZE 000000E0 BYTES
-;	FUNCTION CHUNK AT 004A8904 SIZE 000000A9 BYTES
+loc_4A8931:
+	mov al, [ecx]
+	cmp al, 0FFh
+	jz loc_4A8997
+	movzx esi, al
+	cmp esi, 0FDh
+	jnz loc_4A8950
+	inc ecx
+	mov ebx, edi
+	mov edx, ebp
+	mov eax, ecx
+	call sub_4892B0
+	mov ebx, eax
 
-	cmp dword [eax], 6C544150h
-	jz loc_4A4B40
-	cmp word [eax], 5450h
-	jz loc_4A8904
-	mov eax, 0FFFFFFFFh
+loc_4A8950:
+	inc ecx
+	cmp esi, 0FEh
+	jz loc_4A8931
+	cmp esi, 0FCh
+	jz loc_4A8931
+	xor eax, eax
+	mov al, [ecx]
+	cmp eax, 0FFh
+	jz loc_4A8985
+
+loc_4A896C:
+	inc ecx
+	add ecx, eax
+	jmp loc_4A8931
+
+loc_4A8971:
+	mov eax, 0FFFFFFF9h
+
+loc_4A8976:
+	add esp, 4
+	pop ebp
+	pop edi
+	ret
+
+loc_4A897C:
+	mov eax, ebx
+	jmp loc_4A8976
+
+loc_4A8980:
+	lea ecx, [eax+4]
+	jmp loc_4A8931
+
+loc_4A8985:
+	inc ecx
+	mov edx, 4
+	mov eax, ecx
+	call sub_4A7E90
+	add ecx, 3
+	jmp loc_4A896C
+
+loc_4A8997:
+	test ebx, ebx
+	jl loc_4A89A3
+	mov eax, [esp+8]
+	or byte [eax+3], 1
+
+loc_4A89A3:
+	mov eax, ebx
+	pop ecx
+	pop esi
+	add esp, 4
+	pop ebp
+	pop edi
 	ret
 ;sub_4A4C20 endp
 
@@ -208648,33 +208594,6 @@ loc_4A509D:
 	ret
 ;sub_4A5068 endp
 
-;	START OF FUNCTION CHUNK FOR sub_4A513C
-
-loc_4A50BA:
-	mov eax, edi
-	call sub_483EB0
-	mov edx, ebx
-	mov ebp, dword [dword_4DABCC]
-	mov eax, ebx
-	sar edx, 1Fh
-	idiv ebp
-	call sub_489B9C
-	jmp loc_4A5153
-
-loc_4A50DA:
-	mov edx, dword [dword_4DDAA8]
-	test edx, edx
-	jz loc_4A5169
-	mov eax, edx
-	call sub_489E5C
-	pop ebp
-	pop edi
-	pop edx
-	pop ecx
-	pop ebx
-	ret
-;	END OF FUNCTION CHUNK FOR sub_4A513C
-
 sub_4A50F8: ;SUBROUTINE
 	push edx
 	mov edx, dword [dword_4DDAA8]
@@ -208708,9 +208627,6 @@ loc_4A5137:
 ;sub_4A5124 endp ; sp-analysis failed
 
 sub_4A513C: ;SUBROUTINE
-
-;	FUNCTION CHUNK AT 004A50BA SIZE 0000003B BYTES
-
 	push ebx
 	push ecx
 	push edx
@@ -208737,6 +208653,30 @@ loc_4A5169:
 	pop ecx
 	pop ebx
 	ret
+
+loc_4A50BA:
+	mov eax, edi
+	call sub_483EB0
+	mov edx, ebx
+	mov ebp, dword [dword_4DABCC]
+	mov eax, ebx
+	sar edx, 1Fh
+	idiv ebp
+	call sub_489B9C
+	jmp loc_4A5153
+
+loc_4A50DA:
+	mov edx, dword [dword_4DDAA8]
+	test edx, edx
+	jz loc_4A5169
+	mov eax, edx
+	call sub_489E5C
+	pop ebp
+	pop edi
+	pop edx
+	pop ecx
+	pop ebx
+	ret
 ;sub_4A513C endp
 
 sub_4A5170: ;SUBROUTINE
@@ -208748,7 +208688,7 @@ sub_4A5170: ;SUBROUTINE
 	push ebp
 	inc dword [dword_4DDAB4]
 	inc dword [dword_59C608]
-	call locret_4892FC
+	call nullsub_10
 	cmp dword [dword_4DDA84], 0
 	jnz loc_4A52B8
 
@@ -209805,8 +209745,9 @@ loc_4A5CE7:
 	add eax, ecx
 	call sub_4B3EE0
 	jmp loc_4A5C58
+;sub_4A5830 endp
 
-loc_4A5D00:
+sub_4A5D00: ;SUBROUTINE
 	push esi
 	push edi
 	push ebp
@@ -209902,8 +209843,9 @@ loc_4A5DD3:
 	mov ebx, [ebx]
 	call sub_4AD870
 	jmp loc_4A5D7F
+;sub_4A5D00 endp
 
-loc_4A5DF0:
+sub_4A5DF0: ;SUBROUTINE
 	push esi
 	push edi
 	push ebp
@@ -210045,26 +209987,26 @@ loc_4A5F75:
 
 loc_4A5F8D:
 	ja loc_4A5F99
-	mov edi, loc_4A6430
+	mov edi, sub_4A6430
 	jmp loc_4A5E24
 
 loc_4A5F99:
 	cmp al, 18h
 	jb loc_4A5FC5
 	ja loc_4A5FA9
-	mov edi, loc_4A6480
+	mov edi, sub_4A6480
 	jmp loc_4A5E24
 
 loc_4A5FA9:
 	cmp al, 20h
 	jnz loc_4A5FC5
-	mov edi, loc_4A6510
+	mov edi, sub_4A6510
 	jmp loc_4A5E24
 
 loc_4A5FB7:
 	cmp al, 0Fh
 	jnz loc_4A5FC5
-	mov edi, loc_4A6430
+	mov edi, sub_4A6430
 	jmp loc_4A5E24
 
 loc_4A5FC5:
@@ -210108,7 +210050,7 @@ loc_4A6006:
 	and eax, 0FFh
 	call edi ; sub_4A63EC
 	jmp loc_4A5F75
-;sub_4A5830 endp
+;sub_4A5DF0 endp
 
 sub_4A6028: ;SUBROUTINE
 	push ebx
@@ -210361,11 +210303,11 @@ loc_4A631A:
 	ret
 
 loc_4A633C:
-	mov dword [dword_4DD77C], loc_4A5DF0
+	mov dword [dword_4DD77C], sub_4A5DF0
 	ret
 
 loc_4A6347:
-	mov dword [dword_4DD77C], loc_4A5D00
+	mov dword [dword_4DD77C], sub_4A5D00
 	ret
 ;sub_4A62F8 endp
 
@@ -210483,7 +210425,7 @@ loc_4A6426:
 	ret
 ;sub_4A63EC endp
 
-loc_4A6430:
+sub_4A6430: ;SUBROUTINE
 	push ecx
 	mov ecx, ebx
 	test al, 80h
@@ -210535,8 +210477,9 @@ loc_4A6475:
 	lea eax, [ecx+10h]
 	pop ecx
 	ret
+;sub_4A6430 endp
 
-loc_4A6480:
+sub_4A6480: ;SUBROUTINE
 	push ecx
 	sub esp, 4
 	mov [esp], edx
@@ -210612,8 +210555,9 @@ loc_4A64FD:
 	add esp, 4
 	pop ecx
 	ret
+;sub_4A6480 endp
 
-loc_4A6510:
+sub_4A6510: ;SUBROUTINE
 	push ecx
 	mov ecx, ebx
 	test al, 80h
@@ -210665,6 +210609,7 @@ loc_4A654E:
 	lea eax, [ecx+20h]
 	pop ecx
 	ret
+;sub_4A6510 endp
 
 ;	Attributes: library function
 
@@ -210682,7 +210627,7 @@ malloc_: ;SUBROUTINE
 	ret
 ;malloc_ endp
 
-loc_4A66EC:
+sub_4A66EC: ;SUBROUTINE
 	push ecx
 	push esi
 	push edi
@@ -210775,47 +210720,7 @@ loc_4A67A0:
 	pop esi
 	pop ecx
 	ret
-
-;	START OF FUNCTION CHUNK FOR sub_486E44
-
-loc_4A67A8:
-	push edx
-	dec dword [dword_4DDC4A]
-	jnz loc_4A67F0
-	mov edx, eax
-	or dl, dl
-	jz loc_4A67D8
-	and edx, 7Fh
-	mov dl, byte byte_4DDB44[edx]
-
-loc_4A67C0:
-	dec edx
-	jl loc_4A67F0
-	push edi
-	push esi
-	call dword dword_4DDC4E[edx*4]
-	pop esi
-	pop edi
-	xor eax, eax
-	inc dword [dword_4DDC4A]
-	pop edx
-	ret
-
-loc_4A67D8:
-	movzx edx, dh
-	cmp edx, 84h
-	jl loc_4A67E8
-	mov edx, 84h
-
-loc_4A67E8:
-	mov dl, byte byte_4DDBC4[edx]
-	jmp loc_4A67C0
-
-loc_4A67F0:
-	inc dword [dword_4DDC4A]
-	pop edx
-	ret
-;	END OF FUNCTION CHUNK FOR sub_486E44
+;sub_4A66EC endp
 
 sub_4A67F8: ;SUBROUTINE
 	push ecx
@@ -210870,7 +210775,7 @@ loc_4A683D:
 	ret
 ;sub_4A67F8 endp
 
-loc_4A6860:
+sub_4A6860: ;SUBROUTINE
 	push ecx
 	push edx
 	mov edx, [eax]
@@ -210882,6 +210787,7 @@ loc_4A6860:
 	pop edx
 	pop ecx
 	ret
+;sub_4A6860 endp
 
 sub_4A6874: ;SUBROUTINE
 	cmp eax, 20h
@@ -210895,7 +210801,7 @@ locret_4A688B:
 	ret
 ;sub_4A6874 endp
 
-loc_4A688C:
+sub_4A688C: ;SUBROUTINE
 	push ecx
 	push edx
 	mov ecx, eax
@@ -210926,6 +210832,7 @@ loc_4A68B1:
 	pop edx
 	pop ecx
 	ret
+;sub_4A688C endp
 
 sub_4A68D0: ;SUBROUTINE
 	push ebx
@@ -211455,7 +211362,7 @@ loc_4A6F02:
 	ret
 ;sub_4A6EE1 endp
 
-strncat_:
+strncat_: ;SUBROUTINE
 	push ecx
 	push esi
 	push edi
@@ -211466,15 +211373,18 @@ strncat_:
 	mov edi, ebp
 	xor al, al
 	push es
-	jecxz loc_4A6F22+2
+	jecxz loc_4A6F22
 	mov edx, ds
 	mov es, dx
 	repne scasb
-	jnz loc_4A6F22+2
+	jnz loc_4A6F22
 	dec edi
+	jmp loc_4A6F24
 
 loc_4A6F22:
-	test ax, 0CF89h
+	mov edi, ecx
+
+loc_4A6F24:
 	pop es
 	mov eax, edi
 
@@ -211498,6 +211408,7 @@ loc_4A6F3A:
 	pop esi
 	pop ecx
 	ret
+;strncat_ endp
 
 nullsub_50: ;SUBROUTINE
 	ret
@@ -211534,10 +211445,10 @@ loc_4A6F65:
 	mov dword [off_4DDEC4], edx
 	mov ecx, sub_4B6804
 	mov ebx, sub_4B6884
-	mov esi, loc_4B6BE8
-	mov edi, loc_4B6FDC
-	mov ebp, loc_4B7350
-	mov eax, loc_4B7794
+	mov esi, sub_4B6BE8
+	mov edi, sub_4B6FDC
+	mov ebp, sub_4B7350
+	mov eax, sub_4B7794
 	mov dword [off_4DDEC8], ecx
 	mov dword [off_4DDECC], ebx
 	mov dword [off_4DDEAC], esi
@@ -211548,7 +211459,7 @@ loc_4A6F65:
 	mov dword [off_4DDEA0], edi
 	mov dword [off_4DDEA4], ebp
 	mov dword [off_4DDEA8], eax
-	mov edi, loc_4B77D4
+	mov edi, sub_4B77D4
 	xor ebp, ebp
 	mov dword [off_4DDED0], edi
 	mov dword [dword_4DDEE0], ebp
@@ -212079,7 +211990,7 @@ loc_4A765D:
 	mov ebx, [esp+14h]
 	push ebx
 	call dword [esi+0DB8h]
-	mov cl, byte dword [dword_4DDEE0]
+	mov cl, byte [dword_4DDEE0]
 	mov eax, edi
 	shl eax, cl
 	mov ecx, dword [off_4DDED4]
@@ -212121,7 +212032,7 @@ loc_4A771C:
 	jmp loc_4A764F
 
 loc_4A7727:
-	mov cl, byte dword [dword_4DDEE0]
+	mov cl, byte [dword_4DDEE0]
 	mov eax, edi
 	shl eax, cl
 	shl eax, 2
@@ -212564,7 +212475,7 @@ loc_4A7B26:
 	push edx
 	call dword [edi+0DB8h]
 	add esp, 10h
-	mov cl, byte dword [dword_4DDEE0]
+	mov cl, byte [dword_4DDEE0]
 	mov eax, [esp+5Ch]
 	shl eax, cl
 	mov ecx, dword [off_4DDED4]
@@ -212582,7 +212493,7 @@ loc_4A7B26:
 	test dl, dl
 	jz loc_4A7A6B
 	mov eax, [esp+5Ch]
-	mov cl, byte dword [dword_4DDEE0]
+	mov cl, byte [dword_4DDEE0]
 	shl eax, cl
 	shl eax, 2
 	add eax, dword_4DE2E8
@@ -213768,99 +213679,6 @@ loc_4A88F6:
 	jmp loc_4A889B
 ;sub_4A8524 endp
 
-;	START OF FUNCTION CHUNK FOR sub_4A4C20
-
-loc_4A8904:
-	push edi
-	push ebp
-	sub esp, 4
-	mov [esp], eax
-	mov ebp, edx
-	mov edi, ebx
-	mov dx, [eax]
-	mov ebx, 0FFFFFFFFh
-	cmp dx, 5450h
-	jnz loc_4A8971
-	mov dl, [eax+3]
-	test dl, 1
-	jnz loc_4A897C
-	push esi
-	push ecx
-	test dl, 2
-	jz loc_4A8980
-	lea ecx, [eax+8]
-
-loc_4A8931:
-	mov al, [ecx]
-	cmp al, 0FFh
-	jz loc_4A8997
-	movzx esi, al
-	cmp esi, 0FDh
-	jnz loc_4A8950
-	inc ecx
-	mov ebx, edi
-	mov edx, ebp
-	mov eax, ecx
-	call sub_4892B0
-	mov ebx, eax
-
-loc_4A8950:
-	inc ecx
-	cmp esi, 0FEh
-	jz loc_4A8931
-	cmp esi, 0FCh
-	jz loc_4A8931
-	xor eax, eax
-	mov al, [ecx]
-	cmp eax, 0FFh
-	jz loc_4A8985
-
-loc_4A896C:
-	inc ecx
-	add ecx, eax
-	jmp loc_4A8931
-
-loc_4A8971:
-	mov eax, 0FFFFFFF9h
-
-loc_4A8976:
-	add esp, 4
-	pop ebp
-	pop edi
-	ret
-
-loc_4A897C:
-	mov eax, ebx
-	jmp loc_4A8976
-
-loc_4A8980:
-	lea ecx, [eax+4]
-	jmp loc_4A8931
-
-loc_4A8985:
-	inc ecx
-	mov edx, 4
-	mov eax, ecx
-	call sub_4A7E90
-	add ecx, 3
-	jmp loc_4A896C
-
-loc_4A8997:
-	test ebx, ebx
-	jl loc_4A89A3
-	mov eax, [esp+8]
-	or byte [eax+3], 1
-
-loc_4A89A3:
-	mov eax, ebx
-	pop ecx
-	pop esi
-	add esp, 4
-	pop ebp
-	pop edi
-	ret
-;	END OF FUNCTION CHUNK FOR sub_4A4C20
-
 sub_4A89B0: ;SUBROUTINE
 	push ebx
 	push ecx
@@ -214321,8 +214139,8 @@ loc_4A9093:
 	mov [edi], al
 	lea edi, [edi+1]
 	lea edx, [edx+4]
-	test edi, 3
 	lea ecx, [ecx-1]
+	test edi, 3
 	jnz loc_4A9093
 	mov ebx, [edx+0Ch]
 	sub ecx, 10h
@@ -214958,14 +214776,6 @@ nullsub_51: ;SUBROUTINE
 	ret
 ;nullsub_51 endp
 
-;	START OF FUNCTION CHUNK FOR sub_49C864
-
-loc_4A9F7D:
-	mov ebx, eax
-	push ebx ; uExitCode
-	call ExitProcess_wrap
-;	END OF FUNCTION CHUNK FOR sub_49C864
-
 ;	Attributes: library function
 
 free_: ;SUBROUTINE
@@ -215428,8 +215238,6 @@ locret_4ACB00:
 	ret
 ;__STOSB endp
 
-	times 6 db 90h
-
 ;	Attributes: library function
 
 __STOSD: ;SUBROUTINE
@@ -215582,12 +215390,12 @@ sub_4ACBEC: ;SUBROUTINE
 	sub ebx, eax
 	lea eax, [ecx+edx]
 	sub ecx, edx
-	mov dword qword [dbl_4E28A8], ebx
-	mov dword qword [dbl_4E28A8+4], ecx
+	mov dword [dbl_4E28A8], ebx
+	mov dword [dbl_4E28A8+4], ecx
 	lea ebp, [eax+edi]
 	sub eax, edi
-	fild dword qword [dbl_4E28A8]
-	fild dword qword [dbl_4E28A8+4]
+	fild dword [dbl_4E28A8]
+	fild dword [dbl_4E28A8+4]
 	fld st0
 	fmul dword [flt_4E28C0]
 	fxch st2
@@ -215606,14 +215414,14 @@ sub_4ACBEC: ;SUBROUTINE
 	shl edx, 1
 	fstp qword [dbl_4E28B0]
 	fstp qword [dbl_4E28A8]
-	mov ecx, dword qword [dbl_4E28A8]
-	mov edi, dword qword [dbl_4E28B0]
+	mov ecx, dword [dbl_4E28A8]
+	mov edi, dword [dbl_4E28B0]
 	add ecx, edx
 	add edx, edi
 	add edi, ebp
-	mov dword qword [dbl_4E28A8+4], ecx
-	mov dword qword [dbl_4E28B0], edx
-	mov dword qword [dbl_4E28B0+4], edi
+	mov dword [dbl_4E28A8+4], ecx
+	mov dword [dbl_4E28B0], edx
+	mov dword [dbl_4E28B0+4], edi
 	mov ecx, [esi]
 	mov edx, [esi+10h]
 	lea esi, [eax+ebx]
@@ -215624,20 +215432,20 @@ sub_4ACBEC: ;SUBROUTINE
 	shl edx, 1
 	mov edi, dword [dword_4E28A4]
 	add esi, edx
-	mov ebp, dword qword [dbl_4E28A8+4]
+	mov ebp, dword [dbl_4E28A8+4]
 	lea eax, [ecx+edx]
 	sub ecx, edx
 	lea edx, [ebx+esi]
 	sub ebx, esi
 	lea esi, [ecx+ebp]
 	sub ecx, ebp
-	mov ebp, dword qword [dbl_4E28A8]
+	mov ebp, dword [dbl_4E28A8]
 	mov [edi+48h], esi
-	mov esi, dword qword [dbl_4E28B0]
+	mov esi, dword [dbl_4E28B0]
 	mov [edi+0B4h], ecx
 	lea ecx, [ebx+ebp]
 	sub ebx, ebp
-	mov ebp, dword qword [dbl_4E28B0+4]
+	mov ebp, dword [dbl_4E28B0+4]
 	mov [edi+6Ch], ecx
 	mov [edi+90h], ebx
 	lea ebx, [eax+esi]
@@ -215673,12 +215481,12 @@ sub_4ACD4F: ;SUBROUTINE
 	sub ebx, eax
 	lea eax, [ecx+edx]
 	sub ecx, edx
-	mov dword qword [dbl_4E28A8], ebx
-	mov dword qword [dbl_4E28A8+4], ecx
+	mov dword [dbl_4E28A8], ebx
+	mov dword [dbl_4E28A8+4], ecx
 	lea ebp, [eax+edi]
 	sub eax, edi
-	fild dword qword [dbl_4E28A8]
-	fild dword qword [dbl_4E28A8+4]
+	fild dword [dbl_4E28A8]
+	fild dword [dbl_4E28A8+4]
 	fld st0
 	fmul dword [flt_4E28C0]
 	fxch st2
@@ -215697,14 +215505,14 @@ sub_4ACD4F: ;SUBROUTINE
 	shl edx, 1
 	fstp qword [dbl_4E28B0]
 	fstp qword [dbl_4E28A8]
-	mov ecx, dword qword [dbl_4E28A8]
-	mov edi, dword qword [dbl_4E28B0]
+	mov ecx, dword [dbl_4E28A8]
+	mov edi, dword [dbl_4E28B0]
 	add ecx, edx
 	add edx, edi
 	add edi, ebp
-	mov dword qword [dbl_4E28A8+4], ecx
-	mov dword qword [dbl_4E28B0], edx
-	mov dword qword [dbl_4E28B0+4], edi
+	mov dword [dbl_4E28A8+4], ecx
+	mov dword [dbl_4E28B0], edx
+	mov dword [dbl_4E28B0+4], edi
 	mov ecx, [esi]
 	mov edx, [esi+10h]
 	lea esi, [eax+ebx]
@@ -215715,20 +215523,20 @@ sub_4ACD4F: ;SUBROUTINE
 	shl edx, 1
 	mov edi, dword [dword_4E28A4]
 	add esi, edx
-	mov ebp, dword qword [dbl_4E28A8+4]
+	mov ebp, dword [dbl_4E28A8+4]
 	lea eax, [ecx+edx]
 	sub ecx, edx
 	lea edx, [ebx+esi]
 	sub ebx, esi
 	lea esi, [ecx+ebp]
 	sub ecx, ebp
-	mov ebp, dword qword [dbl_4E28A8]
+	mov ebp, dword [dbl_4E28A8]
 	mov [edi+8], esi
-	mov esi, dword qword [dbl_4E28B0]
+	mov esi, dword [dbl_4E28B0]
 	mov [edi+14h], ecx
 	lea ecx, [ebx+ebp]
 	sub ebx, ebp
-	mov ebp, dword qword [dbl_4E28B0+4]
+	mov ebp, dword [dbl_4E28B0+4]
 	mov [edi+0Ch], ecx
 	mov [edi+10h], ebx
 	lea ebx, [eax+esi]
@@ -216279,7 +216087,6 @@ loc_4AD481:
 	jz loc_4AD478
 	test eax, eax
 	jnz loc_4AD478
-	test ebp, ebp
 	mov eax, edi
 	add esp, 0Ch
 	pop ebp
@@ -217005,7 +216812,7 @@ loc_4B09CA:
 	mov eax, dword_4DD6E8
 	mov ecx, 1
 	call sub_48A01C
-	mov eax, loc_4B09F4
+	mov eax, sub_4B09F4
 	mov dword [dword_4DF37C], ecx
 	call atexit_
 	pop ecx
@@ -217013,7 +216820,7 @@ loc_4B09CA:
 	ret
 ;sub_4B09C0 endp
 
-loc_4B09F4:
+sub_4B09F4: ;SUBROUTINE
 	cmp dword [dword_4DF37C], 0
 	jnz loc_4B09FE
 	ret
@@ -217030,6 +216837,7 @@ loc_4B09FE:
 	pop ecx
 	pop edx
 	ret
+;sub_4B09F4 endp
 
 sub_4B0A20: ;SUBROUTINE
 	push ebx
@@ -217067,7 +216875,7 @@ loc_4B0A50:
 ;	Attributes: library function static
 
 ;	void .fn_init(void)
-W?_fn_init$n__v: ;SUBROUTINE
+fn_init: ;SUBROUTINE
 	push edx
 	mov edx, sub_4BB6F4
 	mov eax, 10h
@@ -217077,7 +216885,7 @@ W?_fn_init$n__v: ;SUBROUTINE
 	call sub_4A67F8
 	pop edx
 	ret
-;W?_fn_init$n__v endp
+;fn_init endp
 
 sub_4B0AA0: ;SUBROUTINE
 	push ebx
@@ -217177,7 +216985,7 @@ loc_4B0B33:
 	ret
 ;sub_4B0B04 endp
 
-loc_4B0B68:
+sub_4B0B68: ;SUBROUTINE
 	push esi
 	push edi
 	mov esi, eax
@@ -217225,9 +217033,10 @@ loc_4B0BA2:
 	mov eax, esi
 	call sub_488128
 	jmp loc_4B0B90
+;sub_4B0B68 endp
 
 sub_4B0BCC: ;SUBROUTINE
-	mov dword [dword_4DDD50], loc_4B0B68
+	mov dword [dword_4DDD50], sub_4B0B68
 	ret
 ;sub_4B0BCC endp
 
@@ -219027,7 +218836,7 @@ loc_4B26F5:
 	mov [esp], ebx
 	cmp eax, 3 ; switch 4 cases
 	ja loc_4B274F ; jumptable 004B2716 default case
-	jmp dword off_4B2680[eax*4] ; switch jump
+	jmp off_4B2680[eax*4] ; switch jump
 
 loc_4B271D:
 	mov edi, [esp+0Ch] ; jumptable 004B2716 case 0
@@ -219142,8 +218951,6 @@ loc_4B2818:
 	jg loc_4B27DD
 	jmp loc_4B274F ; jumptable 004B2716 default case
 ;sub_4B2690 endp
-
-;	Attributes: bp-based frame
 
 sub_4B2824: ;SUBROUTINE
 	push ebp
@@ -219496,14 +219303,6 @@ stackavail_: ;SUBROUTINE
 	pop edx
 	ret
 ;stackavail_ endp
-
-nullsub_65: ;SUBROUTINE
-	ret
-;nullsub_65 endp
-
-;	__GRO
-;	doubtful name
-;	Attributes: library function
 
 sub_4B2D3C: ;SUBROUTINE
 	push eax
@@ -219960,8 +219759,6 @@ loc_4B4276:
 	ret
 ;sub_4B416C endp
 
-;	Attributes: bp-based frame
-
 sub_4B4FB8: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -219978,8 +219775,6 @@ sub_4B4FB8: ;SUBROUTINE
 	leave
 	ret
 ;sub_4B4FB8 endp
-
-;	Attributes: bp-based frame
 
 sub_4B4FD6: ;SUBROUTINE
 	push ebp
@@ -220044,7 +219839,7 @@ loc_4B5050:
 
 loc_4B5058:
 	mov dword [ecx], sub_4B5165
-	jmp $+2
+	jmp loc_4B5060
 
 loc_4B5060:
 	pop esi
@@ -220054,8 +219849,6 @@ loc_4B5060:
 	leave
 	ret
 ;sub_4B4FD6 endp
-
-;	Attributes: bp-based frame
 
 sub_4B5066: ;SUBROUTINE
 	push ebp
@@ -220126,8 +219919,6 @@ loc_4B50EF:
 	ret
 ;sub_4B5066 endp
 
-;	Attributes: bp-based frame
-
 sub_4B50F6: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -220180,8 +219971,6 @@ loc_4B5162:
 	leave
 	ret
 ;sub_4B50F6 endp
-
-;	Attributes: bp-based frame
 
 sub_4B5165: ;SUBROUTINE
 	push ebp
@@ -220243,8 +220032,6 @@ loc_4B51DC:
 	ret
 ;sub_4B5165 endp
 
-;	Attributes: bp-based frame
-
 sub_4B51E1: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -220304,8 +220091,6 @@ loc_4B5259:
 	leave
 	ret
 ;sub_4B51E1 endp
-
-;	Attributes: bp-based frame
 
 sub_4B525E: ;SUBROUTINE
 	push ebp
@@ -220371,8 +220156,6 @@ loc_4B52DE:
 	ret
 ;sub_4B525E endp
 
-;	Attributes: bp-based frame
-
 sub_4B52E3: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -220437,16 +220220,12 @@ loc_4B5364:
 	ret
 ;sub_4B52E3 endp
 
-;	Attributes: bp-based frame
-
 sub_4B5369: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
 	leave
 	ret
 ;sub_4B5369 endp
-
-;	Attributes: bp-based frame
 
 sub_4B5370: ;SUBROUTINE
 	push ebp
@@ -220464,8 +220243,6 @@ sub_4B5370: ;SUBROUTINE
 	leave
 	ret
 ;sub_4B5370 endp
-
-;	Attributes: bp-based frame
 
 sub_4B538E: ;SUBROUTINE
 	push ebp
@@ -220530,7 +220307,7 @@ loc_4B5408:
 
 loc_4B5410:
 	mov dword [ecx], sub_4B5521
-	jmp $+2
+	jmp loc_4B5418
 
 loc_4B5418:
 	pop esi
@@ -220540,8 +220317,6 @@ loc_4B5418:
 	leave
 	ret
 ;sub_4B538E endp
-
-;	Attributes: bp-based frame
 
 sub_4B541E: ;SUBROUTINE
 	push ebp
@@ -220612,8 +220387,6 @@ loc_4B54A9:
 	ret
 ;sub_4B541E endp
 
-;	Attributes: bp-based frame
-
 sub_4B54B0: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -220666,8 +220439,6 @@ loc_4B551E:
 	leave
 	ret
 ;sub_4B54B0 endp
-
-;	Attributes: bp-based frame
 
 sub_4B5521: ;SUBROUTINE
 	push ebp
@@ -220729,8 +220500,6 @@ loc_4B5598:
 	ret
 ;sub_4B5521 endp
 
-;	Attributes: bp-based frame
-
 sub_4B559D: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -220790,8 +220559,6 @@ loc_4B5617:
 	leave
 	ret
 ;sub_4B559D endp
-
-;	Attributes: bp-based frame
 
 sub_4B561C: ;SUBROUTINE
 	push ebp
@@ -220857,8 +220624,6 @@ loc_4B569E:
 	ret
 ;sub_4B561C endp
 
-;	Attributes: bp-based frame
-
 sub_4B56A3: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -220923,16 +220688,12 @@ loc_4B5726:
 	ret
 ;sub_4B56A3 endp
 
-;	Attributes: bp-based frame
-
 sub_4B572B: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
 	leave
 	ret
 ;sub_4B572B endp
-
-;	Attributes: bp-based frame
 
 sub_4B5730: ;SUBROUTINE
 	push ebp
@@ -220956,8 +220717,6 @@ sub_4B5730: ;SUBROUTINE
 	ret
 ;sub_4B5730 endp
 
-;	Attributes: bp-based frame
-
 sub_4B5770: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -220970,8 +220729,6 @@ sub_4B5770: ;SUBROUTINE
 	leave
 	ret
 ;sub_4B5770 endp
-
-;	Attributes: bp-based frame
 
 sub_4B5785: ;SUBROUTINE
 	push ebp
@@ -221014,8 +220771,6 @@ loc_4B57B5:
 	leave
 	ret
 ;sub_4B5785 endp
-
-;	Attributes: bp-based frame
 
 sub_4B57CB: ;SUBROUTINE
 	push ebp
@@ -221101,8 +220856,6 @@ loc_4B586E:
 	ret
 ;sub_4B57CB endp
 
-;	Attributes: bp-based frame
-
 sub_4B587C: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -221125,8 +220878,6 @@ sub_4B587C: ;SUBROUTINE
 	ret
 ;sub_4B587C endp
 
-;	Attributes: bp-based frame
-
 sub_4B58BC: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -221139,8 +220890,6 @@ sub_4B58BC: ;SUBROUTINE
 	leave
 	ret
 ;sub_4B58BC endp
-
-;	Attributes: bp-based frame
 
 sub_4B58D1: ;SUBROUTINE
 	push ebp
@@ -221183,8 +220932,6 @@ loc_4B5901:
 	leave
 	ret
 ;sub_4B58D1 endp
-
-;	Attributes: bp-based frame
 
 sub_4B5917: ;SUBROUTINE
 	push ebp
@@ -221317,10 +221064,6 @@ loc_4B5A1D:
 	ret
 ;sub_4B59F0 endp
 
-;	W?$nwn(uipnv)pnv
-;	doubtful name
-;	Attributes: library function
-
 sub_4B5A38: ;SUBROUTINE
 	mov eax, [esp+8]
 	ret
@@ -221442,11 +221185,12 @@ loc_4B5B05:
 	jmp loc_4B5A96
 ;sub_4B5A6C endp
 
-loc_4B5B40:
+sub_4B5B40: ;SUBROUTINE
 	mov edx, [esp+10h]
 	mov eax, [esp+0Ch]
 	mov [edx], eax
 	ret
+;sub_4B5B40 endp
 
 sub_4B5B4C: ;SUBROUTINE
 	push ebx
@@ -221614,9 +221358,9 @@ loc_4B5CC5:
 
 loc_4B5CDC:
 	mov edx, [eax+1Ch]
-	mov dword [edx], sub_4B5A38 ; W?$nwn(uipnv)pnv
+	mov dword [edx], sub_4B5A38
 	mov eax, [eax+20h]
-	mov dword [eax], loc_4B5B40
+	mov dword [eax], sub_4B5B40
 	xor eax, eax
 	pop esi
 	pop ebx
@@ -221678,10 +221422,6 @@ loc_4B5D6D:
 	pop ebx
 	ret
 ;sub_4B5D40 endp
-
-;	W?$nwn(uipnv)pnv
-;	doubtful name
-;	Attributes: library function
 
 sub_4B5D88: ;SUBROUTINE
 	mov eax, [esp+8]
@@ -221818,11 +221558,12 @@ loc_4B5E8B:
 	jmp loc_4B5DEE
 ;sub_4B5DBC endp
 
-loc_4B5EC4:
+sub_4B5EC4: ;SUBROUTINE
 	mov edx, [esp+10h]
 	mov eax, [esp+0Ch]
 	mov [edx], eax
 	ret
+;sub_4B5EC4 endp
 
 sub_4B5ED0: ;SUBROUTINE
 	push ebx
@@ -222008,9 +221749,9 @@ loc_4B6081:
 
 loc_4B6098:
 	mov edx, [eax+24h]
-	mov dword [edx], sub_4B5D88 ; W?$nwn(uipnv)pnv
+	mov dword [edx], sub_4B5D88
 	mov eax, [eax+28h]
-	mov dword [eax], loc_4B5EC4
+	mov dword [eax], sub_4B5EC4
 	xor eax, eax
 	pop esi
 	pop ebx
@@ -222258,8 +221999,6 @@ loc_4B62D4:
 	ret
 ;sub_4B6270 endp
 
-;	Attributes: bp-based frame
-
 sub_4B62E4: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -222311,8 +222050,6 @@ loc_4B6346:
 	ret
 ;sub_4B62E4 endp
 
-;	Attributes: bp-based frame
-
 sub_4B634C: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -222330,8 +222067,6 @@ sub_4B634C: ;SUBROUTINE
 	leave
 	ret
 ;sub_4B634C endp
-
-;	Attributes: bp-based frame
 
 sub_4B6370: ;SUBROUTINE
 	push ebp
@@ -222360,8 +222095,6 @@ sub_4B6370: ;SUBROUTINE
 	leave
 	ret
 ;sub_4B6370 endp
-
-;	Attributes: bp-based frame
 
 sub_4B63A9: ;SUBROUTINE
 	push ebp
@@ -222431,8 +222164,6 @@ loc_4B6417:
 	ret
 ;sub_4B63A9 endp
 
-;	Attributes: bp-based frame
-
 sub_4B644C: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -222450,8 +222181,6 @@ sub_4B644C: ;SUBROUTINE
 	leave
 	ret
 ;sub_4B644C endp
-
-;	Attributes: bp-based frame
 
 sub_4B6470: ;SUBROUTINE
 	push ebp
@@ -222473,8 +222202,6 @@ sub_4B6470: ;SUBROUTINE
 	leave
 	ret
 ;sub_4B6470 endp
-
-;	Attributes: bp-based frame
 
 sub_4B6493: ;SUBROUTINE
 	push ebp
@@ -222536,8 +222263,6 @@ loc_4B64F2:
 	ret
 ;sub_4B6493 endp
 
-;	Attributes: bp-based frame
-
 sub_4B651C: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -222555,8 +222280,6 @@ sub_4B651C: ;SUBROUTINE
 	leave
 	ret
 ;sub_4B651C endp
-
-;	Attributes: bp-based frame
 
 sub_4B6540: ;SUBROUTINE
 	push ebp
@@ -222585,8 +222308,6 @@ sub_4B6540: ;SUBROUTINE
 	leave
 	ret
 ;sub_4B6540 endp
-
-;	Attributes: bp-based frame
 
 sub_4B6579: ;SUBROUTINE
 	push ebp
@@ -222654,8 +222375,6 @@ loc_4B65DD:
 	ret
 ;sub_4B6579 endp
 
-;	Attributes: bp-based frame
-
 sub_4B6610: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -222673,8 +222392,6 @@ sub_4B6610: ;SUBROUTINE
 	leave
 	ret
 ;sub_4B6610 endp
-
-;	Attributes: bp-based frame
 
 sub_4B6634: ;SUBROUTINE
 	push ebp
@@ -222696,8 +222413,6 @@ sub_4B6634: ;SUBROUTINE
 	leave
 	ret
 ;sub_4B6634 endp
-
-;	Attributes: bp-based frame
 
 sub_4B6657: ;SUBROUTINE
 	push ebp
@@ -222763,8 +222478,6 @@ loc_4B66CF:
 	ret
 ;sub_4B6657 endp
 
-;	Attributes: bp-based frame
-
 sub_4B66F0: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -222788,8 +222501,6 @@ loc_4B66FD:
 	leave
 	ret
 ;sub_4B66F0 endp
-
-;	Attributes: bp-based frame
 
 sub_4B6724: ;SUBROUTINE
 	push ebp
@@ -222846,8 +222557,6 @@ loc_4B6738:
 	ret
 ;sub_4B6724 endp
 
-;	Attributes: bp-based frame
-
 sub_4B67D4: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -222870,8 +222579,6 @@ loc_4B67E1:
 	leave
 	ret
 ;sub_4B67D4 endp
-
-;	Attributes: bp-based frame
 
 sub_4B6804: ;SUBROUTINE
 	push ebp
@@ -222913,8 +222620,6 @@ loc_4B6814:
 	leave
 	ret
 ;sub_4B6804 endp
-
-;	Attributes: bp-based frame
 
 sub_4B6884: ;SUBROUTINE
 	push ebp
@@ -222993,10 +222698,6 @@ loc_4B690D:
 	pop ebx
 	ret
 ;sub_4B68E0 endp
-
-;	W?$nwn(uipnv)pnv
-;	doubtful name
-;	Attributes: library function
 
 sub_4B6928: ;SUBROUTINE
 	mov eax, [esp+8]
@@ -223293,7 +222994,7 @@ loc_4B6BB9:
 
 loc_4B6BD0:
 	mov edx, [eax+18h]
-	mov dword [edx], sub_4B6928 ; W?$nwn(uipnv)pnv
+	mov dword [edx], sub_4B6928
 	mov eax, [eax+1Ch]
 	mov dword [eax], sub_4B6A30
 	xor eax, eax
@@ -223302,7 +223003,7 @@ loc_4B6BD0:
 	ret
 ;sub_4B6B44 endp
 
-loc_4B6BE8:
+sub_4B6BE8: ;SUBROUTINE
 	mov eax, [esp+4]
 	mov dword [eax], 0
 	mov dword [eax+4], 0
@@ -223320,6 +223021,7 @@ loc_4B6BE8:
 	mov dword [eax], sub_4B6B44
 	xor eax, eax
 	ret
+;sub_4B6BE8 endp
 
 sub_4B6C30: ;SUBROUTINE
 	push ebx
@@ -223356,10 +223058,6 @@ loc_4B6C5D:
 	pop ebx
 	ret
 ;sub_4B6C30 endp
-
-;	W?$nwn(uipnv)pnv
-;	doubtful name
-;	Attributes: library function
 
 sub_4B6C78: ;SUBROUTINE
 	mov eax, [esp+8]
@@ -223707,7 +223405,7 @@ loc_4B6FAD:
 
 loc_4B6FC4:
 	mov edx, [eax+18h]
-	mov dword [edx], sub_4B6C78 ; W?$nwn(uipnv)pnv
+	mov dword [edx], sub_4B6C78
 	mov eax, [eax+1Ch]
 	mov dword [eax], sub_4B6DD4
 	xor eax, eax
@@ -223716,7 +223414,7 @@ loc_4B6FC4:
 	ret
 ;sub_4B6F38 endp
 
-loc_4B6FDC:
+sub_4B6FDC: ;SUBROUTINE
 	mov eax, [esp+4]
 	mov dword [eax], 0
 	mov dword [eax+4], 0
@@ -223733,6 +223431,7 @@ loc_4B6FDC:
 	mov dword [eax], sub_4B6F38
 	xor eax, eax
 	ret
+;sub_4B6FDC endp
 
 sub_4B7020: ;SUBROUTINE
 	push ebx
@@ -223769,10 +223468,6 @@ loc_4B704D:
 	pop ebx
 	ret
 ;sub_4B7020 endp
-
-;	W?$nwn(uipnv)pnv
-;	doubtful name
-;	Attributes: library function
 
 sub_4B7068: ;SUBROUTINE
 	mov eax, [esp+8]
@@ -224073,7 +223768,7 @@ loc_4B7321:
 
 loc_4B7338:
 	mov edx, [eax+18h]
-	mov dword [edx], sub_4B7068 ; W?$nwn(uipnv)pnv
+	mov dword [edx], sub_4B7068
 	mov eax, [eax+1Ch]
 	mov dword [eax], sub_4B7188
 	xor eax, eax
@@ -224082,7 +223777,7 @@ loc_4B7338:
 	ret
 ;sub_4B72AC endp
 
-loc_4B7350:
+sub_4B7350: ;SUBROUTINE
 	mov eax, [esp+4]
 	mov dword [eax], 0
 	mov dword [eax+4], 0
@@ -224100,6 +223795,7 @@ loc_4B7350:
 	mov dword [eax], sub_4B72AC
 	xor eax, eax
 	ret
+;sub_4B7350 endp
 
 sub_4B73A0: ;SUBROUTINE
 	push ebx
@@ -224136,10 +223832,6 @@ loc_4B73CD:
 	pop ebx
 	ret
 ;sub_4B73A0 endp
-
-;	W?$nwn(uipnv)pnv
-;	doubtful name
-;	Attributes: library function
 
 sub_4B73E8: ;SUBROUTINE
 	mov eax, [esp+8]
@@ -224499,7 +224191,7 @@ loc_4B7765:
 
 loc_4B777C:
 	mov edx, [eax+1Ch]
-	mov dword [edx], sub_4B73E8 ; W?$nwn(uipnv)pnv
+	mov dword [edx], sub_4B73E8
 	mov eax, [eax+20h]
 	mov dword [eax], sub_4B7560
 	xor eax, eax
@@ -224508,7 +224200,7 @@ loc_4B777C:
 	ret
 ;sub_4B76F0 endp
 
-loc_4B7794:
+sub_4B7794: ;SUBROUTINE
 	mov eax, [esp+4]
 	mov dword [eax], 0
 	mov dword [eax+4], 0
@@ -224525,10 +224217,12 @@ loc_4B7794:
 	mov dword [eax], sub_4B76F0
 	xor eax, eax
 	ret
+;sub_4B7794 endp
 
-loc_4B77D4:
+sub_4B77D4: ;SUBROUTINE
 	emms
 	ret
+;sub_4B77D4 endp
 
 sub_4B77E0: ;SUBROUTINE
 	push ebx
@@ -224539,12 +224233,12 @@ sub_4B77E0: ;SUBROUTINE
 	push ebp
 	cmp dword [dword_4DABAC], 0
 	jz loc_4B783A
-	mov edx, loc_4BC170
-	mov ecx, loc_4BC190
-	mov ebx, loc_4BC1C0
-	mov esi, loc_4BC1E0
-	mov edi, loc_4BC200
-	mov ebp, loc_4BC230
+	mov edx, sub_4BC170
+	mov ecx, sub_4BC190
+	mov ebx, sub_4BC1C0
+	mov esi, sub_4BC1E0
+	mov edi, sub_4BC200
+	mov ebp, sub_4BC230
 	mov dword [dword_4DDE14], edx
 	mov dword [dword_4DDE18], ecx
 	mov dword [dword_4DDE1C], ebx
@@ -224562,12 +224256,12 @@ sub_4B77E0: ;SUBROUTINE
 
 loc_4B783A:
 	call sub_4BC250
-	mov ecx, loc_4BC280
-	mov ebx, loc_4BC2A0
-	mov esi, loc_4BC2D0
-	mov edi, loc_4BC2F0
-	mov ebp, loc_4BC310
-	mov eax, loc_4BC340
+	mov ecx, sub_4BC280
+	mov ebx, sub_4BC2A0
+	mov esi, sub_4BC2D0
+	mov edi, sub_4BC2F0
+	mov ebp, sub_4BC310
+	mov eax, sub_4BC340
 	mov dword [dword_4DDE14], ecx
 	mov dword [dword_4DDE18], ebx
 	mov dword [dword_4DDE1C], esi
@@ -224593,12 +224287,12 @@ sub_4B7890: ;SUBROUTINE
 	cmp dword [dword_4DABAC], 0
 	jz loc_4B78EA
 	push edx
-	mov edx, loc_4BC360
-	mov ecx, loc_4BC380
-	mov ebx, loc_4BC3B0
-	mov esi, loc_4BC3D0
-	mov edi, loc_4BC3F0
-	mov ebp, loc_4BC420
+	mov edx, sub_4BC360
+	mov ecx, sub_4BC380
+	mov ebx, sub_4BC3B0
+	mov esi, sub_4BC3D0
+	mov edi, sub_4BC3F0
+	mov ebp, sub_4BC420
 	mov dword [dword_4DDE2C], edx
 	mov dword [dword_4DDE30], ecx
 	mov dword [dword_4DDE34], ebx
@@ -224615,12 +224309,12 @@ sub_4B7890: ;SUBROUTINE
 	ret
 
 loc_4B78EA:
-	mov ecx, loc_4BC440
-	mov ebx, loc_4BC460
-	mov esi, loc_4BC490
-	mov edi, loc_4BC4B0
-	mov ebp, loc_4BC4D0
-	mov eax, loc_4BC500
+	mov ecx, sub_4BC440
+	mov ebx, sub_4BC460
+	mov esi, sub_4BC490
+	mov edi, sub_4BC4B0
+	mov ebp, sub_4BC4D0
+	mov eax, sub_4BC500
 	mov dword [dword_4DDE2C], ecx
 	mov dword [dword_4DDE30], ebx
 	mov dword [dword_4DDE34], esi
@@ -224721,12 +224415,12 @@ sub_4B79D0: ;SUBROUTINE
 	cmp dword [dword_4DABAC], 0
 	jz loc_4B7A2F
 	call sub_4B798C
-	mov edx, loc_4BC6A8
-	mov ecx, loc_4BCAF8
-	mov ebx, loc_4BCD40
-	mov esi, loc_4BCF54
-	mov edi, loc_4BD458
-	mov ebp, loc_4BD66C
+	mov edx, sub_4BC6A8
+	mov ecx, sub_4BCAF8
+	mov ebx, sub_4BCD40
+	mov esi, sub_4BCF54
+	mov edi, sub_4BD458
+	mov ebp, sub_4BD66C
 	mov dword [dword_4DDE44], edx
 	mov dword [dword_4DDE48], ecx
 	mov dword [dword_4DDE4C], ebx
@@ -224744,12 +224438,12 @@ sub_4B79D0: ;SUBROUTINE
 
 loc_4B7A2F:
 	call sub_4B7940
-	mov ecx, loc_4BD848
-	mov ebx, loc_4BDC7C
-	mov esi, loc_4BDE94
-	mov edi, loc_4BE088
-	mov ebp, loc_4BE564
-	mov eax, loc_4BE770
+	mov ecx, sub_4BD848
+	mov ebx, sub_4BDC7C
+	mov esi, sub_4BDE94
+	mov edi, sub_4BE088
+	mov ebp, sub_4BE564
+	mov eax, sub_4BE770
 	mov dword [dword_4DDE44], ecx
 	mov dword [dword_4DDE48], ebx
 	mov dword [dword_4DDE4C], esi
@@ -224770,8 +224464,8 @@ sub_4B7A80: ;SUBROUTINE
 	push edi
 	cmp dword [dword_4DABAC], 0
 	jz loc_4B7AA9
-	mov edi, loc_4BE944
-	mov eax, loc_4BEB18
+	mov edi, sub_4BE944
+	mov eax, sub_4BEB18
 	mov dword [dword_4DDE74], edi
 	mov dword [dword_4DDE80], edi
 	mov dword [dword_4DDE88], eax
@@ -224782,8 +224476,8 @@ sub_4B7A80: ;SUBROUTINE
 loc_4B7AA9:
 	push esi
 	push ecx
-	mov ecx, loc_4BECB8
-	mov esi, loc_4BEEC0
+	mov ecx, sub_4BECB8
+	mov esi, sub_4BEEC0
 	mov dword [dword_4DDE74], ecx
 	mov dword [dword_4DDE80], ecx
 	mov dword [dword_4DDE88], esi
@@ -224793,8 +224487,6 @@ loc_4B7AA9:
 	pop edi
 	ret
 ;sub_4B7A80 endp
-
-;	Attributes: bp-based frame
 
 sub_4B7AD0: ;SUBROUTINE
 	push ebp
@@ -225068,10 +224760,6 @@ loc_4B7DAC:
 	ret
 ;sub_4B7D50 endp
 
-nullsub_62: ;SUBROUTINE
-	ret
-;nullsub_62 endp
-
 sub_4B83A9: ;SUBROUTINE
 	push ebx
 	push ecx
@@ -225137,10 +224825,6 @@ loc_4B8431:
 	pop ebx
 	ret
 ;sub_4B840F endp
-
-nullsub_60: ;SUBROUTINE
-	ret
-;nullsub_60 endp
 
 sub_4BB2C0: ;SUBROUTINE
 	push ecx
@@ -225348,11 +225032,7 @@ loc_4BB581:
 	jmp loc_4BB544
 
 loc_4BB597:
-	call loc_49ADA5
-	pop edx
-	pop ecx
-	pop ebx
-	ret
+	jmp ExitProcess0
 ;sub_4BB528 endp
 
 sub_4BB6F4: ;SUBROUTINE
@@ -225382,8 +225062,6 @@ sub_4BB6F4: ;SUBROUTINE
 	ret
 ;sub_4BB6F4 endp
 
-;	Attributes: bp-based frame
-
 sub_4BB81E: ;SUBROUTINE
 	mov ebp, esp
 	mov edx, dword [dword_4DDAEC]
@@ -225409,10 +225087,9 @@ loc_4BB84F:
 	add eax, edx
 	mov dword [dword_4DDAF0], eax
 	call main_
-	jmp loc_4A9F7D ;Koniec programu
+	push eax
+	call ExitProcess_wrap ;Koniec programu
 ;sub_4BB81E endp
-
-;	Attributes: bp-based frame
 
 sub_4BBDB4: ;SUBROUTINE
 	push ebp
@@ -225505,8 +225182,6 @@ loc_4BBE93:
 	ret
 ;sub_4BBDB4 endp
 
-;	Attributes: bp-based frame
-
 sub_4BBEA4: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -225567,8 +225242,6 @@ loc_4BBED1:
 	ret
 ;sub_4BBEA4 endp
 
-;	Attributes: bp-based frame
-
 sub_4BBF34: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -225624,8 +225297,6 @@ loc_4BBF7D:
 	leave
 	ret
 ;sub_4BBF34 endp
-
-;	Attributes: bp-based frame
 
 sub_4BBFB4: ;SUBROUTINE
 	push ebp
@@ -225690,8 +225361,6 @@ loc_4BC011:
 	ret
 ;sub_4BBFB4 endp
 
-;	Attributes: bp-based frame
-
 sub_4BC054: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -225747,8 +225416,6 @@ loc_4BC09D:
 	leave
 	ret
 ;sub_4BC054 endp
-
-;	Attributes: bp-based frame
 
 sub_4BC0D4: ;SUBROUTINE
 	push ebp
@@ -225811,7 +225478,7 @@ loc_4BC131:
 	ret
 ;sub_4BC0D4 endp
 
-loc_4BC170:
+sub_4BC170: ;SUBROUTINE
 	push esi
 	mov ecx, [esp+10h]
 	push ecx
@@ -225821,8 +225488,9 @@ loc_4BC170:
 	call sub_4C1C38
 	pop esi
 	ret 0Ch
+;sub_4BC170 endp
 
-loc_4BC190:
+sub_4BC190: ;SUBROUTINE
 	push esi
 	mov ebx, ecx
 	mov ecx, [esp+8]
@@ -225834,16 +225502,18 @@ loc_4BC190:
 	call sub_4C1D04
 	pop esi
 	ret 0Ch
+;sub_4BC190 endp
 
-loc_4BC1C0:
+sub_4BC1C0: ;SUBROUTINE
 	mov ebx, [esp+8]
 	mov edx, [esp+0Ch]
 	mov dword [edx], 0
 	mov edx, 1
 	call sub_4C1E5C
 	ret 0Ch
+;sub_4BC1C0 endp
 
-loc_4BC1E0:
+sub_4BC1E0: ;SUBROUTINE
 	push esi
 	mov ecx, [esp+10h]
 	push ecx
@@ -225853,8 +225523,9 @@ loc_4BC1E0:
 	call sub_4C1C38
 	pop esi
 	ret 0Ch
+;sub_4BC1E0 endp
 
-loc_4BC200:
+sub_4BC200: ;SUBROUTINE
 	push esi
 	mov ebx, ecx
 	mov ecx, [esp+8]
@@ -225866,14 +225537,16 @@ loc_4BC200:
 	call sub_4C1D04
 	pop esi
 	ret 0Ch
+;sub_4BC200 endp
 
-loc_4BC230:
+sub_4BC230: ;SUBROUTINE
 	mov ebx, [esp+8]
 	mov edx, [esp+0Ch]
 	mov dword [edx], 0
 	mov edx, 2
 	call sub_4C1E5C
 	ret 0Ch
+;sub_4BC230 endp
 
 sub_4BC250: ;SUBROUTINE
 	sub esp, 4
@@ -225895,7 +225568,7 @@ loc_4BC25E:
 	ret
 ;sub_4BC250 endp
 
-loc_4BC280:
+sub_4BC280: ;SUBROUTINE
 	push esi
 	mov ecx, [esp+10h]
 	push ecx
@@ -225906,8 +225579,9 @@ loc_4BC280:
 	call sub_4C1F6C
 	pop esi
 	ret 0Ch
+;sub_4BC280 endp
 
-loc_4BC2A0:
+sub_4BC2A0: ;SUBROUTINE
 	push esi
 	mov ebx, ecx
 	mov ecx, [esp+8]
@@ -225920,8 +225594,9 @@ loc_4BC2A0:
 	call sub_4C2040
 	pop esi
 	ret 0Ch
+;sub_4BC2A0 endp
 
-loc_4BC2D0:
+sub_4BC2D0: ;SUBROUTINE
 	mov ecx, [esp+8]
 	mov edx, [esp+0Ch]
 	xor ebx, ebx
@@ -225929,8 +225604,9 @@ loc_4BC2D0:
 	xor edx, edx
 	call sub_4C21CC
 	ret 0Ch
+;sub_4BC2D0 endp
 
-loc_4BC2F0:
+sub_4BC2F0: ;SUBROUTINE
 	push esi
 	mov ecx, [esp+10h]
 	push ecx
@@ -225941,8 +225617,9 @@ loc_4BC2F0:
 	call sub_4C1F6C
 	pop esi
 	ret 0Ch
+;sub_4BC2F0 endp
 
-loc_4BC310:
+sub_4BC310: ;SUBROUTINE
 	push esi
 	mov ebx, ecx
 	mov ecx, [esp+8]
@@ -225955,8 +225632,9 @@ loc_4BC310:
 	call sub_4C2040
 	pop esi
 	ret 0Ch
+;sub_4BC310 endp
 
-loc_4BC340:
+sub_4BC340: ;SUBROUTINE
 	mov ecx, [esp+8]
 	mov edx, [esp+0Ch]
 	mov ebx, 1
@@ -225964,8 +225642,9 @@ loc_4BC340:
 	xor edx, edx
 	call sub_4C21CC
 	ret 0Ch
+;sub_4BC340 endp
 
-loc_4BC360:
+sub_4BC360: ;SUBROUTINE
 	push esi
 	mov ecx, [esp+10h]
 	push ecx
@@ -225975,8 +225654,9 @@ loc_4BC360:
 	call sub_4C1C38
 	pop esi
 	ret 0Ch
+;sub_4BC360 endp
 
-loc_4BC380:
+sub_4BC380: ;SUBROUTINE
 	push esi
 	mov ebx, ecx
 	mov ecx, [esp+8]
@@ -225988,16 +225668,18 @@ loc_4BC380:
 	call sub_4C1D04
 	pop esi
 	ret 0Ch
+;sub_4BC380 endp
 
-loc_4BC3B0:
+sub_4BC3B0: ;SUBROUTINE
 	mov ebx, [esp+8]
 	mov edx, [esp+0Ch]
 	mov dword [edx], 0
 	mov edx, 2
 	call sub_4C1E5C
 	ret 0Ch
+;sub_4BC3B0 endp
 
-loc_4BC3D0:
+sub_4BC3D0: ;SUBROUTINE
 	push esi
 	mov ecx, [esp+10h]
 	push ecx
@@ -226007,8 +225689,9 @@ loc_4BC3D0:
 	call sub_4C1C38
 	pop esi
 	ret 0Ch
+;sub_4BC3D0 endp
 
-loc_4BC3F0:
+sub_4BC3F0: ;SUBROUTINE
 	push esi
 	mov ebx, ecx
 	mov ecx, [esp+8]
@@ -226020,16 +225703,18 @@ loc_4BC3F0:
 	call sub_4C1D04
 	pop esi
 	ret 0Ch
+;sub_4BC3F0 endp
 
-loc_4BC420:
+sub_4BC420: ;SUBROUTINE
 	mov ebx, [esp+8]
 	mov edx, [esp+0Ch]
 	mov dword [edx], 0
 	mov edx, 4
 	call sub_4C1E5C
 	ret 0Ch
+;sub_4BC420 endp
 
-loc_4BC440:
+sub_4BC440: ;SUBROUTINE
 	push esi
 	mov ecx, [esp+10h]
 	push ecx
@@ -226040,8 +225725,9 @@ loc_4BC440:
 	call sub_4C1F6C
 	pop esi
 	ret 0Ch
+;sub_4BC440 endp
 
-loc_4BC460:
+sub_4BC460: ;SUBROUTINE
 	push esi
 	mov ebx, ecx
 	mov ecx, [esp+8]
@@ -226054,8 +225740,9 @@ loc_4BC460:
 	call sub_4C2040
 	pop esi
 	ret 0Ch
+;sub_4BC460 endp
 
-loc_4BC490:
+sub_4BC490: ;SUBROUTINE
 	mov ecx, [esp+8]
 	mov edx, [esp+0Ch]
 	xor ebx, ebx
@@ -226063,8 +225750,9 @@ loc_4BC490:
 	mov edx, 1
 	call sub_4C21CC
 	ret 0Ch
+;sub_4BC490 endp
 
-loc_4BC4B0:
+sub_4BC4B0: ;SUBROUTINE
 	push esi
 	mov ecx, [esp+10h]
 	push ecx
@@ -226075,8 +225763,9 @@ loc_4BC4B0:
 	call sub_4C1F6C
 	pop esi
 	ret 0Ch
+;sub_4BC4B0 endp
 
-loc_4BC4D0:
+sub_4BC4D0: ;SUBROUTINE
 	push esi
 	mov ebx, ecx
 	mov ecx, [esp+8]
@@ -226089,8 +225778,9 @@ loc_4BC4D0:
 	call sub_4C2040
 	pop esi
 	ret 0Ch
+;sub_4BC4D0 endp
 
-loc_4BC500:
+sub_4BC500: ;SUBROUTINE
 	mov ecx, [esp+8]
 	mov edx, [esp+0Ch]
 	mov ebx, 1
@@ -226098,12 +225788,14 @@ loc_4BC500:
 	mov edx, ebx
 	call sub_4C21CC
 	ret 0Ch
+;sub_4BC500 endp
 
-loc_4BC520:
+sub_4BC520: ;SUBROUTINE
 	mov eax, [eax+18h]
 	ret
+;sub_4BC520 endp
 
-loc_4BC524:
+sub_4BC524: ;SUBROUTINE
 	push ecx
 	push esi
 	push edi
@@ -226303,8 +225995,9 @@ loc_4BC683:
 	pop esi
 	pop ecx
 	ret
+;sub_4BC524 endp
 
-loc_4BC6A8:
+sub_4BC6A8: ;SUBROUTINE
 	mov dword [eax+18h], 0
 	mov word [eax+1Ch], 0
 	mov word [eax+6], 0
@@ -226312,11 +226005,12 @@ loc_4BC6A8:
 	mov [eax+10h], edx
 	mov [eax+14h], ebx
 	mov eax, [esp+8]
-	mov dword [eax], loc_4BC524
+	mov dword [eax], sub_4BC524
 	mov eax, [esp+0Ch]
-	mov dword [eax], loc_4BC520
+	mov dword [eax], sub_4BC520
 	mov eax, 54h
 	ret 0Ch
+;sub_4BC6A8 endp
 
 sub_4BC6F0: ;SUBROUTINE
 	push esi
@@ -226694,10 +226388,9 @@ loc_4BCA0A:
 	lea ecx, [eax+eax]
 	xor ebx, ebx
 	mov eax, ecx
-	test ecx, ecx
-	mov eax, eax
 
 loc_4BCA60:
+	test eax, eax
 	jl loc_4BCACC
 	mov eax, [esp+4]
 	mov ebp, [esi+0Ch]
@@ -226751,11 +226444,10 @@ loc_4BCACC:
 	inc ecx
 	add edx, 2
 	mov [esp+8], ecx
-	test eax, eax
 	jmp loc_4BCA60
 ;sub_4BC940 endp
 
-loc_4BCAF8:
+sub_4BCAF8: ;SUBROUTINE
 	mov dword [eax+18h], 0
 	mov word [eax+24h], 0
 	mov word [eax+6], 0
@@ -226772,8 +226464,9 @@ loc_4BCAF8:
 	mov dword [eax], 0
 	mov eax, 9Ch
 	ret 0Ch
+;sub_4BCAF8 endp
 
-loc_4BCB50:
+sub_4BCB50: ;SUBROUTINE
 	push esi
 	push edi
 	push ebp
@@ -226963,8 +226656,9 @@ loc_4BCD0B:
 	pop edi
 	pop esi
 	ret
+;sub_4BCB50 endp
 
-loc_4BCD40:
+sub_4BCD40: ;SUBROUTINE
 	mov dword [eax+10h], 1
 	mov dword [eax+18h], 0
 	mov word [eax+1Ch], 0
@@ -226972,17 +226666,19 @@ loc_4BCD40:
 	mov word [eax+4], 0
 	mov [eax+14h], ebx
 	mov eax, [esp+8]
-	mov dword [eax], loc_4BCB50
+	mov dword [eax], sub_4BCB50
 	mov eax, [esp+0Ch]
 	mov dword [eax], 0
 	mov eax, 54h
 	ret 0Ch
+;sub_4BCD40 endp
 
-loc_4BCD80:
+sub_4BCD80: ;SUBROUTINE
 	mov eax, [eax+1Ch]
 	ret
+;sub_4BCD80 endp
 
-loc_4BCD84:
+sub_4BCD84: ;SUBROUTINE
 	push ecx
 	push esi
 	push edi
@@ -227211,8 +226907,9 @@ loc_4BCF2C:
 	pop esi
 	pop ecx
 	ret
+;sub_4BCD84 endp
 
-loc_4BCF54:
+sub_4BCF54: ;SUBROUTINE
 	mov dword [eax+1Ch], 0
 	mov word [eax+20h], 0
 	mov word [eax+6], 0
@@ -227222,11 +226919,12 @@ loc_4BCF54:
 	mov [eax+14h], edx
 	mov [eax+18h], ebx
 	mov eax, [esp+8]
-	mov dword [eax], loc_4BCD84
+	mov dword [eax], sub_4BCD84
 	mov eax, [esp+0Ch]
-	mov dword [eax], loc_4BCD80
+	mov dword [eax], sub_4BCD80
 	mov eax, 90h
 	ret 0Ch
+;sub_4BCF54 endp
 
 sub_4BCFA0: ;SUBROUTINE
 	push esi
@@ -227632,8 +227330,8 @@ loc_4BD33F:
 	lea ecx, 0[eax*4]
 	xor edx, edx
 	mov eax, ecx
-	test ecx, ecx
 	lea eax, [eax+0]
+	test ecx, ecx
 
 loc_4BD398:
 	jl loc_4BD425
@@ -227703,7 +227401,7 @@ loc_4BD425:
 	jmp loc_4BD398
 ;sub_4BD24C endp
 
-loc_4BD458:
+sub_4BD458: ;SUBROUTINE
 	mov dword [eax+1Ch], 0
 	mov word [eax+28h], 0
 	mov word [eax+6], 0
@@ -227722,8 +227420,9 @@ loc_4BD458:
 	mov dword [eax], 0
 	mov eax, 114h
 	ret 0Ch
+;sub_4BD458 endp
 
-loc_4BD4B0:
+sub_4BD4B0: ;SUBROUTINE
 	push esi
 	push edi
 	push ebp
@@ -227897,8 +227596,9 @@ loc_4BD62D:
 	pop edi
 	pop esi
 	ret
+;sub_4BD4B0 endp
 
-loc_4BD66C:
+sub_4BD66C: ;SUBROUTINE
 	mov dword [eax+14h], 1
 	mov dword [eax+1Ch], 0
 	mov dword [eax+20h], 0
@@ -227908,17 +227608,19 @@ loc_4BD66C:
 	mov word [eax+8], 0
 	mov [eax+18h], ebx
 	mov eax, [esp+8]
-	mov dword [eax], loc_4BD4B0
+	mov dword [eax], sub_4BD4B0
 	mov eax, [esp+0Ch]
 	mov dword [eax], 0
 	mov eax, 90h
 	ret 0Ch
+;sub_4BD66C endp
 
-loc_4BD6C0:
+sub_4BD6C0: ;SUBROUTINE
 	mov eax, [eax+1Ch]
 	ret
+;sub_4BD6C0 endp
 
-loc_4BD6C4:
+sub_4BD6C4: ;SUBROUTINE
 	push ecx
 	push esi
 	push edi
@@ -228120,8 +227822,9 @@ loc_4BD825:
 	pop esi
 	pop ecx
 	ret
+;sub_4BD6C4 endp
 
-loc_4BD848:
+sub_4BD848: ;SUBROUTINE
 	mov dword [eax+1Ch], 0
 	mov dword [eax+20h], 0
 	mov dword [eax+4], 0
@@ -228129,11 +227832,12 @@ loc_4BD848:
 	mov [eax+14h], edx
 	mov [eax+18h], ebx
 	mov eax, [esp+8]
-	mov dword [eax], loc_4BD6C4
+	mov dword [eax], sub_4BD6C4
 	mov eax, [esp+0Ch]
-	mov dword [eax], loc_4BD6C0
+	mov dword [eax], sub_4BD6C0
 	mov eax, 90h
 	ret 0Ch
+;sub_4BD848 endp
 
 sub_4BD890: ;SUBROUTINE
 	push esi
@@ -228575,7 +228279,7 @@ loc_4BDC55:
 	jmp loc_4BDBE4
 ;sub_4BDAB8 endp
 
-loc_4BDC7C:
+sub_4BDC7C: ;SUBROUTINE
 	mov dword [eax+1Ch], 0
 	mov dword [eax+28h], 0
 	mov dword [eax+4], 0
@@ -228592,8 +228296,9 @@ loc_4BDC7C:
 	mov dword [eax], 0
 	mov eax, 114h
 	ret 0Ch
+;sub_4BDC7C endp
 
-loc_4BDCD0:
+sub_4BDCD0: ;SUBROUTINE
 	push esi
 	push edi
 	push ebp
@@ -228776,8 +228481,9 @@ loc_4BDE66:
 	pop edi
 	pop esi
 	ret
+;sub_4BDCD0 endp
 
-loc_4BDE94:
+sub_4BDE94: ;SUBROUTINE
 	mov dword [eax+14h], 1
 	mov dword [eax+1Ch], 0
 	mov dword [eax+20h], 0
@@ -228785,17 +228491,19 @@ loc_4BDE94:
 	mov dword [eax+8], 0
 	mov [eax+18h], ebx
 	mov eax, [esp+8]
-	mov dword [eax], loc_4BDCD0
+	mov dword [eax], sub_4BDCD0
 	mov eax, [esp+0Ch]
 	mov dword [eax], 0
 	mov eax, 90h
 	ret 0Ch
+;sub_4BDE94 endp
 
-loc_4BDEE0:
+sub_4BDEE0: ;SUBROUTINE
 	mov eax, [eax+24h]
 	ret
+;sub_4BDEE0 endp
 
-loc_4BDEE4:
+sub_4BDEE4: ;SUBROUTINE
 	push ecx
 	push esi
 	push edi
@@ -229014,8 +228722,9 @@ loc_4BE066:
 	pop esi
 	pop ecx
 	ret
+;sub_4BDEE4 endp
 
-loc_4BE088:
+sub_4BE088: ;SUBROUTINE
 	mov dword [eax+24h], 0
 	mov dword [eax+28h], 0
 	mov dword [eax+4], 0
@@ -229025,11 +228734,12 @@ loc_4BE088:
 	mov [eax+1Ch], edx
 	mov [eax+20h], ebx
 	mov eax, [esp+8]
-	mov dword [eax], loc_4BDEE4
+	mov dword [eax], sub_4BDEE4
 	mov eax, [esp+0Ch]
-	mov dword [eax], loc_4BDEE0
+	mov dword [eax], sub_4BDEE0
 	mov eax, 104h
 	ret 0Ch
+;sub_4BE088 endp
 
 sub_4BE0E0: ;SUBROUTINE
 	push esi
@@ -229497,7 +229207,7 @@ loc_4BE529:
 	jmp loc_4BE4AC
 ;sub_4BE37C endp
 
-loc_4BE564:
+sub_4BE564: ;SUBROUTINE
 	mov dword [eax+24h], 0
 	mov word [eax+30h], 0
 	mov dword [eax+4], 0
@@ -229516,8 +229226,9 @@ loc_4BE564:
 	mov dword [eax], 0
 	mov eax, 200h
 	ret 0Ch
+;sub_4BE564 endp
 
-loc_4BE5C0:
+sub_4BE5C0: ;SUBROUTINE
 	push esi
 	push edi
 	push ebp
@@ -229692,8 +229403,9 @@ loc_4BE738:
 	pop edi
 	pop esi
 	ret
+;sub_4BE5C0 endp
 
-loc_4BE770:
+sub_4BE770: ;SUBROUTINE
 	mov dword [eax+1Ch], 1
 	mov dword [eax+24h], 0
 	mov dword [eax+28h], 0
@@ -229703,15 +229415,17 @@ loc_4BE770:
 	mov dword [eax+10h], 0
 	mov [eax+20h], ebx
 	mov eax, [esp+8]
-	mov dword [eax], loc_4BE5C0
+	mov dword [eax], sub_4BE5C0
 	mov eax, [esp+0Ch]
 	mov dword [eax], 0
 	mov eax, 104h
 	ret 0Ch
+;sub_4BE770 endp
 
-loc_4BE7C0:
+sub_4BE7C0: ;SUBROUTINE
 	mov eax, [eax+0D4Ch]
 	ret
+;sub_4BE7C0 endp
 
 sub_4BE7C8: ;SUBROUTINE
 	push ecx
@@ -229872,7 +229586,7 @@ loc_4BE938:
 	ret
 ;sub_4BE818 endp
 
-loc_4BE944:
+sub_4BE944: ;SUBROUTINE
 	push esi
 	mov esi, eax
 	mov eax, edx
@@ -229884,12 +229598,13 @@ loc_4BE944:
 	mov [esi+0D44h], ebx
 	mov dword [eax], sub_4BE818
 	mov eax, [esp+10h]
-	mov dword [eax], loc_4BE7C0
+	mov dword [eax], sub_4BE7C0
 	mov eax, 0D50h
 	pop esi
 	ret 0Ch
+;sub_4BE944 endp
 
-loc_4BE990:
+sub_4BE990: ;SUBROUTINE
 	push ecx
 	push esi
 	push edi
@@ -230022,8 +229737,9 @@ loc_4BEAFD:
 	call sub_4C3400
 	mov dword [ecx+0D50h], 1B0h
 	jmp loc_4BE9EE
+;sub_4BE990 endp
 
-loc_4BEB18:
+sub_4BEB18: ;SUBROUTINE
 	mov dword [eax+0D44h], 1
 	mov dword [eax+0D48h], 0
 	mov dword [eax+0D4Ch], 0
@@ -230031,13 +229747,15 @@ loc_4BEB18:
 	mov eax, [esp+0Ch]
 	mov dword [eax], 0
 	mov eax, [esp+8]
-	mov dword [eax], loc_4BE990
+	mov dword [eax], sub_4BE990
 	mov eax, 0D54h
 	ret 0Ch
+;sub_4BEB18 endp
 
-loc_4BEB60:
+sub_4BEB60: ;SUBROUTINE
 	mov eax, [eax+0D4Ch]
 	ret
+;sub_4BEB60 endp
 
 sub_4BEB68: ;SUBROUTINE
 	push ecx
@@ -230176,7 +229894,7 @@ loc_4BECAF:
 	ret
 ;sub_4BEB88 endp
 
-loc_4BECB8:
+sub_4BECB8: ;SUBROUTINE
 	push esi
 	mov esi, eax
 	mov eax, edx
@@ -230188,12 +229906,13 @@ loc_4BECB8:
 	mov [esi+0D44h], ebx
 	mov dword [eax], sub_4BEB88
 	mov eax, [esp+10h]
-	mov dword [eax], loc_4BEB60
+	mov dword [eax], sub_4BEB60
 	mov eax, 0D50h
 	pop esi
 	ret 0Ch
+;sub_4BECB8 endp
 
-loc_4BED00:
+sub_4BED00: ;SUBROUTINE
 	push ecx
 	push esi
 	push edi
@@ -230343,18 +230062,20 @@ loc_4BEEA5:
 	call sub_4C3400
 	mov dword [ebp+0D50h], 1B0h
 	jmp loc_4BED6B
+;sub_4BED00 endp
 
-loc_4BEEC0:
+sub_4BEEC0: ;SUBROUTINE
 	mov dword [eax+0D44h], 1
 	mov dword [eax+0D48h], 0
 	mov dword [eax+0D4Ch], 0
 	mov dword [eax+0D50h], 0
 	mov eax, [esp+8]
-	mov dword [eax], loc_4BED00
+	mov dword [eax], sub_4BED00
 	mov eax, [esp+0Ch]
 	mov dword [eax], 0
 	mov eax, 0D54h
 	ret 0Ch
+;sub_4BEEC0 endp
 
 sub_4C0B80: ;SUBROUTINE
 	push esi
@@ -230537,9 +230258,10 @@ sub_4C0D30: ;SUBROUTINE
 	ret
 ;sub_4C0D30 endp
 
-loc_4C1BA0:
+sub_4C1BA0: ;SUBROUTINE
 	mov eax, [eax+4]
 	ret
+;sub_4C1BA0 endp
 
 sub_4C1BA4: ;SUBROUTINE
 	push ebp
@@ -230625,12 +230347,12 @@ sub_4C1C38: ;SUBROUTINE
 	mov eax, [esp+4]
 	mov dword [eax], sub_4C1BA4
 	mov eax, [esp+8]
-	mov dword [eax], loc_4C1BA0
+	mov dword [eax], sub_4C1BA0
 	mov eax, 10h
 	ret 8
 ;sub_4C1C38 endp
 
-loc_4C1C70:
+sub_4C1C70: ;SUBROUTINE
 	push ecx
 	push esi
 	push edi
@@ -230707,6 +230429,7 @@ loc_4C1CF9:
 	pop esi
 	pop ecx
 	ret
+;sub_4C1C70 endp
 
 sub_4C1D04: ;SUBROUTINE
 	mov dword [eax+4], 0
@@ -230717,12 +230440,12 @@ sub_4C1D04: ;SUBROUTINE
 	sar edx, 1
 	mov [eax+10h], edx
 	mov eax, [esp+8]
-	mov dword [eax], loc_4C1C70
+	mov dword [eax], sub_4C1C70
 	mov eax, 14h
 	ret 8
 ;sub_4C1D04 endp
 
-loc_4C1D30:
+sub_4C1D30: ;SUBROUTINE
 	push ecx
 	push esi
 	push edi
@@ -230849,6 +230572,7 @@ loc_4C1E26:
 loc_4C1E52:
 	mov edx, esi
 	jmp loc_4C1D91
+;sub_4C1D30 endp
 
 sub_4C1E5C: ;SUBROUTINE
 	mov dword [eax], 1
@@ -230857,15 +230581,16 @@ sub_4C1E5C: ;SUBROUTINE
 	mov dword [eax+8], 0
 	mov [eax+0Ch], edx
 	mov eax, 10h
-	mov dword [ebx], loc_4C1D30
+	mov dword [ebx], sub_4C1D30
 	ret
 ;sub_4C1E5C endp
 
-loc_4C1E90:
+sub_4C1E90: ;SUBROUTINE
 	mov eax, [eax+4]
 	ret
+;sub_4C1E90 endp
 
-loc_4C1E94:
+sub_4C1E94: ;SUBROUTINE
 	push ecx
 	push esi
 	push ebp
@@ -230981,6 +230706,7 @@ loc_4C1F4D:
 	push eax
 	call sub_4C4114
 	jmp loc_4C1F27
+;sub_4C1E94 endp
 
 sub_4C1F6C: ;SUBROUTINE
 	push esi
@@ -230995,15 +230721,15 @@ sub_4C1F6C: ;SUBROUTINE
 	mov [eax+10h], edx
 	mov [eax+18h], esi
 	mov eax, [esp+0Ch]
-	mov dword [eax], loc_4C1E94
+	mov dword [eax], sub_4C1E94
 	mov eax, [esp+10h]
-	mov dword [eax], loc_4C1E90
+	mov dword [eax], sub_4C1E90
 	mov eax, 1Ch
 	pop esi
 	ret 0Ch
 ;sub_4C1F6C endp
 
-loc_4C1FB0:
+sub_4C1FB0: ;SUBROUTINE
 	push ecx
 	push esi
 	push edi
@@ -231082,6 +230808,7 @@ loc_4C2022:
 	push eax
 	call sub_4C4114
 	jmp loc_4C1FF1
+;sub_4C1FB0 endp
 
 sub_4C2040: ;SUBROUTINE
 	push esi
@@ -231099,7 +230826,7 @@ sub_4C2040: ;SUBROUTINE
 	mov edx, [esp+8]
 	mov [eax+18h], edx
 	mov eax, [esp+10h]
-	mov dword [eax], loc_4C1FB0
+	mov dword [eax], sub_4C1FB0
 	mov eax, 20h
 	pop esi
 	ret 0Ch
@@ -231283,8 +231010,6 @@ sub_4C21CC: ;SUBROUTINE
 	pop esi
 	ret
 ;sub_4C21CC endp
-
-;	Attributes: bp-based frame
 
 sub_4C2200: ;SUBROUTINE
 	push ebp
@@ -231585,8 +231310,6 @@ loc_4C256B:
 	jmp loc_4C24D2
 ;sub_4C22F0 endp
 
-;	Attributes: bp-based frame
-
 sub_4C2580: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -231667,8 +231390,6 @@ loc_4C264F:
 	leave
 	ret
 ;sub_4C2580 endp
-
-;	Attributes: bp-based frame
 
 sub_4C2668: ;SUBROUTINE
 	push ebp
@@ -231899,7 +231620,7 @@ loc_4C28BF:
 	and eax, ebx
 	cmp eax, 3 ; switch 4 cases
 	ja loc_4C28E4 ; jumptable 004C28C9 default case
-	jmp dword off_4C2898[eax*4] ; switch jump
+	jmp off_4C2898[eax*4] ; switch jump
 
 loc_4C28D0:
 	mov edx, 1 ; jumptable 004C28C9 cases 0,2
@@ -233030,8 +232751,6 @@ loc_4C374E:
 	jmp loc_4C3552
 ;sub_4C3400 endp
 
-;	Attributes: bp-based frame
-
 sub_4C40A8: ;SUBROUTINE
 	push ebp
 	mov ebp, esp
@@ -233082,8 +232801,6 @@ loc_4C4111:
 	leave
 	ret
 ;sub_4C40A8 endp
-
-;	Attributes: bp-based frame
 
 sub_4C4114: ;SUBROUTINE
 	push ebp
@@ -233410,8 +233127,7 @@ aBlk6: db 'blk6',0
 aDemoav: db 'demoav',0
 aSD_dct: db '%s%d.dct',0
 aCNfs2seFront_2: db 'c:\nfs2se\frontend\common\Mainmenu.c',0
-aBugUserDidNotG: db 'BUG: User did not go back to netmenu_netmenu() to exit properly',0Ah
-	db 0
+aBugUserDidNotG: db 'BUG: User did not go back to netmenu_netmenu() to exit properly',0Ah,0
 aBlk4: db 'blk4',0
 aTrnm: db 'trnm',0
 aGrph: db 'grph',0
@@ -233787,7 +233503,7 @@ aBusy: db 'busy',0
 aHold: db 'hold',0
 aNakt: db 'NAKt',0
 aAckr: db 'ackr',0
-aAck?: db 'ack?',0
+aAckQ: db 'ack?',0
 aNakr: db 'nakr',0
 aShutdownconn: db 'shutdownconn',0
 aDisconnect: db 'disconnect',0
@@ -233802,12 +233518,10 @@ aGrbg: db 'grbg',0
 aBad: db 'bad#',0
 aCNfs2seFron_15: db 'c:\nfs2se\frontend\pc\eacpkt.c',0
 aOpenpacketconn: db 'openpacketconnection - MAXIMUM SUPPORTED PACKET SIZE IS %d.',0Ah,0
-aOpenpacketco_2: db 'openpacketconnection - PACKETSIZE IS GREATER THAN TRANSPORT LAYER'
-	db '`S MAXIMUM',0Ah,0
+aOpenpacketco_2: db 'openpacketconnection - PACKETSIZE IS GREATER THAN TRANSPORT LAYER`S MAXIMUM',0Ah,0
 aOpenpacketco_0: db 'openpacketconnection - CALLED WITH AN ACTIVE PKTCONN.',0Ah,0
 aOpenpacketco_1: db 'openpacketconnection - MAY ONLY BE CALLED FROM MAIN THREAD.',0Ah,0
-aOpenpacketco_3: db 'openpacketconnection - MAY NOT BE CALLED WHILE DDRAW SURFACE IS L'
-	db 'OCKED.',0Ah,0
+aOpenpacketco_3: db 'openpacketconnection - MAY NOT BE CALLED WHILE DDRAW SURFACE IS LOCKED.',0Ah,0
 aPktbuf: db 'PKTBUF',0
 aPacketlayer_ti: db 'packetlayer_timeout - MUST BE NONZERO',0Ah,0
 aOpenpktconn: db 'OpenPktConn',0
@@ -233817,8 +233531,7 @@ aConnectFailed: db 'connect failed',0
 aOpenpktconnSuc: db 'OpenPktConn Success',0
 aOpenpktconnFai: db 'OpenPktConn Failed',0
 aSendpacketTooM: db 'sendpacket - TOO MUCH DATA TO FIT INTO ONE PACKET.',0Ah,0
-aSendpacketSorr: db 'sendpacket - SORRY, TOO MANY PACKETS HAVE BEEN SENT DURING THIS C'
-	db 'ONNECTION. (WOW)',0Ah,0
+aSendpacketSorr: db 'sendpacket - SORRY, TOO MANY PACKETS HAVE BEEN SENT DURING THIS CONNECTION. (WOW)',0Ah,0
 aNobuffers: db 'nobuffers',0
 aProcessconn: db 'processconn',0
 aConntimeout: db 'conntimeout',0
@@ -234103,9 +233816,6 @@ aArtres: db 'ArtRes',0
 aPal: db '!pal',0
 a0m_qfs: db '0m.qfs',0
 a0_qfs: db '0.qfs',0
-aShapecountD: db 9,'shapeCount = %d',0Ah,0
-aBasepmxcountD: db 9,'basePmxCount = %d',0Ah,0
-aPmxcountD: db 9,'pmxCount = %d',0Ah,0
 aPersist: db 'Persist',0
 aNfs2_loadfilea: db 'Nfs2_loadfileadr mem error: %s',0Ah,0
 flt_4CC48C: dd 0.0000025431316
@@ -234153,8 +233863,7 @@ aCNfs2seGameC_0: db 'c:\nfs2se\game\common\eacfile.c',0
 aFilehandles: db 'filehandles',0
 aOpenwinfileCan: db 'openwinfile - CANNOT MIRROR MAPPED FILES',0Ah,0
 aOpenwinfileC_0: db 'openwinfile - CANNOT MEMORY MIRROR FILES FOR WRITE',0Ah,0
-aOpenwinfileMus: db 'openwinfile - MUST SPECIFY BLOCK SIZE FOR MEMORY MIRRORED FILES',0Ah
-	db 0
+aOpenwinfileMus: db 'openwinfile - MUST SPECIFY BLOCK SIZE FOR MEMORY MIRRORED FILES',0Ah,0
 aMirror: db 'mirror',0
 asc_4CC934: db ' :\',0
 aReadwinfileMir: db 'readwinfile - MIRROR DATA MISSING FOR MIRRORED FILE',0Ah,0
@@ -234244,8 +233953,7 @@ aKey: db 'Key',0
 aIntface: db 'Intface',0
 aJoycal_cfg: db 'JOYCAL.CFG',0
 aMicrosoft: db 'Microsoft',0
-aWater: db 0Ah
-	db '>>>>>>Water<<<<<<<',0Ah,0
+aWater: db 0Ah,'>>>>>>Water<<<<<<<',0Ah,0
 dbl_4CE850: dq 1000000.0
 dbl_4CE858: dq 0.5
 aHud0: db 'hud0',0
@@ -234331,8 +234039,7 @@ aSload_qfs: db '%sLoad.qfs',0
 aUdp: db 'UDP',0
 aTcpGather: db 'TCP gather',0
 aCNfs2seGamePcN: db 'c:\nfs2se\game\pc\net.c',0
-aBugAddnewplaye: db 'BUG: AddNewPlayers() - Player Overflow (should have gotten past a'
-	db 'ddplayer_callback())',0Ah,0
+aBugAddnewplaye: db 'BUG: AddNewPlayers() - Player Overflow (should have gotten past addplayer_callback())',0Ah,0
 aBugDropdeadpla: db 'BUG: DropDeadPlayers LC=%d IsHost=%d',0Ah,0
 aServicelist: db 'ServiceList',0
 aTcp: db 'TCP',0
@@ -238341,7 +238048,7 @@ byte_4DAC64: db 1
 	times 3 db 1
 	times 3Eh dd 1010101h
 	dd 101h
-off_4DAD64: dd locret_482838
+off_4DAD64: dd nullsub_63
 	dd sub_48283C
 	dd sub_482938
 	dd sub_4829E4
@@ -239109,7 +238816,7 @@ off_4DD048: dd sub_499540
 	dd sub_4995A4
 	dd sub_4A6C05
 	dd sub_49954C
-	dd loc_499544
+	dd sub_48A980
 	dd sub_4A6AA0
 	dd sub_4A6AA0
 	dd sub_499900
@@ -239173,7 +238880,7 @@ off_4DD148: dd sub_499540
 	dd sub_4995A4
 	dd sub_4A6C05
 	dd sub_49954C
-	dd loc_499544
+	dd sub_48A980
 	dd sub_4A6AA0
 	dd sub_4A6AA0
 	dd sub_499900
@@ -241988,7 +241695,7 @@ dword_5642B0: times 5 dd ?
 dword_5642C4: dd ?
 dword_5642C8: dd ?
 ;	SOCKET s
-s: dd ?
+dword_5642CC: dd ?
 dword_5642D0: dd ?
 dword_5642D4: times 3 dd ?
 	times 2 db ?

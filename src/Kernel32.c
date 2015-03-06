@@ -760,7 +760,7 @@ STDCALL FindFile *FindFirstFileA_wrap( const char *fileName, WIN32_FIND_DATA *fi
 
 #endif
 
-/* Common functions */
+/* Common functions (TODO remove) */
 
 STDCALL uint32_t GetFileAttributesA_wrap( const char *fileName )
 {
