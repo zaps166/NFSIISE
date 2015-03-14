@@ -28,12 +28,14 @@ extern SDL_Window *sdl_win;
 WindowProc wndProc;
 
 static SDL_TimerID timerID;
+void SetBrightness( float val );
 uint32_t watchdogTimer( uint32_t interval, void *param );
 
 STDCALL uint32_t DefWindowProcA_wrap( void *hWnd, uint32_t uMsg, uint32_t wParam, uint32_t lParam )
 {
 	if ( uMsg == WM_DESTROY )
 	{
+		SetBrightness( -2.0f );
 		SDL_DestroyWindow( sdl_win );
 		sdl_win = NULL;
 	}

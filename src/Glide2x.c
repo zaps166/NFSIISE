@@ -4,6 +4,8 @@
 #include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL_video.h>
 
+void SetBrightness( float );
+
 #define MaxTriangles 0x000400
 #define TextureMem   0x200000
 #define VertexSnap   0x0C0000
@@ -322,8 +324,7 @@ STDCALL void grFogTable( const GrFog_t ft[ GR_FOG_TABLE_SIZE ] )
 }
 STDCALL void grGammaCorrectionValue( float value )
 {
-// 	printf( "grGammaCorrectionValue: %f\n", value );
-	SDL_SetWindowBrightness( sdl_win, value );
+	SetBrightness( value );
 }
 STDCALL void grGlideInit( void )
 {

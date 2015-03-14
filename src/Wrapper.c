@@ -4,6 +4,15 @@
 	#include <windows.h>
 #endif
 
+#if defined(SDL_VIDEO_DRIVER_X11) && defined(SDL_VIDEO_DRIVER_X11_DYNAMIC_XVIDMODE)
+	#include <SDL2/SDL_loadso.h>
+	#include <SDL2/SDL_syswm.h>
+	typedef struct { float red, green, blue; } XF86VidModeGamma;
+	typedef BOOL ( *_XF86VidModeGetGamma )( Display *, int, XF86VidModeGamma * );
+	typedef BOOL ( *_XF86VidModeSetGamma )( Display *, int, XF86VidModeGamma * );
+	#define USE_X11_GAMMA
+#endif
+
 typedef void ( *ProcedureType )( void );
 static ProcedureType atExitProcedures[ 10 ];
 static uint32_t atExitProcedureCount;
@@ -27,6 +36,53 @@ uint32_t watchdogTimer( uint32_t interval, void *param )
 }
 
 SDL_Window *sdl_win;
+
+void SetBrightness( float val )
+{
+	/* This function exists because SDL2 uses function for brightness which is not supported by opensource X11 drivers */
+	/* val < 0.0f tries to restore the brightness, less than -1.0 doesn't affect SDL function */
+#ifdef USE_X11_GAMMA
+	static BOOL firstCall = true;
+	SDL_SysWMinfo info;
+	SDL_VERSION( &info.version );
+	if ( SDL_GetWindowWMInfo( sdl_win, &info ) && info.subsystem == SDL_SYSWM_X11 )
+	{
+		static XF86VidModeGamma gammaToRestore = { -1.0f, -1.0f, -1.0f };
+		static _XF86VidModeGetGamma XF86VidModeGetGamma;
+		static _XF86VidModeSetGamma XF86VidModeSetGamma;
+		if ( firstCall && ( !XF86VidModeGetGamma || !XF86VidModeSetGamma ) )
+		{
+			void *Xxf86vm = SDL_LoadObject( SDL_VIDEO_DRIVER_X11_DYNAMIC_XVIDMODE );
+			if ( Xxf86vm )
+			{
+				XF86VidModeGetGamma = SDL_LoadFunction( Xxf86vm, "XF86VidModeGetGamma" );
+				XF86VidModeSetGamma = SDL_LoadFunction( Xxf86vm, "XF86VidModeSetGamma" );
+			}
+		}
+		firstCall = false;
+		if ( XF86VidModeGetGamma && XF86VidModeSetGamma )
+		{
+			if ( gammaToRestore.red == -1.0f && gammaToRestore.green == -1.0f && gammaToRestore.blue == -1.0f )
+				XF86VidModeGetGamma( info.info.x11.display, 0, &gammaToRestore ); //get brightness at first attempt
+			if ( val < 0.0f )
+			{
+				if ( gammaToRestore.red >= 0.0f && gammaToRestore.green >= 0.0f && gammaToRestore.blue >= 0.0f && XF86VidModeSetGamma( info.info.x11.display, 0, &gammaToRestore ) ) //restore brightness
+					return;
+				else
+					val = 1.0f;
+			}
+			if ( val >= 0.0f )
+			{
+				XF86VidModeGamma gamma = { val, val, val };
+				if ( XF86VidModeSetGamma( info.info.x11.display, 0, &gamma ) ) //set brightness
+					return;
+			}
+		}
+	}
+#endif
+	if ( val >= -1.0f )
+		SDL_SetWindowBrightness( sdl_win, val < 0.0f ? 1.0f : val );
+}
 
 #ifndef WIN32
 char *serialPort[ 4 ] = { NULL };
@@ -80,7 +136,7 @@ static void signal_handler( int sig )
 		return;
 	snprintf( errStr, sizeof errStr, "Application closed with a signal: %d", sig );
 	fprintf( stderr, "%s\n", errStr );
-	SDL_SetWindowBrightness( sdl_win, 1.0f );
+	SetBrightness( -1.0f );
 	SDL_SetWindowFullscreen( sdl_win, SDL_FALSE );
 	SDL_ShowSimpleMessageBox( 0, "Probably crash!", errStr, NULL );
 	raise( SIGKILL );

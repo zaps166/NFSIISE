@@ -39,7 +39,6 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol!
 
 ## What does not work:
 
-* Brightness on Intel video drivers on Linux (SDL2 uses function which is not supported by opensource graphics drivers),
 * Modem connection (it will never work again, this feature was removed from assembly code),
 * Force Feedback on Window$ may not work.
 
