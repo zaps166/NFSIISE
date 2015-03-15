@@ -35,7 +35,7 @@ uint32_t watchdogTimer( uint32_t interval, void *param )
 #endif
 }
 
-SDL_Window *sdl_win;
+SDL_Window *sdl_win = NULL;
 
 void SetBrightness( float val )
 {
@@ -43,9 +43,9 @@ void SetBrightness( float val )
 	/* val < 0.0f tries to restore the brightness, less than -1.0 doesn't affect SDL function */
 #ifdef USE_X11_GAMMA
 	static BOOL firstCall = true;
-	SDL_SysWMinfo info;
-	SDL_VERSION( &info.version );
-	if ( SDL_GetWindowWMInfo( sdl_win, &info ) && info.subsystem == SDL_SYSWM_X11 )
+	SDL_SysWMinfo sysInfo;
+	SDL_VERSION( &sysInfo.version );
+	if ( SDL_GetWindowWMInfo( sdl_win, &sysInfo ) && sysInfo.subsystem == SDL_SYSWM_X11 )
 	{
 		static XF86VidModeGamma gammaToRestore = { -1.0f, -1.0f, -1.0f };
 		static _XF86VidModeGetGamma XF86VidModeGetGamma;
@@ -62,11 +62,14 @@ void SetBrightness( float val )
 		firstCall = false;
 		if ( XF86VidModeGetGamma && XF86VidModeSetGamma )
 		{
+			int screen = SDL_GetWindowDisplayIndex( sdl_win );
+			if ( screen < 0 )
+				screen = 1;
 			if ( gammaToRestore.red == -1.0f && gammaToRestore.green == -1.0f && gammaToRestore.blue == -1.0f )
-				XF86VidModeGetGamma( info.info.x11.display, 0, &gammaToRestore ); //get brightness at first attempt
+				XF86VidModeGetGamma( sysInfo.info.x11.display, screen, &gammaToRestore ); //get brightness at first attempt
 			if ( val < 0.0f )
 			{
-				if ( gammaToRestore.red >= 0.0f && gammaToRestore.green >= 0.0f && gammaToRestore.blue >= 0.0f && XF86VidModeSetGamma( info.info.x11.display, 0, &gammaToRestore ) ) //restore brightness
+				if ( gammaToRestore.red >= 0.0f && gammaToRestore.green >= 0.0f && gammaToRestore.blue >= 0.0f && XF86VidModeSetGamma( sysInfo.info.x11.display, screen, &gammaToRestore ) ) //restore brightness
 					return;
 				else
 					val = 1.0f;
@@ -74,7 +77,7 @@ void SetBrightness( float val )
 			if ( val >= 0.0f )
 			{
 				XF86VidModeGamma gamma = { val, val, val };
-				if ( XF86VidModeSetGamma( info.info.x11.display, 0, &gamma ) ) //set brightness
+				if ( XF86VidModeSetGamma( sysInfo.info.x11.display, screen, &gamma ) ) //set brightness
 					return;
 			}
 		}
