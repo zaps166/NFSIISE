@@ -9,12 +9,16 @@
 #define FORCE_SQUARE 0x13541C22
 #define FORCE_SPRING 0x13541C27
 
-static BOOL lastMouseButton;
+extern SDL_Window *sdl_win;
+extern int32_t win_width, win_height;
+
 extern BOOL mouseAsJoystick;
 extern int32_t joystickAxisValueShift[ 2 ], mouseJoySensitivity;
 extern uint32_t joystickAxes[ 2 ][ 8 ], joystickButtons[ 2 ][ 15 ];
 
-#define CONVERT(x)    (((x)*0x7FFF)/10000)
+extern uint32_t mousePositionX, mousePositionY;
+
+#define CONVERT(x) (((x)*0x7FFF)/10000)
 
 static inline void setEnvelope( uint16_t *attack_length, uint16_t *attack_level, uint16_t *fade_length, uint16_t *fade_level, DIENVELOPE *envelope )
 {
@@ -94,7 +98,7 @@ static void setEffect( uint16_t real_type, SDL_HapticEffect *effect, const DIEFF
 
 static STDCALL uint32_t QueryInterface( void **this, const IID *const riid, void **object )
 {
-	/* Only joystick */
+	/* Joystick only */
 	++( ( DirectInputObject * )( *this - sizeof( DirectInputObject ) ) )->ref;
 	*object = this;
 // 	printf( "QueryInterface: 0x%X %p\n", (*riid)[0], *this );
@@ -170,7 +174,7 @@ static STDCALL uint32_t Unload( DirectInputEffect **this )
 
 static STDCALL uint32_t GetCapabilities( DirectInputDevice **this, DIDEVCAPS *devCaps )
 {
-	/* Only joystick */
+	/* Joystick only */
 	if ( (*this)->guid.a == JOYSTICK )
 	{
 	// 	printf( "GetCapabilities %p\n", *this );
@@ -212,7 +216,7 @@ static STDCALL uint32_t Unacquire( DirectInputDevice **this )
 }
 static STDCALL uint32_t GetDeviceState( DirectInputDevice **this, uint32_t cbData, void *data )
 {
-	/* Only joystick */
+	/* Joystick only */
 	if ( data && cbData == sizeof( DIJOYSTATE ) && (*this)->guid.a == JOYSTICK )
 	{
 		uint32_t i;
@@ -233,12 +237,6 @@ static STDCALL uint32_t GetDeviceState( DirectInputDevice **this, uint32_t cbDat
 				numButtons = 15;
 			if ( numAxes > 4 )
 				numAxes = 4;
-
-// 			for ( ;; )
-// 			{
-// 				printf( "%d\n", SDL_JoystickGetAxis( joy, 0 ) );
-// 				SDL_Delay( 10 );
-// 			}
 
 			for ( i = 0 ; i < numButtons ; ++i )
 				joyState->buttons[ i ] = SDL_JoystickGetButton( joy, joystickButtons[ joyIdx ][ i ] ) << 7;
@@ -261,14 +259,6 @@ static STDCALL uint32_t GetDeviceState( DirectInputDevice **this, uint32_t cbDat
 				else if ( joyState->axes[ 0 ] < 0x0000 )
 					joyState->axes[ 0 ] = 0x0000;
 			}
-
-// 			static int lastT;
-// 			int32_t t = SDL_GetTicks();
-// 			if ( t - lastT >= 10 )
-// 			{
-// 				printf( "%X\n", joyState->axes[ 0 ] );
-// 				lastT = t;
-// 			}
 		}
 		else //Mouse as joystick
 		{
@@ -296,38 +286,53 @@ static STDCALL uint32_t GetDeviceState( DirectInputDevice **this, uint32_t cbDat
 				else if ( joyState->axes[ i ] > 0xFFFF )
 					joyState->axes[ i ] = 0xFFFF;
 			}
-// 			if ( readAxes )
-// 				printf( "%X\n", joyState->axes[ 0 ] );
 		}
 	}
 	return 0;
 }
 static STDCALL uint32_t GetDeviceData( DirectInputDevice **this, uint32_t cbObjectData, DIDEVICEOBJECTDATA *rgdod, uint32_t *pdwInOut, uint32_t dwFlags )
 {
-	/* Only mouse */
-	if ( rgdod && (*this)->guid.a == MOUSE )
+	/* Mouse only. This implementation forces the absolute position of the mouse cursor. */
+	if ( rgdod && pdwInOut && (*this)->guid.a == MOUSE && *pdwInOut >= 3 )
 	{
-		int x, y;
-		uint32_t buttons;
+		int i;
 		memset( rgdod, 0, *pdwInOut * sizeof( DIDEVICEOBJECTDATA ) );
+		rgdod[ 0 ].dwOfs = 0; //Mouse X
+		rgdod[ 1 ].dwOfs = 4; //Mouse Y
+		rgdod[ 2 ].dwOfs = 12; //Mouse Click
+		for ( i = 3 ; i < *pdwInOut ; ++i )
+			rgdod[ i ].dwOfs = 8; //Nothing
 		if ( !mouseAsJoystick )
 		{
-			buttons = SDL_GetRelativeMouseState( &x, &y );
-			BOOL mouseButton = buttons & SDL_BUTTON_LMASK;
-
-			rgdod[ 0 ].dwData = x;
-			rgdod[ 0 ].dwOfs = 0;
-			rgdod[ 1 ].dwData = y;
-			rgdod[ 1 ].dwOfs = 4;
-			if ( !lastMouseButton )
+			static uint32_t lastX, lastY;
+			if ( mousePositionX != lastX || mousePositionY != lastY )
 			{
-				rgdod[ 2 ].dwData = -mouseButton;
-				rgdod[ 2 ].dwOfs = 12;
+				/* Move the mouse cursor if game changes cursor position */
+				SDL_WarpMouseInWindow( NULL, mousePositionX * win_width / 640, mousePositionY * win_height / 480 );
+				lastX = mousePositionX;
+				lastY = mousePositionY;
 			}
-			lastMouseButton = mouseButton;
+			else
+			{
+				int x, y;
+				static BOOL lastMouseButton;
+				const BOOL mouseButton = SDL_GetRelativeMouseState( &x, &y ) & SDL_BUTTON_LMASK;
+				if ( x || y )
+				{
+					/* Only when mouse moved */
+					SDL_GetMouseState( &x, &y );
+					lastX = x * 640 / win_width;
+					lastY = y * 480 / win_height;
+					/* Set as absolute position */
+					rgdod[ 0 ].dwData = lastX - mousePositionX;
+					rgdod[ 1 ].dwData = lastY - mousePositionY;
+				}
+				if ( !lastMouseButton )
+					rgdod[ 2 ].dwData = -mouseButton;
+				lastMouseButton = mouseButton;
+			}
 		}
 	}
-// 	putchar( '\n' );
 	return 0;
 }
 static STDCALL uint32_t SetDataFormat( DirectInputDevice **this, const DIDATAFORMAT *df )
@@ -350,7 +355,7 @@ static STDCALL uint32_t SetCooperativeLevel( DirectInputDevice **this, void *hwn
 }
 static STDCALL uint32_t CreateEffect( DirectInputDevice **this, const GUID *const rguid, const DIEFFECT *eff, DirectInputEffect ***deff, void *punkOuter )
 {
-	/* Only joystick */
+	/* Joystick only */
 	DirectInputEffect *dinputEff = ( DirectInputEffect * )calloc( 1, sizeof( DirectInputObject ) + sizeof( DirectInputEffect ) );
 	( ( DirectInputObject * )dinputEff )->ref = 1;
 	dinputEff = ( void * )dinputEff + sizeof( DirectInputObject );
@@ -394,14 +399,14 @@ static STDCALL uint32_t CreateEffect( DirectInputDevice **this, const GUID *cons
 }
 static STDCALL uint32_t GetObjectInfo( DirectInputDevice **this, DIDEVICEOBJECTINSTANCEA *pdidoi, uint32_t dwObj, uint32_t dwHow )
 {
-	/* Only joystick */
+	/* Joystick only */
 	memset( pdidoi, 0, sizeof( DIDEVICEOBJECTINSTANCEA ) );
 // 	printf( "GetObjectInfo: %p %d %d\n", *this, dwObj, dwHow );
 	return 0;
 }
 static STDCALL uint32_t SendForceFeedbackCommand( DirectInputDevice **this, uint32_t flags )
 {
-	/* Only joystick */
+	/* Joystick only */
 // 	printf( "SendForceFeedbackCommand: %X\n", flags );
 	switch ( flags )
 	{
@@ -421,7 +426,7 @@ static STDCALL uint32_t SendForceFeedbackCommand( DirectInputDevice **this, uint
 }
 static STDCALL uint32_t Poll( DirectInputDevice **this )
 {
-	/* Only joystick */
+	/* Joystick only */
 	return 0;
 }
 
@@ -509,6 +514,5 @@ STDCALL uint32_t DirectInputCreateA_wrap( void *hInstance, uint32_t version, Dir
 	*directInputA = malloc( sizeof( void * ) );
 	**directInputA = dinput;
 
-// 	printf( "DirectInputCreateA: %p\n", **directInputA );
 	return 0;
 }

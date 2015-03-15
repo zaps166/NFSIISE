@@ -343,7 +343,6 @@ STDCALL BOOL grLfbLock( GrLock_t type, GrBuffer_t buffer, GrLfbWriteMode_t write
 	memset( info, 0, sizeof( GrLfbInfo_t ) );
 	if ( type == GR_LFB_WRITE_ONLY )
 	{
-// 		printf( "grLfbLock: %X\n", writeMode );
 		info->lfbPtr = lfb = ( uint8_t * )malloc( 640*480*2 );
 		info->strideInBytes = 2;
 		return true;
@@ -352,7 +351,6 @@ STDCALL BOOL grLfbLock( GrLock_t type, GrBuffer_t buffer, GrLfbWriteMode_t write
 }
 STDCALL BOOL grLfbUnlock( GrLock_t type, GrBuffer_t buffer )
 {
-// 	printf( "grLfbUnlock\n" );
 	free( lfb );
 	lfb = NULL;
 	return true;

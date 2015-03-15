@@ -66,10 +66,10 @@ void SetBrightness( float val )
 			if ( screen < 0 )
 				screen = 1;
 			if ( gammaToRestore.red == -1.0f && gammaToRestore.green == -1.0f && gammaToRestore.blue == -1.0f )
-				XF86VidModeGetGamma( sysInfo.info.x11.display, screen, &gammaToRestore ); //get brightness at first attempt
+				XF86VidModeGetGamma( sysInfo.info.x11.display, screen, &gammaToRestore ); //Get brightness at first attempt
 			if ( val < 0.0f )
 			{
-				if ( gammaToRestore.red >= 0.0f && gammaToRestore.green >= 0.0f && gammaToRestore.blue >= 0.0f && XF86VidModeSetGamma( sysInfo.info.x11.display, screen, &gammaToRestore ) ) //restore brightness
+				if ( gammaToRestore.red >= 0.0f && gammaToRestore.green >= 0.0f && gammaToRestore.blue >= 0.0f && XF86VidModeSetGamma( sysInfo.info.x11.display, screen, &gammaToRestore ) ) //Restore brightness
 					return;
 				else
 					val = 1.0f;
@@ -77,7 +77,7 @@ void SetBrightness( float val )
 			if ( val >= 0.0f )
 			{
 				XF86VidModeGamma gamma = { val, val, val };
-				if ( XF86VidModeSetGamma( sysInfo.info.x11.display, screen, &gamma ) ) //set brightness
+				if ( XF86VidModeSetGamma( sysInfo.info.x11.display, screen, &gamma ) ) //Set brightness
 					return;
 			}
 		}
@@ -163,6 +163,7 @@ void WrapperInit( void )
 
 	SDL_Init( ( SDL_INIT_EVERYTHING | SDL_INIT_NOPARACHUTE ) & ~SDL_INIT_GAMECONTROLLER );
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+	SDL_ShowCursor( false );
 
 #ifndef WIN32
 	const char *homeDir = getenv( "HOME" );
@@ -422,9 +423,6 @@ SDL_Window *WrapperCreateWindow( WindowProc windowProc )
 		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, title, "Cannot create window, check OpenGL installation and game settings.", NULL );
 		exit( 0 );
 	}
-
-	if ( startAtFullScreen )
-		SDL_SetRelativeMouseMode( SDL_TRUE );
 
 	icon = ( uint32_t * )malloc( 32 * 32 * 4 );
 	for ( i = 0, j = 0 ; i < sizeof compressed_icon ; ++i )

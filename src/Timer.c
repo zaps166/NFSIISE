@@ -30,7 +30,6 @@ static uint32_t timerCallback( uint32_t interval, void *param )
 			delay = 1;
 		}
 	}
-// 	printf( "%d\n", delay );
 
 	if ( dword_5637CC )
 		SetEvent_wrap( dword_5637CC );

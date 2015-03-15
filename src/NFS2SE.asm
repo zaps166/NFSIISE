@@ -7,7 +7,8 @@ global dword_5637D8
 global dword_4DB1B0
 global dword_4DDA70
 global dword_5637A0
-
+global mousePositionX
+global mousePositionY
 
 extern SDL_NumJoysticks
 extern SDL_GetTicks
@@ -42826,7 +42827,7 @@ sub_422060: ;SUBROUTINE
 	push 10h
 	mov edx, [eax]
 	push eax
-	call dword [edx+28h]
+	call dword [edx+28h] ;GetDeviceData()
 	mov edx, eax
 	test eax, eax
 	jnz loc_422122
@@ -42864,13 +42865,13 @@ loc_4220E2:
 loc_4220F0:
 	test edi, edi
 	jz loc_4220FB
-	mov eax, dword [dword_4E8948]
+	mov eax, dword [mousePositionX]
 	mov [edi], eax
 
 loc_4220FB:
 	test esi, esi
 	jz loc_422106
-	mov eax, dword [dword_4E894C]
+	mov eax, dword [mousePositionY]
 	mov [esi], eax
 
 loc_422106:
@@ -42897,13 +42898,13 @@ loc_422122:
 loc_422131:
 	test edi, edi
 	jz loc_42213C
-	mov eax, dword [dword_4E8948]
+	mov eax, dword [mousePositionX]
 	mov [edi], eax
 
 loc_42213C:
 	test esi, esi
 	jz loc_422147
-	mov eax, dword [dword_4E894C]
+	mov eax, dword [mousePositionY]
 	mov [esi], eax
 
 loc_422147:
@@ -42975,39 +42976,39 @@ loc_4221FC:
 loc_42220B:
 	test ecx, ecx
 	jnz loc_422255
-	mov ecx, [esp+eax+4]
-	add dword [dword_4E8948], ecx
-	mov ecx, dword [dword_4E8948]
+	mov ecx, [esp+eax+4] ;Mouse X from GetDeviceData()
+	add dword [mousePositionX], ecx
+	mov ecx, dword [mousePositionX]
 	cmp ecx, dword [dword_4E8938]
 	jge loc_422238
 	mov ecx, dword [dword_4E8938]
-	mov dword [dword_4E8948], ecx
+	mov dword [mousePositionX], ecx
 	jmp loc_4220DB
 
 loc_422238:
 	cmp ecx, dword [dword_4E8940]
 	jle loc_4220DB
 	mov ecx, dword [dword_4E8940]
-	mov dword [dword_4E8948], ecx
+	mov dword [mousePositionX], ecx
 	jmp loc_4220DB
 
 loc_422255:
 	cmp ecx, 4
 	jnz loc_4220DB
-	mov ecx, [esp+eax+4]
-	add dword [dword_4E894C], ecx
-	mov ecx, dword [dword_4E894C]
+	mov ecx, [esp+eax+4] ;Mouse Y from GetDeviceData()
+	add dword [mousePositionY], ecx
+	mov ecx, dword [mousePositionY]
 	cmp ecx, dword [dword_4E893C]
 	jge loc_422287
 	mov ecx, dword [dword_4E893C]
-	mov dword [dword_4E894C], ecx
+	mov dword [mousePositionY], ecx
 	jmp loc_4220DB
 
 loc_422287:
 	cmp ecx, dword [dword_4E8944]
 	jle loc_4220DB
 	mov ecx, dword [dword_4E8944]
-	mov dword [dword_4E894C], ecx
+	mov dword [mousePositionY], ecx
 	jmp loc_4220DB
 
 loc_4222A4:
@@ -43026,8 +43027,8 @@ sub_4222C0: ;SUBROUTINE
 	mov dword [dword_4E8938], eax
 	mov dword [dword_4E893C], edx
 	mov dword [dword_4E8940], ebx
-	mov edx, dword [dword_4E894C]
-	mov eax, dword [dword_4E8948]
+	mov edx, dword [mousePositionY]
+	mov eax, dword [mousePositionX]
 	mov dword [dword_4E8944], ecx
 	jmp sub_4222F0
 ;sub_4222C0 endp
@@ -43058,7 +43059,7 @@ sub_4222F0: ;SUBROUTINE
 	mov edi, dword [dword_4E8940]
 	cmp esi, edi
 	jle loc_42235E
-	mov dword [dword_4E8948], edi
+	mov dword [mousePositionX], edi
 
 loc_422335:
 	mov ebp, dword [dword_4E893C]
@@ -43067,7 +43068,7 @@ loc_422335:
 	mov eax, dword [dword_4E8944]
 	cmp ebx, eax
 	jle loc_42236E
-	mov dword [dword_4E894C], eax
+	mov dword [mousePositionY], eax
 
 loc_42234D:
 	add esp, 4
@@ -43079,19 +43080,19 @@ loc_42234D:
 	ret
 
 loc_422356:
-	mov dword [dword_4E8948], ecx
+	mov dword [mousePositionX], ecx
 	jmp loc_422335
 
 loc_42235E:
-	mov dword [dword_4E8948], esi
+	mov dword [mousePositionX], esi
 	jmp loc_422335
 
 loc_422366:
-	mov dword [dword_4E894C], ebp
+	mov dword [mousePositionY], ebp
 	jmp loc_42234D
 
 loc_42236E:
-	mov dword [dword_4E894C], ebx
+	mov dword [mousePositionY], ebx
 	add esp, 4
 	pop ebp
 	pop edi
@@ -239824,8 +239825,8 @@ dword_4E8938: dd ?
 dword_4E893C: dd ?
 dword_4E8940: dd ?
 dword_4E8944: dd ?
-dword_4E8948: dd ?
-dword_4E894C: dd ?
+mousePositionX: dd ?
+mousePositionY: dd ?
 dword_4E8950: dd ?
 	times 3 dd ?
 dword_4E8960: dd ?
