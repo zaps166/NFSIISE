@@ -120,9 +120,7 @@ static STDCALL uint32_t Release( void **this )
 			free( dinputDev->effects );
 
 			SDL_HapticClose( dinputDev->haptic );
-#ifdef WIN32
-			SDL_JoystickClose( dinputDev->joy ); //SDL2 crashes on closing joystick on Linux... :D
-#endif
+			SDL_JoystickClose( dinputDev->joy );
 		}
 // 		printf( "Release: free 0x%p\n", *this );
 		free( dinputObj );
@@ -183,12 +181,8 @@ static STDCALL uint32_t GetCapabilities( DirectInputDevice **this, DIDEVCAPS *de
 		{
 			if ( (*this)->haptic )
 				devCaps->flags = 0x100; //DIDC_FORCEFEEDBACK
-			devCaps->buttons = SDL_JoystickNumButtons( (*this)->joy );
-			devCaps->axes = SDL_JoystickNumAxes( (*this)->joy );
-			if ( devCaps->buttons > 15 )
-				devCaps->buttons = 15;
-			if ( devCaps->axes > 4 )
-				devCaps->axes = 4;
+			devCaps->buttons = 15;
+			devCaps->axes = 4;
 		}
 		else //Mouse as joystick
 		{
@@ -219,19 +213,54 @@ static STDCALL uint32_t GetDeviceState( DirectInputDevice **this, uint32_t cbDat
 	/* Joystick only */
 	if ( data && cbData == sizeof( DIJOYSTATE ) && (*this)->guid.a == JOYSTICK )
 	{
+		const int32_t joyIdx = (*this)->guid.b - 1;
 		uint32_t i;
 
 		DIJOYSTATE *joyState = ( DIJOYSTATE * )data;
 		SDL_memset4( joyState->axes, 0x7FFF, 6 );
 		memset( joyState->buttons, 0, sizeof joyState->buttons );
 
-		SDL_Joystick *joy = (*this)->joy;
-		if ( joy )
+		if ( joyIdx > -1 ) //Real joystick
 		{
+			SDL_Joystick *joy = (*this)->joy;
+
+			SDL_JoystickUpdate();
+
+			/* Check if joystick is unplugged */
+			if ( !SDL_JoystickGetAttached( joy ) )
+			{
+				/* Close haptic */
+				if ( (*this)->haptic )
+				{
+					SDL_HapticClose( (*this)->haptic );
+					for ( i = 0 ; i < (*this)->num_effects ; ++i )
+					{
+						(*this)->effects[ i ]->haptic = NULL;
+						(*this)->effects[ i ]->effect_idx = -1;
+					}
+					(*this)->haptic = NULL;
+				}
+				/* Close joystick */
+				SDL_JoystickClose( joy );
+
+				/* Try to open a joystick */
+				if ( !( (*this)->joy = joy = SDL_JoystickOpen( joyIdx ) ) )
+					return 0; //Cannot open the joystick
+
+				/* Reopen haptic */
+				if ( (*this)->num_effects )
+				{
+					(*this)->haptic = SDL_HapticOpenFromJoystick( joy );
+					for ( i = 0 ; i < (*this)->num_effects ; ++i )
+					{
+						(*this)->effects[ i ]->haptic = (*this)->haptic;
+						(*this)->effects[ i ]->effect_idx = SDL_HapticNewEffect( (*this)->haptic, &(*this)->effects[ i ]->effect );
+					}
+				}
+			}
+
 			uint32_t numButtons = SDL_JoystickNumButtons( joy );
 			uint32_t numAxes = SDL_JoystickNumAxes( joy );
-			uint32_t joyIdx = (*this)->guid.b - 1;
-			uint32_t j;
 
 			if ( numButtons > 15 )
 				numButtons = 15;
@@ -242,7 +271,7 @@ static STDCALL uint32_t GetDeviceState( DirectInputDevice **this, uint32_t cbDat
 				joyState->buttons[ i ] = SDL_JoystickGetButton( joy, joystickButtons[ joyIdx ][ i ] ) << 7;
 			for ( i = 0 ; i < numAxes ; ++i )
 			{
-				j = i < 3 ? i : 5;
+				uint32_t j = i < 3 ? i : 5;
 				joyState->axes[ j ] = ( uint16_t )SDL_JoystickGetAxis( joy, joystickAxes[ joyIdx ][ i ] ) ^ 0x8000;
 				if ( joystickAxes[ joyIdx ][ i + 4 ] )
 					joyState->axes[ j ] = ( joyState->axes[ j ] >> 1 ) + 32768;
@@ -486,12 +515,12 @@ static STDCALL uint32_t EnumDevices( void **this, uint32_t devType, DIENUMDEVICE
 		{
 			if ( !mouseAsJoystick && !i )
 				continue;
-#ifdef WIN32
+// #ifdef WIN32
 // 			printf( "%s\n", SDL_JoystickNameForIndex( i - 1 ) );
-			/* To prevent joysticks duplicates - discard any xinput devices */
-			if ( !strncasecmp( SDL_JoystickNameForIndex( i - 1 ), "xinput", 6 ) )
-				continue;
-#endif
+// 			/* To prevent joysticks duplicates - discard any xinput devices */
+// 			if ( !strncasecmp( SDL_JoystickNameForIndex( i - 1 ), "xinput", 6 ) )
+// 				continue;
+// #endif
 			deviceInstance.guidInstance.a = JOYSTICK;
 			deviceInstance.guidInstance.b = i;
 			if ( !callback( &deviceInstance, ref ) )

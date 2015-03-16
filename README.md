@@ -25,22 +25,23 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol!
  * spanish,
  * swedish.
 * Run the game. Go to Options->Graphics and set all to maximum.
+* On Linux the game saves files in "~/.nfs2se". At the first run, "nfs2se.conf" will be copied into "~/.nfs2se".
 * If you want to configure the game, go to "~/.nfs2se" directory, edit "nfs2se.conf" and modify what you want.
-* On Linux the game saves files in "~/.nfs2se". At the firs run, "nfs2se.conf" will be copied into "~/.nfs2se".
 * The game crashes without original game data.
 
 ## What works:
 
+* Game controllers (reconnected game controllers should be the same),
 * Force Feedback (tested on Linux),
 * TCP and UDP connection,
 * Serial port connection,
-* Game controllers,
+* Brightness,
 * Sound.
 
 ## What does not work:
 
 * Modem connection (it will never work again, this feature was removed from assembly code),
-* Force Feedback on Window$ may not work.
+* Force Feedback on Window$ may not work due to bugs in SDL2.
 
 ## Patches:
 

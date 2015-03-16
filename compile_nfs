@@ -1,15 +1,17 @@
 #!/bin/bash
 
 CPU_FLAGS='-mno-sse2 -mno-sse -mno-mmx'
-DEBUG=0
 
 echo -n "Building"
-if [[ $DEBUG == 1 ]]; then
+if [[ $1 == "debug" ]]; then
+	shift
 	echo -n " debug"
+	WIN_SUBSYSTEM='console'
 	DEBUG_ASM='-g dwarf2'
 	C_FLAGS='-g'
 else
 	echo -n " release"
+	WIN_SUBSYSTEM='windows'
 	C_FLAGS='-O2'
 	STRIP='-s'
 fi
@@ -24,7 +26,7 @@ if [[ $1 == "win32" ]]; then
 	i686-w64-mingw32-gcc -Wall $C_FLAGS $CPU_FLAGS -c *.c &&
 	yasm -f win32 NFS2SE.asm -o NFS2SE.o $DEBUG_ASM --prefix=_ &&
 	yasm -f win32 EAcsnd.asm -o EAcsnd.asm.o $DEBUG_ASM --prefix=_ &&
-	i686-w64-mingw32-ld --enable-stdcall-fixup -o "../Need For Speed II SE/nfs2se.exe" *.o --stack=0x7D00,0x7D00 --heap=0x2000,0x1000 -lws2_32 -lwinmm -lkernel32 -lmsvcrt -lopengl32 -lSDL2 -subsystem=windows $STRIP -e _start &&
+	i686-w64-mingw32-ld --enable-stdcall-fixup -o "../Need For Speed II SE/nfs2se.exe" *.o --stack=0x7D00,0x7D00 --heap=0x2000,0x1000 -lws2_32 -lwinmm -lkernel32 -lmsvcrt -lopengl32 -lSDL2 -subsystem=$WIN_SUBSYSTEM $STRIP -e _start &&
 	rm -f *.o &&
 	echo "OK!"
 else
