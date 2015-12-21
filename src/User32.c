@@ -105,7 +105,7 @@ STDCALL BOOL GetMessageA_wrap( MSG *msg, void *hWnd, uint32_t wMsgFilterMin, uin
 					timerID = SDL_AddTimer( 2500, watchdogTimer, NULL );
 					return 0;
 				case SDL_KEYDOWN:
-					if ( !event.key.repeat && event.key.keysym.sym == SDLK_RETURN && event.key.keysym.mod == KMOD_LALT )
+					if ( !event.key.repeat && event.key.keysym.sym == SDLK_RETURN && ( event.key.keysym.mod & KMOD_LALT ) )
 					{
 						SDL_SetWindowFullscreen( sdl_win, ( SDL_GetWindowFlags( sdl_win ) & fullscreenFlag ) ? SDL_FALSE : fullscreenFlag );
 						br = false;
