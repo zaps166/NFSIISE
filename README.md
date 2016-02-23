@@ -45,4 +45,4 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol!
 
 ## Patches:
 
-* This directory contains patch for SDL 2.0.3. It allows to use all axes in DualShock3 gamepad! You must also modify "nfs2se.conf" file.
+* This directory contains patch for SDL 2.0.3 (SDL 2.0.4 has already this bugfix). It allows to use all axes in DualShock3 gamepad! You must also modify "nfs2se.conf" file.
