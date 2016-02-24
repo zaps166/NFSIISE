@@ -49,7 +49,7 @@ static uint32_t triangles_count, maxTexIdx;
 static PFNGLFOGCOORDFPROC p_glFogCoordf;
 static SDL_GLContext glCtx;
 
-extern BOOL useGlBleginGlEnd, newWindowSize;
+extern BOOL useGlBleginGlEnd, newWindowSize, keepAspectRatio;
 extern int32_t VSync, win_width, win_height;
 extern SDL_Window *sdl_win;
 
@@ -139,28 +139,51 @@ STDCALL void grChromakeyValue( GrColor_t value )
 // 	printf( "grChromakeyValue: %X\n", value );
 // 	chromaKeyValue = value;//( value & 0x0000FF00 ) | ( ( value & 0x00FF0000 ) >> 16 ) | ( ( value & 0x000000FF ) << 16 );
 }
-STDCALL void grClipWindow( uint32_t minx, uint32_t miny, uint32_t maxx, uint32_t maxy )
+STDCALL void grClipWindow( uint32_t min_x, uint32_t min_y, uint32_t max_x, uint32_t max_y )
 {
-	GLfloat width_ratio  = win_width  / 640.0f;
-	GLfloat height_ratio = win_height / 480.0f;
+	float width_ratio  = win_width  / 640.0f;
+	float height_ratio = win_height / 480.0f;
+	int32_t xOffset = 0;
+	int32_t yOffset = 0;
 
-	GLfloat MinX = minx * width_ratio;
-	GLfloat MinY = miny * height_ratio;
-	GLfloat MaxX = maxx * width_ratio;
-	GLfloat MaxY = maxy * height_ratio;
+	if ( keepAspectRatio )
+	{
+		if ( width_ratio > height_ratio )
+			width_ratio = height_ratio;
+		else if ( height_ratio > width_ratio )
+			height_ratio = width_ratio;
+
+		xOffset = win_width  / 2 - width_ratio  * 320;
+		yOffset = win_height / 2 - height_ratio * 240;
+
+		if ( newWindowSize )
+		{
+			/* Clear using black color and restore the previous color */
+			float clearColor[ 4 ];
+			glGetFloatv( GL_COLOR_CLEAR_VALUE, clearColor );
+			glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+			glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
+			glClearColor( clearColor[ 0 ], clearColor[ 1 ], clearColor[ 2 ], clearColor[ 3 ] );
+		}
+	}
+
+	int32_t scaled_min_x = min_x * width_ratio;
+	int32_t scaled_min_y = min_y * height_ratio;
+	int32_t scaled_max_x = SDL_ceil( max_x * width_ratio );
+	int32_t scaled_max_y = SDL_ceil( max_y * height_ratio );
 
 	drawTriangles();
 
 	glLoadIdentity();
 
-	glOrtho( MinX, MaxX, MaxY, MinY, Near, Far );
-	glViewport( MinX, win_height - MaxY, MaxX - MinX, MaxY - MinY );
-	glScissor( MinX, win_height - MaxY, MaxX - MinX, MaxY - MinY );
+	glOrtho( scaled_min_x, scaled_max_x, scaled_max_y, scaled_min_y, Near, Far );
+	glViewport( scaled_min_x + xOffset, win_height - scaled_max_y - yOffset, scaled_max_x - scaled_min_x, scaled_max_y - scaled_min_y );
+	glScissor ( scaled_min_x + xOffset, win_height - scaled_max_y - yOffset, scaled_max_x - scaled_min_x, scaled_max_y - scaled_min_y );
 
 	glScalef( width_ratio, height_ratio, 1.0f );
-	glLineWidth( width_ratio );
+	glLineWidth( width_ratio + height_ratio );
 
-// 	printf( "grClipWindow: %d %d %d %d [%d]\n", minx, miny, maxx, maxy, triangles_count );
+// 	printf( "grClipWindow: %d %d %d %d [%d]\n", min_x, min_y, max_x, max_y, triangles_count );
 }
 STDCALL void grBufferSwap( int swap_interval )
 {

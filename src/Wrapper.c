@@ -151,7 +151,7 @@ static BOOL startAtFullScreen = false;
 uint32_t joystickAxes[ 2 ][ 8 ] = { { 0, 1, 2, 3, 0, 0, 0, 0 }, { 0, 1, 2, 3, 0, 0, 0, 0 } };
 int32_t win_width = 640, win_height = 480, joystickAxisValueShift[ 2 ] = { 0 }, mouseJoySensitivity = 20, VSync = 1;
 uint32_t joystickButtons[ 2 ][ 15 ] = { { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 } };
-BOOL mouseAsJoystick = false, linearSoundInterpolation = false, useGlBleginGlEnd = false;
+BOOL mouseAsJoystick = false, linearSoundInterpolation = false, useGlBleginGlEnd = false, keepAspectRatio = true;
 uint32_t fullscreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP, Bcast = 0xFFFFFFFF;
 uint16_t PORT1 = 1030, PORT2 = 1029;
 
@@ -283,6 +283,8 @@ void WrapperInit( void )
 			}
 			else if ( !strncasecmp( "WindowSize=", line, 11 ) )
 				sscanf( line + 11, "%dx%d", &win_width, &win_height );
+			else if ( !strncasecmp( "KeepAspectRatio=", line, 16 ) )
+				sscanf( line + 16, "%d", &keepAspectRatio );
 			else if ( !strncasecmp( "MouseAsJoystick=", line, 16 ) )
 				mouseAsJoystick = !!atoi( line + 16 );
 			else if ( !strncasecmp( "MouseJoySensitivity=", line, 20 ) )
