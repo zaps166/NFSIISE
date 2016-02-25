@@ -7,7 +7,7 @@
 #if defined(SDL_VIDEO_DRIVER_X11) && defined(SDL_VIDEO_DRIVER_X11_DYNAMIC_XVIDMODE)
 	#include <SDL2/SDL_loadso.h>
 	#include <SDL2/SDL_syswm.h>
-	typedef struct { float red, green, blue; } XF86VidModeGamma;
+	typedef struct {float red, green, blue;} XF86VidModeGamma;
 	typedef BOOL (*_XF86VidModeGetGamma)(Display *, int, XF86VidModeGamma *);
 	typedef BOOL (*_XF86VidModeSetGamma)(Display *, int, XF86VidModeGamma *);
 	#define USE_X11_GAMMA
@@ -35,7 +35,7 @@ uint32_t watchdogTimer(uint32_t interval, void *param)
 #endif
 }
 
-SDL_Window *sdl_win = NULL;
+SDL_Window *sdlWin = NULL;
 
 void SetBrightness(float val)
 {
@@ -45,9 +45,9 @@ void SetBrightness(float val)
 	static BOOL firstCall = true;
 	SDL_SysWMinfo sysInfo;
 	SDL_VERSION(&sysInfo.version);
-	if (SDL_GetWindowWMInfo(sdl_win, &sysInfo) && sysInfo.subsystem == SDL_SYSWM_X11)
+	if (SDL_GetWindowWMInfo(sdlWin, &sysInfo) && sysInfo.subsystem == SDL_SYSWM_X11)
 	{
-		static XF86VidModeGamma gammaToRestore = { -1.0f, -1.0f, -1.0f };
+		static XF86VidModeGamma gammaToRestore = {-1.0f, -1.0f, -1.0f};
 		static _XF86VidModeGetGamma XF86VidModeGetGamma;
 		static _XF86VidModeSetGamma XF86VidModeSetGamma;
 		if (firstCall && (!XF86VidModeGetGamma || !XF86VidModeSetGamma))
@@ -62,7 +62,7 @@ void SetBrightness(float val)
 		firstCall = false;
 		if (XF86VidModeGetGamma && XF86VidModeSetGamma)
 		{
-			int screen = SDL_GetWindowDisplayIndex(sdl_win);
+			int screen = SDL_GetWindowDisplayIndex(sdlWin);
 			if (screen < 0)
 				screen = 1;
 			if (gammaToRestore.red == -1.0f && gammaToRestore.green == -1.0f && gammaToRestore.blue == -1.0f)
@@ -76,7 +76,7 @@ void SetBrightness(float val)
 			}
 			if (val >= 0.0f)
 			{
-				XF86VidModeGamma gamma = { val, val, val };
+				XF86VidModeGamma gamma = {val, val, val};
 				if (XF86VidModeSetGamma(sysInfo.info.x11.display, screen, &gamma)) //Set brightness
 					return;
 			}
@@ -84,11 +84,11 @@ void SetBrightness(float val)
 	}
 #endif
 	if (val >= -1.0f)
-		SDL_SetWindowBrightness(sdl_win, val < 0.0f ? 1.0f : val);
+		SDL_SetWindowBrightness(sdlWin, val < 0.0f ? 1.0f : val);
 }
 
 #ifndef WIN32
-char *serialPort[4] = { NULL };
+char *serialPort[4] = {NULL};
 char *settingsDir = NULL;
 SDL_mutex *event_mutex;
 SDL_cond *event_cond;
@@ -109,7 +109,7 @@ void exit_func(void)
 		free(serialPort[i]);
 #endif
 	i = 250;
-	while (sdl_win && i--)
+	while (sdlWin && i--)
 		SDL_Delay(10);
 #ifndef WIN32
 	SDL_DestroyCond(event_cond);
@@ -140,7 +140,7 @@ static void signal_handler(int sig)
 	snprintf(errStr, sizeof errStr, "Application closed with a signal: %d", sig);
 	fprintf(stderr, "%s\n", errStr);
 	SetBrightness(-1.0f);
-	SDL_SetWindowFullscreen(sdl_win, SDL_FALSE);
+	SDL_SetWindowFullscreen(sdlWin, SDL_FALSE);
 	SDL_ShowSimpleMessageBox(0, "Probably crash!", errStr, NULL);
 	raise(SIGKILL);
 }
@@ -148,11 +148,11 @@ static void signal_handler(int sig)
 
 static BOOL startAtFullScreen = false;
 
-uint32_t joystickAxes[2][8] = { { 0, 1, 2, 3, 0, 0, 0, 0 }, { 0, 1, 2, 3, 0, 0, 0, 0 } };
-int32_t win_width = 640, win_height = 480, joystickAxisValueShift[2] = { 0 }, mouseJoySensitivity = 20, VSync = 1;
-uint32_t joystickButtons[2][15] = { { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 } };
+uint32_t joystickAxes[2][8] = {{0, 1, 2, 3, 0, 0, 0, 0}, {0, 1, 2, 3, 0, 0, 0, 0}};
+int32_t winWidth = 640, winHeight = 480, joystickAxisValueShift[2] = {0}, mouseJoySensitivity = 20, vSync = 1;
+uint32_t joystickButtons[2][15] = {{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}};
 BOOL mouseAsJoystick = false, linearSoundInterpolation = false, useGlBleginGlEnd = false, keepAspectRatio = true;
-uint32_t fullscreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP, Bcast = 0xFFFFFFFF;
+uint32_t fullscreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP, broadcast = 0xFFFFFFFF;
 uint16_t PORT1 = 1030, PORT2 = 1029;
 
 void WrapperInit(void)
@@ -266,9 +266,9 @@ void WrapperInit(void)
 				startAtFullScreen = !!atoi(line + 18);
 			else if (!strncasecmp("VSync=", line, 6))
 			{
-				VSync = atoi(line + 6);
-				if (VSync > 1)
-					VSync = 1;
+				vSync = atoi(line + 6);
+				if (vSync > 1)
+					vSync = 1;
 			}
 			else if (!strncasecmp("MSAA=", line, 5))
 			{
@@ -282,7 +282,7 @@ void WrapperInit(void)
 					fullscreenFlag = SDL_WINDOW_FULLSCREEN;
 			}
 			else if (!strncasecmp("WindowSize=", line, 11))
-				sscanf(line + 11, "%dx%d", &win_width, &win_height);
+				sscanf(line + 11, "%dx%d", &winWidth, &winHeight);
 			else if (!strncasecmp("KeepAspectRatio=", line, 16))
 				sscanf(line + 16, "%d", &keepAspectRatio);
 			else if (!strncasecmp("MouseAsJoystick=", line, 16))
@@ -308,17 +308,13 @@ void WrapperInit(void)
 					joystickAxisValueShift[1] = 0;
 			}
 			else if (!strncasecmp("Joystick0Axes=", line, 14))
-				sscanf(line + 14, "%u,%u,%u,%u:%u,%u,%u,%u", joystickAxes[0], joystickAxes[0]+1, joystickAxes[0]+2, joystickAxes[0]+3, joystickAxes[0]+4, joystickAxes[0]+5, joystickAxes[0]+6, joystickAxes[0]+7);
+				sscanf(line + 14, "%u,%u,%u,%u:%u,%u,%u,%u", joystickAxes[0]+0, joystickAxes[0]+1, joystickAxes[0]+2, joystickAxes[0]+3, joystickAxes[0]+4, joystickAxes[0]+5, joystickAxes[0]+6, joystickAxes[0]+7);
 			else if (!strncasecmp("Joystick1Axes=", line, 14))
-				sscanf(line + 14, "%u,%u,%u,%u:%u,%u,%u,%u", joystickAxes[1], joystickAxes[1]+1, joystickAxes[1]+2, joystickAxes[1]+3, joystickAxes[1]+4, joystickAxes[1]+5, joystickAxes[1]+6, joystickAxes[1]+7);
+				sscanf(line + 14, "%u,%u,%u,%u:%u,%u,%u,%u", joystickAxes[1]+0, joystickAxes[1]+1, joystickAxes[1]+2, joystickAxes[1]+3, joystickAxes[1]+4, joystickAxes[1]+5, joystickAxes[1]+6, joystickAxes[1]+7);
 			else if (!strncasecmp("Joystick0Buttons=", line, 17))
-				sscanf(line + 17, "%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u", joystickButtons[0], joystickButtons[0]+1, joystickButtons[0]+2, joystickButtons[0]+3, joystickButtons[0]+4,
-																										joystickButtons[0]+5, joystickButtons[0]+6, joystickButtons[0]+7, joystickButtons[0]+8, joystickButtons[0]+9,
-																										joystickButtons[0]+10, joystickButtons[0]+11, joystickButtons[0]+12, joystickButtons[0]+13, joystickButtons[0]+14);
+				sscanf(line + 17, "%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u", joystickButtons[0]+0, joystickButtons[0]+1, joystickButtons[0]+2, joystickButtons[0]+3, joystickButtons[0]+4, joystickButtons[0]+5, joystickButtons[0]+6, joystickButtons[0]+7, joystickButtons[0]+8, joystickButtons[0]+9, joystickButtons[0]+10, joystickButtons[0]+11, joystickButtons[0]+12, joystickButtons[0]+13, joystickButtons[0]+14);
 			else if (!strncasecmp("Joystick1Buttons=", line, 17))
-				sscanf(line + 17, "%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u", joystickButtons[1], joystickButtons[1]+1, joystickButtons[1]+2, joystickButtons[1]+3, joystickButtons[1]+4,
-																										joystickButtons[1]+5, joystickButtons[1]+6, joystickButtons[1]+7, joystickButtons[1]+8, joystickButtons[1]+9,
-																										joystickButtons[1]+10, joystickButtons[1]+11, joystickButtons[1]+12, joystickButtons[1]+13, joystickButtons[1]+14);
+				sscanf(line + 17, "%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u", joystickButtons[1]+0, joystickButtons[1]+1, joystickButtons[1]+2, joystickButtons[1]+3, joystickButtons[1]+4, joystickButtons[1]+5, joystickButtons[1]+6, joystickButtons[1]+7, joystickButtons[1]+8, joystickButtons[1]+9, joystickButtons[1]+10, joystickButtons[1]+11, joystickButtons[1]+12, joystickButtons[1]+13, joystickButtons[1]+14);
 			else if (!strncasecmp("LinearSoundInterpolation=", line, 25))
 				linearSoundInterpolation = !!atoi(line + 25);
 			else if (!strncasecmp("UseGlBleginGlEnd=", line, 17))
@@ -331,7 +327,7 @@ void WrapperInit(void)
 			{
 				uint32_t a, b, c, d;
 				if (sscanf(line + 6, "%d.%d.%d.%d", &a, &b, &c, &d) && a <= 0xFF && b <= 0xFF && c <= 0xFF && d <= 0xFF)
-					Bcast = d << 24 | c << 16 | b << 8 | a;
+					broadcast = d << 24 | c << 16 | b << 8 | a;
 			}
 #ifndef WIN32
 			else if (!strncasecmp("LinuxCOM1=", line, 10))
@@ -385,7 +381,7 @@ extern WindowProc wndProc;
 SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 {
 	static const char title[] = "The Need For Speed 2";
-	static const uint32_t palette[8] = { 0xFF000000, 0xFF000080, 0xFF0000FF, 0xFFC0C0C0, 0xFF00FFFF, 0xFFFFFFFF, 0x00000000, 0xFF008080 };
+	static const uint32_t palette[8] = {0xFF000000, 0xFF000080, 0xFF0000FF, 0xFFC0C0C0, 0xFF00FFFF, 0xFFFFFFFF, 0x00000000, 0xFF008080};
 	static const uint8_t compressed_icon[372] =
 	{
 		0x90, 0x00, 0x12, 0x22, 0x33, 0x83, 0x34, 0x86, 0x44, 0x45, 0x82, 0x55,
@@ -423,8 +419,8 @@ SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 
 	uint32_t *icon, i, j;
 
-	sdl_win = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, win_width, win_height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (startAtFullScreen ? fullscreenFlag : 0));
-	if (!sdl_win)
+	sdlWin = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, winWidth, winHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (startAtFullScreen ? fullscreenFlag : 0));
+	if (!sdlWin)
 	{
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, "Cannot create window, check OpenGL installation and game settings.", NULL);
 		exit(0);
@@ -445,12 +441,12 @@ SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 		}
 	}
 	SDL_Surface *icon_surface = SDL_CreateRGBSurfaceFrom(icon, 32, 32, 32, 128, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
-	SDL_SetWindowIcon(sdl_win, icon_surface);
+	SDL_SetWindowIcon(sdlWin, icon_surface);
 	SDL_FreeSurface(icon_surface);
 
 	free(icon);
 
 	wndProc = windowProc;
 
-	return sdl_win;
+	return sdlWin;
 }

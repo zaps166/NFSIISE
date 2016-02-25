@@ -1,7 +1,7 @@
 #include "Wsock32.h"
 
 extern uint16_t PORT1, PORT2;
-extern uint32_t Bcast;
+extern uint32_t broadcast;
 
 STDCALL uint32_t inet_addr_wrap(const char *cp)
 {
@@ -67,7 +67,7 @@ STDCALL int select_wrap(int nfds, struct win_fd_set *readfds, struct win_fd_set 
 	uint32_t i, j, fd_count, max_fd = 0;
 	fd_set fds;
 
-	struct timeval tv = { 0, 10000 }; /* On Linux, exiting from UDP game host hangs for long time */
+	struct timeval tv = {0, 10000}; /* On Linux, exiting from UDP game host hangs for long time */
 
 	FD_ZERO(&fds);
 	for (i = 0 ; i < readfds->fd_count ; ++i)
@@ -236,7 +236,7 @@ STDCALL int sendto_wrap(int sock, const char *buf, socklen_t len, int flags, con
 	to_in.sin_family = AF_INET;
 	to_in.sin_port = htons(PORT1);
 	if (!memcmp(to->sa_nodenum, "\xFF\xFF\xFF\xFF\xFF\xFF", 6) || !memcmp(to->sa_nodenum, "\0\0\0\0\0\0", 6)) /* 0x000000000000 address is broadcast too */
-		to_in.sin_addr.s_addr = Bcast;
+		to_in.sin_addr.s_addr = broadcast;
 	else
 		memcpy(&to_in.sin_addr.s_addr, to->sa_nodenum, 4); /* IPX address to INET address */
 

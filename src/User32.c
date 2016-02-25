@@ -21,9 +21,9 @@ static const uint8_t sdl_to_windows_scancode_table[100] =
 
 BOOL newWindowSize = false;
 
-extern int32_t win_width, win_height;
+extern int32_t winWidth, winHeight;
 extern uint32_t fullscreenFlag;
-extern SDL_Window *sdl_win;
+extern SDL_Window *sdlWin;
 
 WindowProc wndProc;
 
@@ -36,8 +36,8 @@ STDCALL uint32_t DefWindowProcA_wrap(void *hWnd, uint32_t uMsg, uint32_t wParam,
 	if (uMsg == WM_DESTROY)
 	{
 		SetBrightness(-2.0f);
-		SDL_DestroyWindow(sdl_win);
-		sdl_win = NULL;
+		SDL_DestroyWindow(sdlWin);
+		sdlWin = NULL;
 	}
 	return 0;
 }
@@ -85,8 +85,8 @@ STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterMin, uint
 					switch (event.window.event)
 					{
 						case SDL_WINDOWEVENT_RESIZED:
-							win_width  = event.window.data1;
-							win_height = event.window.data2;
+							winWidth  = event.window.data1;
+							winHeight = event.window.data2;
 							newWindowSize = true;
 							br = false;
 							break;
@@ -108,7 +108,7 @@ STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterMin, uint
 					if (event.key.keysym.sym == SDLK_RETURN && (event.key.keysym.mod & KMOD_LALT))
 					{
 						if (!event.key.repeat)
-							SDL_SetWindowFullscreen(sdl_win, (SDL_GetWindowFlags(sdl_win) & fullscreenFlag) ? SDL_FALSE : fullscreenFlag);
+							SDL_SetWindowFullscreen(sdlWin, (SDL_GetWindowFlags(sdlWin) & fullscreenFlag) ? SDL_FALSE : fullscreenFlag);
 						br = false;
 						break;
 					}
@@ -277,7 +277,7 @@ STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterMin, uint
 }
 STDCALL uint32_t DispatchMessageA_wrap(const MSG *msg)
 {
-	wndProc(sdl_win, msg->uMsg, msg->wParam, msg->lParam);
+	wndProc(sdlWin, msg->uMsg, msg->wParam, msg->lParam);
 	return 0;
 }
 
@@ -298,8 +298,8 @@ STDCALL BOOL SystemParametersInfoA_wrap(uint32_t uiAction, uint32_t uiParam, voi
 
 STDCALL int MessageBoxA_wrap(void *hWnd, const char *text, const char *caption, uint32_t type)
 {
-	SDL_MessageBoxButtonData buttons[] = { { SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "OK" }, { SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 2, "Cancel" } };
-	SDL_MessageBoxData msgb = { SDL_MESSAGEBOX_WARNING, NULL, caption, text, (int32_t)(type & 0x1) + 1, buttons, NULL };
+	SDL_MessageBoxButtonData buttons[] = {{SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "OK"}, {SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 2, "Cancel"}};
+	SDL_MessageBoxData msgb = {SDL_MESSAGEBOX_WARNING, NULL, caption, text, (int32_t)(type & 0x1) + 1, buttons, NULL};
 	int buttonID;
 	if (!SDL_ShowMessageBox(&msgb, &buttonID))
 		return buttonID;

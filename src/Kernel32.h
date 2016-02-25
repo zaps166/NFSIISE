@@ -13,7 +13,7 @@
 
 	typedef uint32_t (STDCALL *THREAD_START_ROUTINE)(void *);
 
-	enum { GENERIC_WRITE = 0x40000000, GENERIC_READ = 0x80000000 };
+	enum {GENERIC_WRITE = 0x40000000, GENERIC_READ = 0x80000000};
 
 	typedef struct
 	{
@@ -103,7 +103,7 @@
 	typedef void COMMPROP;
 	typedef void DCB;
 
-	typedef enum { HandleThread = 1, HandleFile, HandleFileMapping, HandleEvent } HandleType;
+	typedef enum {HandleThread = 1, HandleFile, HandleFileMapping, HandleEvent} HandleType;
 	typedef struct
 	{
 		HandleType handleType;

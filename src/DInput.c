@@ -9,8 +9,8 @@
 #define FORCE_SQUARE 0x13541C22
 #define FORCE_SPRING 0x13541C27
 
-extern SDL_Window *sdl_win;
-extern int32_t win_width, win_height;
+extern SDL_Window *sdlWin;
+extern int32_t winWidth, winHeight;
 
 extern BOOL mouseAsJoystick;
 extern int32_t joystickAxisValueShift[2], mouseJoySensitivity;
@@ -296,11 +296,11 @@ static STDCALL uint32_t GetDeviceState(DirectInputDevice **this, uint32_t cbData
 			int32_t tDiff = t - lastT;
 			BOOL readAxes = tDiff >= 10;
 			uint32_t buttons = SDL_GetRelativeMouseState(readAxes ? &x : NULL, readAxes ? &y : NULL);
-			joyState->buttons[0] = (buttons & SDL_BUTTON_LMASK) ? 0x80 : 0;
-			joyState->buttons[1] = (buttons & SDL_BUTTON_RMASK) ? 0x80 : 0;
-			joyState->buttons[2] = (buttons & SDL_BUTTON_MMASK) ? 0x80 : 0;
-			joyState->buttons[3] = (buttons & 0x80 ) ? 0x80 : 0;
-			joyState->buttons[4] = (buttons & 0x100) ? 0x80 : 0;
+			joyState->buttons[0] = (buttons & SDL_BUTTON_LMASK)  ? 0x80 : 0;
+			joyState->buttons[1] = (buttons & SDL_BUTTON_RMASK)  ? 0x80 : 0;
+			joyState->buttons[2] = (buttons & SDL_BUTTON_MMASK)  ? 0x80 : 0;
+			joyState->buttons[3] = (buttons & SDL_BUTTON_X1MASK) ? 0x80 : 0;
+			joyState->buttons[4] = (buttons & SDL_BUTTON_X2MASK) ? 0x80 : 0;
 			if (readAxes)
 			{
 				lastT = t;
@@ -337,7 +337,7 @@ static STDCALL uint32_t GetDeviceData(DirectInputDevice **this, uint32_t cbObjec
 			if (mousePositionX != lastX || mousePositionY != lastY)
 			{
 				/* Move the mouse cursor if game changes cursor position */
-				SDL_WarpMouseInWindow(NULL, mousePositionX * win_width / 640, mousePositionY * win_height / 480);
+				SDL_WarpMouseInWindow(NULL, mousePositionX * winWidth / 640, mousePositionY * winHeight / 480);
 				lastX = mousePositionX;
 				lastY = mousePositionY;
 			}
@@ -350,8 +350,8 @@ static STDCALL uint32_t GetDeviceData(DirectInputDevice **this, uint32_t cbObjec
 				{
 					/* Only when mouse moved */
 					SDL_GetMouseState(&x, &y);
-					lastX = x * 640 / win_width;
-					lastY = y * 480 / win_height;
+					lastX = x * 640 / winWidth;
+					lastY = y * 480 / winHeight;
 					/* Set as absolute position */
 					rgdod[0].dwData = lastX - mousePositionX;
 					rgdod[1].dwData = lastY - mousePositionY;

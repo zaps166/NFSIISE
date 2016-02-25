@@ -26,7 +26,7 @@ typedef struct
 	uint32_t wParam;
 	uint32_t lParam;
 	uint32_t time;
-	uint32_t pt_x, pt_y;
+	uint32_t pt[2];
 } MSG;
 
 #endif // USER32_H

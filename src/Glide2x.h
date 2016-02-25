@@ -474,8 +474,8 @@ typedef struct {
       GrVoodooConfig_t  VoodooConfig;
       GrSst96Config_t   SST96Config;
       GrAT3DConfig_t    AT3DConfig;
-    } sstBoard;
-  } SSTs[MAX_NUM_SST];          /* configuration for each board */
+   } sstBoard;
+ } SSTs[MAX_NUM_SST];          /* configuration for each board */
 } GrHwConfiguration;
 
 typedef struct GrSstPerfStats_s {

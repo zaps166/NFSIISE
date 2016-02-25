@@ -37,21 +37,21 @@ typedef struct
 		float x, y, z;
 	} vertex[3];
 } Vertices;
-static ColorValues color_values[MaxTriangles];
-static FogCoord fog_coord[MaxTriangles];
-static TextureCoord texture_coord[MaxTriangles];
+static ColorValues colorValues[MaxTriangles];
+static FogCoord fogCoord[MaxTriangles];
+static TextureCoord textureCoord[MaxTriangles];
 static Vertices vertices[MaxTriangles];
 
-static uint8_t *lfb, texture_mem[TextureMem], fogTable[0x10000];
-static uint32_t *palette, tmp_texture[0x400];
-static uint32_t triangles_count, maxTexIdx;
+static uint8_t *lfb, textureMem[TextureMem], fogTable[0x10000];
+static uint32_t *palette, tmpTexture[0x400];
+static uint32_t trianglesCount, maxTexIdx;
 
 static PFNGLFOGCOORDFPROC p_glFogCoordf;
 static SDL_GLContext glCtx;
 
 extern BOOL useGlBleginGlEnd, newWindowSize, keepAspectRatio;
-extern int32_t VSync, win_width, win_height;
-extern SDL_Window *sdl_win;
+extern int32_t vSync, winWidth, winHeight;
+extern SDL_Window *sdlWin;
 
 static void setTextureFiltering()
 {
@@ -73,10 +73,10 @@ static inline void convertColor(GrColor_t color, float *r, float *g, float *b, f
 
 static inline void drawTriangles()
 {
-	if (triangles_count)
+	if (trianglesCount)
 	{
-		glDrawArrays(GL_TRIANGLES, 0, triangles_count * 3);
-		triangles_count = 0;
+		glDrawArrays(GL_TRIANGLES, 0, trianglesCount * 3);
+		trianglesCount = 0;
 	}
 }
 
@@ -137,22 +137,22 @@ STDCALL void grChromakeyValue(GrColor_t value)
 // 	printf("grChromakeyValue: %X\n", value);
 // 	chromaKeyValue = value;//(value & 0x0000FF00) | ((value & 0x00FF0000) >> 16) | ((value & 0x000000FF) << 16);
 }
-STDCALL void grClipWindow(uint32_t min_x, uint32_t min_y, uint32_t max_x, uint32_t max_y)
+STDCALL void grClipWindow(uint32_t minX, uint32_t minY, uint32_t maxX, uint32_t maxY)
 {
-	float width_ratio  = win_width  / 640.0f;
-	float height_ratio = win_height / 480.0f;
+	float widthRatio  = winWidth  / 640.0f;
+	float heightRatio = winHeight / 480.0f;
 	int32_t xOffset = 0;
 	int32_t yOffset = 0;
 
 	if (keepAspectRatio)
 	{
-		if (width_ratio > height_ratio)
-			width_ratio = height_ratio;
-		else if (height_ratio > width_ratio)
-			height_ratio = width_ratio;
+		if (widthRatio > heightRatio)
+			widthRatio = heightRatio;
+		else if (heightRatio > widthRatio)
+			heightRatio = widthRatio;
 
-		xOffset = win_width  / 2 - width_ratio  * 320;
-		yOffset = win_height / 2 - height_ratio * 240;
+		xOffset = winWidth  / 2 - widthRatio  * 320;
+		yOffset = winHeight / 2 - heightRatio * 240;
 
 		if (newWindowSize)
 		{
@@ -165,21 +165,21 @@ STDCALL void grClipWindow(uint32_t min_x, uint32_t min_y, uint32_t max_x, uint32
 		}
 	}
 
-	int32_t scaled_min_x = min_x * width_ratio;
-	int32_t scaled_min_y = min_y * height_ratio;
-	int32_t scaled_max_x = SDL_ceil(max_x * width_ratio);
-	int32_t scaled_max_y = SDL_ceil(max_y * height_ratio);
+	int32_t scaledMinX = minX * widthRatio;
+	int32_t scaledMinY = minY * heightRatio;
+	int32_t scaledMaxX = SDL_ceil(maxX * widthRatio);
+	int32_t scaledMaxY = SDL_ceil(maxY * heightRatio);
 
 	drawTriangles();
 
 	glLoadIdentity();
 
-	glOrtho(scaled_min_x, scaled_max_x, scaled_max_y, scaled_min_y, Near, Far);
-	glViewport(scaled_min_x + xOffset, win_height - scaled_max_y - yOffset, scaled_max_x - scaled_min_x, scaled_max_y - scaled_min_y);
-	glScissor (scaled_min_x + xOffset, win_height - scaled_max_y - yOffset, scaled_max_x - scaled_min_x, scaled_max_y - scaled_min_y);
+	glOrtho(scaledMinX, scaledMaxX, scaledMaxY, scaledMinY, Near, Far);
+	glViewport(scaledMinX + xOffset, winHeight - scaledMaxY - yOffset, scaledMaxX - scaledMinX, scaledMaxY - scaledMinY);
+	glScissor (scaledMinX + xOffset, winHeight - scaledMaxY - yOffset, scaledMaxX - scaledMinX, scaledMaxY - scaledMinY);
 
-	glScalef(width_ratio, height_ratio, 1.0f);
-	glLineWidth(width_ratio + height_ratio);
+	glScalef(widthRatio, heightRatio, 1.0f);
+	glLineWidth(widthRatio + heightRatio);
 
 // 	printf("grClipWindow: %d %d %d %d [%d]\n", min_x, min_y, max_x, max_y, triangles_count);
 }
@@ -187,7 +187,7 @@ STDCALL void grBufferSwap(int swap_interval)
 {
 // 	printf("grBufferSwap: [%d]\n", triangles_count);
 	drawTriangles();
-	SDL_GL_SwapWindow(sdl_win);
+	SDL_GL_SwapWindow(sdlWin);
 	if (newWindowSize)
 	{
 		grClipWindow(0, 0, 640, 480);
@@ -229,7 +229,7 @@ STDCALL void grDitherMode(GrDitherMode_t mode)
 STDCALL void grDrawTriangle(const GrVertex *a, const GrVertex *b, const GrVertex *c)
 {
 // 	printf("grDrawTriangle\n");
-	const GrVertex *grVertices[3] = { a, b, c };
+	const GrVertex *grVertices[3] = {a, b, c};
 	uint32_t i;
 	if (useGlBleginGlEnd)
 	{
@@ -252,22 +252,22 @@ STDCALL void grDrawTriangle(const GrVertex *a, const GrVertex *b, const GrVertex
 		{
 			const GrVertex *grVertex = grVertices[i];
 
-			color_values[triangles_count].vertex[i].r = grVertex->r / 255.0f;
-			color_values[triangles_count].vertex[i].g = grVertex->g / 255.0f;
-			color_values[triangles_count].vertex[i].b = grVertex->b / 255.0f;
-			color_values[triangles_count].vertex[i].a = grVertex->a / 255.0f;
+			colorValues[trianglesCount].vertex[i].r = grVertex->r / 255.0f;
+			colorValues[trianglesCount].vertex[i].g = grVertex->g / 255.0f;
+			colorValues[trianglesCount].vertex[i].b = grVertex->b / 255.0f;
+			colorValues[trianglesCount].vertex[i].a = grVertex->a / 255.0f;
 
-			fog_coord[triangles_count].vertex[i] = fogTable[(uint16_t)(1.0f / grVertex->oow)] / 255.0f;
+			fogCoord[trianglesCount].vertex[i] = fogTable[(uint16_t)(1.0f / grVertex->oow)] / 255.0f;
 
-			texture_coord[triangles_count].vertex[i].s = grVertex->tmuvtx[0].sow / 256.0f;
-			texture_coord[triangles_count].vertex[i].t = grVertex->tmuvtx[0].tow / 256.0f;
-			texture_coord[triangles_count].vertex[i].q = grVertex->oow;
+			textureCoord[trianglesCount].vertex[i].s = grVertex->tmuvtx[0].sow / 256.0f;
+			textureCoord[trianglesCount].vertex[i].t = grVertex->tmuvtx[0].tow / 256.0f;
+			textureCoord[trianglesCount].vertex[i].q = grVertex->oow;
 
-			vertices[triangles_count].vertex[i].x = grVertex->x - VertexSnap;
-			vertices[triangles_count].vertex[i].y = grVertex->y - VertexSnap;
-			vertices[triangles_count].vertex[i].z = grVertex->oow;
+			vertices[trianglesCount].vertex[i].x = grVertex->x - VertexSnap;
+			vertices[trianglesCount].vertex[i].y = grVertex->y - VertexSnap;
+			vertices[trianglesCount].vertex[i].z = grVertex->oow;
 		}
-		if (++triangles_count >= MaxTriangles)
+		if (++trianglesCount >= MaxTriangles)
 		{
 			drawTriangles();
 // 			fprintf(stderr, "Too many triangles!\n");
@@ -408,10 +408,10 @@ STDCALL void grSstWinClose(void)
 }
 STDCALL BOOL grSstWinOpen(uint32_t hWnd, GrScreenResolution_t screen_resolution, GrScreenRefresh_t refresh_rate, GrColorFormat_t color_format, GrOriginLocation_t origin_location, int nColBuffers, int nAuxBuffers)
 {
-	glCtx = SDL_GL_CreateContext(sdl_win);
+	glCtx = SDL_GL_CreateContext(sdlWin);
 
-	if (VSync >= 0)
-		SDL_GL_SetSwapInterval(VSync);
+	if (vSync >= 0)
+		SDL_GL_SetSwapInterval(vSync);
 
 	glEnable(GL_SCISSOR_TEST);
 	glEnable(GL_ALPHA_TEST);
@@ -437,17 +437,17 @@ STDCALL BOOL grSstWinOpen(uint32_t hWnd, GrScreenResolution_t screen_resolution,
 	else
 	{
 		glEnableClientState(GL_COLOR_ARRAY);
-		glColorPointer(4, GL_FLOAT, 0, color_values);
+		glColorPointer(4, GL_FLOAT, 0, colorValues);
 
 		PFNGLFOGCOORDPOINTERPROC p_glFogCoordPointer = (PFNGLFOGCOORDPOINTERPROC)SDL_GL_GetProcAddress("glFogCoordPointerEXT");
 		if (p_glFogCoordPointer)
 		{
 			glEnableClientState(GL_FOG_COORD_ARRAY);
-			p_glFogCoordPointer(GL_FLOAT, 0, fog_coord);
+			p_glFogCoordPointer(GL_FLOAT, 0, fogCoord);
 		}
 
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(4, GL_FLOAT, 0, texture_coord);
+		glTexCoordPointer(4, GL_FLOAT, 0, textureCoord);
 
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glVertexPointer(3, GL_FLOAT, 0, vertices);
@@ -491,13 +491,13 @@ STDCALL void grTexDownloadMipMap(GrChipID_t tmu, uint32_t startAddress, uint32_t
 
 	if (info->format == GR_TEXFMT_P_8)
 	{
-		memcpy(texture_mem + startAddress, data, size * size);
+		memcpy(textureMem + startAddress, data, size * size);
 		return;
 	}
 
 	drawTriangles();
 
-	uint32_t *id = (uint32_t *)(texture_mem + startAddress);
+	uint32_t *id = (uint32_t *)(textureMem + startAddress);
 	BOOL newTexture = false;
 
 	if (*id <= 5 || *id > maxTexIdx)
@@ -549,18 +549,18 @@ STDCALL void grTexMipMapMode(GrChipID_t tmu, GrMipMapMode_t mode, BOOL lodBlend)
 }
 STDCALL void grTexSource(GrChipID_t tmu, uint32_t startAddress, uint32_t evenOdd, GrTexInfo *info)
 {
-	uint8_t *data = texture_mem + startAddress;
+	uint8_t *data = textureMem + startAddress;
 	uint32_t size = 256 >> info->largeLod;
 	drawTriangles();
 	if (info->format != GR_TEXFMT_P_8)
-		glBindTexture(GL_TEXTURE_2D, *(uint32_t *)(texture_mem + startAddress));
+		glBindTexture(GL_TEXTURE_2D, *(uint32_t *)(textureMem + startAddress));
 	else if (palette)
 	{
 		int32_t sqrSize = size * size, i;
 		glBindTexture(GL_TEXTURE_2D, info->largeLod - 2);
 		for (i = 0 ; i < sqrSize ; ++i)
-			tmp_texture[i] = palette[data[i]];
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size, size, GL_BGRA, GL_UNSIGNED_BYTE, tmp_texture);
+			tmpTexture[i] = palette[data[i]];
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size, size, GL_BGRA, GL_UNSIGNED_BYTE, tmpTexture);
 	}
 }
 STDCALL void guFogGenerateExp(GrFog_t fogtable[GR_FOG_TABLE_SIZE], float density)
