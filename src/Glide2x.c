@@ -123,9 +123,7 @@ STDCALL void grBufferClear( GrColor_t color, GrAlpha_t alpha, uint16_t depth )
 	glClearColor( r, g, b, a );
 	glClearDepth( depth / 65535.0f );
 
-	glEnable( GL_SCISSOR_TEST );
 	glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT );
-	glDisable( GL_SCISSOR_TEST );
 
 // 	printf( "grBufferClear: %X %X %X [%d]\n", color, alpha, depth, triangles_count );
 }
@@ -415,6 +413,7 @@ STDCALL BOOL grSstWinOpen( uint32_t hWnd, GrScreenResolution_t screen_resolution
 	if ( VSync >= 0 )
 		SDL_GL_SetSwapInterval( VSync );
 
+	glEnable( GL_SCISSOR_TEST );
 	glEnable( GL_ALPHA_TEST );
 	glEnable( GL_DEPTH_TEST );
 	glDisable( GL_DITHER );
