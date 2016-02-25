@@ -16,7 +16,7 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol!
 
 * Copy fedata" and "gamedata" directories from the Need For Speed II SE original CD-ROM (or from CD image from the Internet) into "Need For Speed II SE" directory.
 * You can delete unnecessary files, e.g. "fedata/pc/text/text.*", because TCP version uses new files in root directory.
-* All files and directories copied from CD-ROM must have SMALL LETTERS!!!
+* All files and directories copied from CD-ROM must have SMALL LETTERS on Linux!!!
 * If you want to chang language, edit "install.win" and change first line. Leave "4nn" as is and modify language name. Possible languages are:
  * english,
  * french,
@@ -45,4 +45,4 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol!
 
 ## Patches:
 
-* This directory contains patch for SDL 2.0.3 (SDL 2.0.4 has already this bugfix). It allows to use all axes in DualShock3 gamepad! You must also modify "nfs2se.conf" file.
+* This directory contains patch for SDL 2.0.3 (SDL 2.0.4 has already this bugfix). It allows to use all axes in DualShock3 gamepad! You must also modify "nfs2se.conf" file (Joystick0Axes, Joystick0Buttons).
