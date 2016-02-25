@@ -5,7 +5,7 @@
 #include <SDL2/SDL_video.h>
 #include <SDL2/SDL_timer.h>
 
-static const uint8_t sdl_to_windows_scancode_table[ 100 ] =
+static const uint8_t sdl_to_windows_scancode_table[100] =
 {
 	0x00, 0x00, 0x00, 0x00, 0x1E, 0x30, 0x2E, 0x20, 0x12, 0x21,
 	0x22, 0x23, 0x17, 0x24, 0x25, 0x26, 0x32, 0x31, 0x18, 0x19,
@@ -28,61 +28,61 @@ extern SDL_Window *sdl_win;
 WindowProc wndProc;
 
 static SDL_TimerID timerID;
-void SetBrightness( float val );
-uint32_t watchdogTimer( uint32_t interval, void *param );
+void SetBrightness(float val);
+uint32_t watchdogTimer(uint32_t interval, void *param);
 
-STDCALL uint32_t DefWindowProcA_wrap( void *hWnd, uint32_t uMsg, uint32_t wParam, uint32_t lParam )
+STDCALL uint32_t DefWindowProcA_wrap(void *hWnd, uint32_t uMsg, uint32_t wParam, uint32_t lParam)
 {
-	if ( uMsg == WM_DESTROY )
+	if (uMsg == WM_DESTROY)
 	{
-		SetBrightness( -2.0f );
-		SDL_DestroyWindow( sdl_win );
+		SetBrightness(-2.0f);
+		SDL_DestroyWindow(sdl_win);
 		sdl_win = NULL;
 	}
 	return 0;
 }
-STDCALL BOOL SetForegroundWindow_wrap( void *hWnd )
+STDCALL BOOL SetForegroundWindow_wrap(void *hWnd)
 {
 	return false;
 }
-STDCALL BOOL DestroyWindow_wrap( void *hWnd )
+STDCALL BOOL DestroyWindow_wrap(void *hWnd)
 {
 	SDL_Event event;
 	event.type = WM_DESTROY;
-	if ( timerID )
+	if (timerID)
 	{
-		SDL_RemoveTimer( timerID );
+		SDL_RemoveTimer(timerID);
 		timerID = 0;
 	}
-	return SDL_PushEvent( &event ) == 1;
+	return SDL_PushEvent(&event) == 1;
 }
 
-STDCALL BOOL PostMessageA_wrap( void *hWnd, uint32_t uMsg, uint32_t wParam, uint32_t lParam )
+STDCALL BOOL PostMessageA_wrap(void *hWnd, uint32_t uMsg, uint32_t wParam, uint32_t lParam)
 {
-	if ( uMsg >= WM_USER && uMsg < WM_USER_END )
+	if (uMsg >= WM_USER && uMsg < WM_USER_END)
 	{
 		SDL_Event event;
 		event.type = uMsg + SDL_USEREVENT - WM_USER;
 		event.user.code = lParam;
-		return SDL_PushEvent( &event ) == 1;
+		return SDL_PushEvent(&event) == 1;
 	}
 	return false;
 }
-STDCALL BOOL GetMessageA_wrap( MSG *msg, void *hWnd, uint32_t wMsgFilterMin, uint32_t wMsgFilterMax )
+STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterMin, uint32_t wMsgFilterMax)
 {
 	static uint32_t lastLParam;
 	BOOL br;
 	SDL_Event event;
-	memset( msg, 0, sizeof( MSG ) );
+	memset(msg, 0, sizeof(MSG));
 	do
 	{
 		br = true;
-		if ( SDL_WaitEvent( &event ) )
+		if (SDL_WaitEvent(&event))
 		{
-			switch ( event.type )
+			switch (event.type)
 			{
 				case SDL_WINDOWEVENT:
-					switch ( event.window.event )
+					switch (event.window.event)
 					{
 						case SDL_WINDOWEVENT_RESIZED:
 							win_width  = event.window.data1;
@@ -102,13 +102,13 @@ STDCALL BOOL GetMessageA_wrap( MSG *msg, void *hWnd, uint32_t wMsgFilterMin, uin
 					msg->uMsg = event.type;
 					break;
 				case SDL_QUIT:
-					timerID = SDL_AddTimer( 2500, watchdogTimer, NULL );
+					timerID = SDL_AddTimer(2500, watchdogTimer, NULL);
 					return 0;
 				case SDL_KEYDOWN:
-					if ( event.key.keysym.sym == SDLK_RETURN && ( event.key.keysym.mod & KMOD_LALT ) )
+					if (event.key.keysym.sym == SDLK_RETURN && (event.key.keysym.mod & KMOD_LALT))
 					{
-						if ( !event.key.repeat )
-							SDL_SetWindowFullscreen( sdl_win, ( SDL_GetWindowFlags( sdl_win ) & fullscreenFlag ) ? SDL_FALSE : fullscreenFlag );
+						if (!event.key.repeat)
+							SDL_SetWindowFullscreen(sdl_win, (SDL_GetWindowFlags(sdl_win) & fullscreenFlag) ? SDL_FALSE : fullscreenFlag);
 						br = false;
 						break;
 					}
@@ -121,7 +121,7 @@ STDCALL BOOL GetMessageA_wrap( MSG *msg, void *hWnd, uint32_t wMsgFilterMin, uin
 
 					msg->lParam = 1;
 
-					switch ( sym )
+					switch (sym)
 					{
 						case SDLK_LSHIFT:
 						case SDLK_RSHIFT:
@@ -220,48 +220,48 @@ STDCALL BOOL GetMessageA_wrap( MSG *msg, void *hWnd, uint32_t wMsgFilterMin, uin
 						case SDLK_KP_ENTER:
 							sym = SDLK_RETURN;
 						default:
-							if ( !( sym & 0x40000000 ) )
+							if (!(sym & 0x40000000))
 							{
 								isWMChar = sym >= SDLK_BACKSPACE && sym < SDLK_SPACE;
 								msg->wParam = sym;
 							}
 					}
 
-					if ( msg->lParam == 1 && scancode < 100 )
-						msg->lParam |= sdl_to_windows_scancode_table[ scancode ] << 16;
+					if (msg->lParam == 1 && scancode < 100)
+						msg->lParam |= sdl_to_windows_scancode_table[scancode] << 16;
 					lastLParam = msg->lParam;
 
 					SDL_Event event2;
 					event2.type = WM_CHR_SDL;
-					if ( event.type == SDL_KEYUP )
+					if (event.type == SDL_KEYUP)
 						msg->uMsg = WM_KEYUP;
-					else if ( event.type == SDL_KEYDOWN )
+					else if (event.type == SDL_KEYDOWN)
 					{
 						msg->uMsg = WM_KEYDOWN;
-						if ( isWMChar )
+						if (isWMChar)
 						{
-							event2.user.data1 = ( void * )msg->wParam;
-							event2.user.data2 = ( void * )msg->lParam;
-							SDL_PushEvent( &event2 );
+							event2.user.data1 = (void *)msg->wParam;
+							event2.user.data2 = (void *)msg->lParam;
+							SDL_PushEvent(&event2);
 						}
 					}
 
-					if ( sym >= SDLK_a && sym <= SDLK_z )
+					if (sym >= SDLK_a && sym <= SDLK_z)
 						msg->wParam = sym & ~0x20;
 				} break;
 				case SDL_TEXTINPUT:
 				{
 					msg->uMsg = WM_CHAR;
-					msg->wParam = event.text.text[ 0 ];
+					msg->wParam = event.text.text[0];
 					msg->lParam = lastLParam;
 				} break;
 				case WM_CHR_SDL:
 					msg->uMsg = WM_CHAR;
-					msg->wParam = ( uint32_t )event.user.data1;
-					msg->lParam = ( uint32_t )event.user.data2;
+					msg->wParam = (uint32_t)event.user.data1;
+					msg->lParam = (uint32_t)event.user.data2;
 					break;
 				default:
-					if ( event.type >= SDL_USEREVENT )
+					if (event.type >= SDL_USEREVENT)
 					{
 						msg->uMsg = event.type + WM_USER - SDL_USEREVENT;
 						msg->lParam = event.user.code;
@@ -269,39 +269,39 @@ STDCALL BOOL GetMessageA_wrap( MSG *msg, void *hWnd, uint32_t wMsgFilterMin, uin
 					}
 					br = false;
 			}
-			if ( br )
+			if (br)
 				return 1;
 		}
-	} while ( !br );
+	} while (!br);
 	return -1;
 }
-STDCALL uint32_t DispatchMessageA_wrap( const MSG *msg )
+STDCALL uint32_t DispatchMessageA_wrap(const MSG *msg)
 {
-	wndProc( sdl_win, msg->uMsg, msg->wParam, msg->lParam );
+	wndProc(sdl_win, msg->uMsg, msg->wParam, msg->lParam);
 	return 0;
 }
 
-STDCALL int ShowCursor_wrap( BOOL bShow )
-{
-	return 0;
-}
-
-STDCALL int GetKeyboardType_wrap( int typeFlag )
+STDCALL int ShowCursor_wrap(BOOL bShow)
 {
 	return 0;
 }
 
-STDCALL BOOL SystemParametersInfoA_wrap( uint32_t uiAction, uint32_t uiParam, void *param, uint32_t fWinIni )
+STDCALL int GetKeyboardType_wrap(int typeFlag)
+{
+	return 0;
+}
+
+STDCALL BOOL SystemParametersInfoA_wrap(uint32_t uiAction, uint32_t uiParam, void *param, uint32_t fWinIni)
 {
 	return false;
 }
 
-STDCALL int MessageBoxA_wrap( void *hWnd, const char *text, const char *caption, uint32_t type )
+STDCALL int MessageBoxA_wrap(void *hWnd, const char *text, const char *caption, uint32_t type)
 {
 	SDL_MessageBoxButtonData buttons[] = { { SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "OK" }, { SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 2, "Cancel" } };
-	SDL_MessageBoxData msgb = { SDL_MESSAGEBOX_WARNING, NULL, caption, text, ( int32_t )( type & 0x1 ) + 1, buttons, NULL };
+	SDL_MessageBoxData msgb = { SDL_MESSAGEBOX_WARNING, NULL, caption, text, (int32_t)(type & 0x1) + 1, buttons, NULL };
 	int buttonID;
-	if ( !SDL_ShowMessageBox( &msgb, &buttonID ) )
+	if (!SDL_ShowMessageBox(&msgb, &buttonID))
 		return buttonID;
 	return 1;
 }

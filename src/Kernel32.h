@@ -11,7 +11,7 @@
 
 	#include <dirent.h>
 
-	typedef uint32_t ( STDCALL *THREAD_START_ROUTINE )( void * );
+	typedef uint32_t (STDCALL *THREAD_START_ROUTINE)(void *);
 
 	enum { GENERIC_WRITE = 0x40000000, GENERIC_READ = 0x80000000 };
 
@@ -94,9 +94,9 @@
 		FILETIME ftLastWriteTime;
 		uint32_t fileSizeHigh;
 		uint32_t fileSizeLow;
-		uint32_t reserved[ 2 ];
-		char fileName[ MAX_PATH ];
-		char alternateFileName[ 14 ];
+		uint32_t reserved[2];
+		char fileName[MAX_PATH];
+		char alternateFileName[14];
 	} WIN32_FIND_DATA;
 
 	typedef void SECURITY_ATTRIBUTES;

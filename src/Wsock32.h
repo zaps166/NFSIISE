@@ -16,7 +16,7 @@
 	struct win_fd_set
 	{
 		uint32_t fd_count;
-		int fd_array[ 64 ];
+		int fd_array[64];
 	};
 
 	struct win_hostent
@@ -38,8 +38,8 @@
 struct sockaddr_ipx
 {
 	int16_t sa_family;
-	int8_t sa_netnum[ 4 ];
-	int8_t sa_nodenum[ 6 ];
+	int8_t sa_netnum[4];
+	int8_t sa_nodenum[6];
 	uint16_t sa_socket;
 };
 

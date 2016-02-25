@@ -18,6 +18,6 @@
 #define false 0
 #define true 1
 
-typedef uint32_t ( STDCALL *WindowProc )( void *hWnd, uint32_t uMsg, uint32_t wParam, uint32_t lParam );
+typedef uint32_t (STDCALL *WindowProc)(void *hWnd, uint32_t uMsg, uint32_t wParam, uint32_t lParam);
 
 #endif // WRAPPER_H
