@@ -281,11 +281,6 @@ STDCALL uint32_t DispatchMessageA_wrap(const MSG *msg)
 	return 0;
 }
 
-STDCALL int ShowCursor_wrap(BOOL bShow)
-{
-	return 0;
-}
-
 STDCALL int GetKeyboardType_wrap(int typeFlag)
 {
 	return 0;

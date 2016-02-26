@@ -90,7 +90,6 @@ extern GetMessageA_wrap
 extern MessageBoxA_wrap
 extern PostMessageA_wrap
 extern SetForegroundWindow_wrap
-extern ShowCursor_wrap
 extern SystemParametersInfoA_wrap
 
 extern CloseHandle_wrap
@@ -42798,8 +42797,6 @@ sub_4224D0: ;SUBROUTINE
 	jnz loc_4224F5
 
 loc_4224DA:
-	push 0 ; bShow
-	call ShowCursor_wrap
 	mov eax, 1
 	pop ebp
 	ret 18h
@@ -170424,8 +170421,6 @@ loc_481C71:
 	call dword [dword_5635D4]
 
 loc_481C97:
-	push 1
-	call ShowCursor_wrap
 	mov edx, 80h
 	mov eax, byte_4DB2F4
 	call sub_48A01C
@@ -170446,8 +170441,6 @@ sub_481CC0: ;SUBROUTINE
 loc_481CDD:
 	cmp byte [edx+45Dh], 0
 	jz loc_481CEF
-	push 0
-	call ShowCursor_wrap
 
 loc_481CEF:
 	cmp dword [dword_563D74], 0
@@ -173613,8 +173606,6 @@ loc_484214:
 	call dword [dword_4DAC08]
 
 loc_484223:
-	push 1 ; bShow
-	call ShowCursor_wrap
 	push 11031h ; uType
 	push aAbortMessage ; "Abort message:"
 	lea eax, [esp+8]
