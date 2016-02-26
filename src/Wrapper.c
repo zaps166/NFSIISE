@@ -144,6 +144,47 @@ static void signal_handler(int sig)
 	SDL_ShowSimpleMessageBox(0, "Probably crash!", errStr, NULL);
 	raise(SIGKILL);
 }
+
+static char *createSettingsDirPath(const char *subdir, const char *fn)
+{
+	char *pth = (char *)malloc(strlen(settingsDir) + strlen(subdir) + 1 + strlen(fn) + 1);
+	sprintf(pth, "%s%s/%s", settingsDir, subdir, fn);
+	return pth;
+}
+char *convertFilePath(const char *srcPth, BOOL convToLower)
+{
+	char *tmpFileName = NULL;
+	uint32_t i;
+	if (settingsDir)
+	{
+		if (!strncasecmp(srcPth, ".\\fedata\\pc\\config\\", 19))
+			tmpFileName = createSettingsDirPath("config", srcPth + 19);
+		else if (!strncasecmp(srcPth, ".\\fedata\\pc\\save\\", 17))
+			tmpFileName = createSettingsDirPath("save", srcPth + 17);
+		else if (!strncasecmp(srcPth, ".\\gamedata\\tmptrk\\", 18))
+			tmpFileName = createSettingsDirPath("tmptrk", srcPth + 18);
+		else if (!strcasecmp(srcPth, "replay.rpy"))
+			tmpFileName = createSettingsDirPath("tmptrk", srcPth);
+		else if (!strncasecmp(srcPth, ".\\fedata\\pc\\stats\\", 18) && !strcasestr(srcPth, "prh"))
+		{
+			i = strlen(srcPth) - 4;
+			if (i > 0 && !strcasecmp(srcPth + i, ".stf"))
+				tmpFileName = createSettingsDirPath("stats", srcPth + 18);
+		}
+	}
+	if (!tmpFileName)
+	{
+		tmpFileName = strdup(srcPth);
+		for (i = 0 ; tmpFileName[i] ; ++i)
+		{
+			if (tmpFileName[i] == '\\')
+				tmpFileName[i] = '/';
+			else if (convToLower)
+				tmpFileName[i] = tolower(tmpFileName[i]);
+		}
+	}
+	return tmpFileName;
+}
 #endif
 
 static BOOL startAtFullScreen = false;
@@ -170,7 +211,7 @@ void WrapperInit(void)
 	const char *homeDir = getenv("HOME");
 	if (homeDir && *homeDir)
 	{
-		char buffer[256];
+		char buffer[MAX_PATH];
 		struct stat st;
 		int pos;
 

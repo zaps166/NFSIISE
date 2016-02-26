@@ -16,11 +16,6 @@
 
 #ifdef WIN32
 
-STDCALL FILE *fopen_c(const char *fileName, const char *p)
-{
-	return fopen(fileName, p);
-}
-
 STDCALL void *CreateThread_wrap(void *threadAttributes, uint32_t stackSize, LPTHREAD_START_ROUTINE startAddress, void *parameter, uint32_t creationFlags, uint32_t *threadId)
 {
 	return CreateThread(threadAttributes, stackSize, startAddress, parameter, creationFlags, (DWORD *)threadId);
@@ -203,55 +198,6 @@ extern char *serialPort[4];
 extern char *settingsDir;
 extern SDL_mutex *event_mutex;
 extern SDL_cond *event_cond;
-
-static char *createSettingsDirPath(const char *subdir, const char *fn)
-{
-	char *pth = (char *)malloc(strlen(settingsDir) + strlen(subdir) + 1 + strlen(fn) + 1);
-	sprintf(pth, "%s%s/%s", settingsDir, subdir, fn);
-	return pth;
-}
-static char *getPath(const char *src_pth, BOOL conv_to_lower)
-{
-	char *tmpFileName = NULL;
-	uint32_t i;
-	if (settingsDir)
-	{
-		if (!strncasecmp(src_pth, ".\\fedata\\pc\\config\\", 19))
-			tmpFileName = createSettingsDirPath("config", src_pth + 19);
-		else if (!strncasecmp(src_pth, ".\\fedata\\pc\\save\\", 17))
-			tmpFileName = createSettingsDirPath("save", src_pth + 17);
-		else if (!strncasecmp(src_pth, ".\\gamedata\\tmptrk\\", 18))
-			tmpFileName = createSettingsDirPath("tmptrk", src_pth + 18);
-		else if (!strcasecmp(src_pth, "replay.rpy"))
-			tmpFileName = createSettingsDirPath("tmptrk", src_pth);
-		else if (!strncasecmp(src_pth, ".\\fedata\\pc\\stats\\", 18) && !strcasestr(src_pth, "prh"))
-		{
-			i = strlen(src_pth) - 4;
-			if (i > 0 && !strcasecmp(src_pth + i, ".stf"))
-				tmpFileName = createSettingsDirPath("stats", src_pth + 18);
-		}
-	}
-	if (!tmpFileName)
-	{
-		tmpFileName = strdup(src_pth);
-		for (i = 0 ; tmpFileName[i] ; ++i)
-		{
-			if (tmpFileName[i] == '\\')
-				tmpFileName[i] = '/';
-			else if (conv_to_lower)
-				tmpFileName[i] = tolower(tmpFileName[i]);
-		}
-	}
-	return tmpFileName;
-}
-
-STDCALL FILE *fopen_c(const char *fileName, const char *p)
-{
-	char *tmpFileName = getPath(fileName, true);
-	FILE *f = fopen(tmpFileName, p);
-	free(tmpFileName);
-	return f;
-}
 
 static int threadFunction(void *data)
 {
@@ -450,7 +396,7 @@ STDCALL File *CreateFileA_wrap(const char *fileName, uint32_t desiredAccess, uin
 	uint32_t COM_number = 0;
 	if (!strncasecmp(fileName, "\\\\.\\com", 7))
 		COM_number = fileName[7] - '0';
-	char *tmpFileName = COM_number ? strdup(serialPort[COM_number - 1]) : getPath(fileName, true);
+	char *tmpFileName = COM_number ? strdup(serialPort[COM_number - 1]) : convertFilePath(fileName, true);
 
 	File *file = NULL;
 	int fd = -1;
@@ -620,7 +566,7 @@ STDCALL BOOL SetCommTimeouts_wrap(File *file, COMMTIMEOUTS *commTimeouts)
 
 STDCALL BOOL DeleteFileA_wrap(const char *fileName)
 {
-	char *tmpFileName = getPath(fileName, true);
+	char *tmpFileName = convertFilePath(fileName, true);
 	BOOL ret = !unlink(tmpFileName);
 	free(tmpFileName);
 	return ret;
@@ -700,7 +646,7 @@ STDCALL uint32_t GetCurrentDirectoryA_wrap(uint32_t bufferLength, char *buffer)
 }
 STDCALL BOOL SetCurrentDirectoryA_wrap(const char *pathName)
 {
-	char *tmpPathName = getPath(pathName, false);
+	char *tmpPathName = convertFilePath(pathName, false);
 	BOOL ret = !chdir(tmpPathName);
 	free(tmpPathName);
 	return ret;

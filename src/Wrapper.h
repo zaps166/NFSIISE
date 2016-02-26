@@ -20,4 +20,8 @@
 
 typedef uint32_t (STDCALL *WindowProc)(void *hWnd, uint32_t uMsg, uint32_t wParam, uint32_t lParam);
 
+#ifndef WIN32
+	char *convertFilePath(const char *srcPth, BOOL convToLower);
+#endif
+
 #endif // WRAPPER_H
