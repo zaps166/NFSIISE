@@ -9,11 +9,12 @@ static void (*fadeInOut)(void);
 
 #define CHN_CNT 2
 
-static BOOL unPaused, canGetSamples, soundStarted;
+static SDL_AudioDeviceID audioDevice;
+static BOOL unPaused, canGetSamples;
 static uint32_t buffer_pos;
 static uint8_t *buffer;
 
-static void audioCallback(void *userdata, Uint8 *stream, int len)
+static void audioCallback(void *userdata, uint8_t *stream, int32_t len)
 {
 	if (!buffer)
 	{
@@ -32,7 +33,7 @@ static void audioCallback(void *userdata, Uint8 *stream, int len)
 		memcpy(buffer, buffer + len, buffer_pos -= len);
 	}
 }
-static void audioCallbackInterp(void *userdata, Uint8 *stream, int len)
+static void audioCallbackInterp(void *userdata, uint8_t *stream, int32_t len)
 {
 	int16_t samples[256 * CHN_CNT];
 	int16_t *buffer_16b;
@@ -83,17 +84,29 @@ REGPARM uint32_t iSNDdirectcaps_(void *hWnd)
 }
 REGPARM uint32_t iSNDdirectstart_(uint32_t arg1, void *hWnd)
 {
-	SDL_AudioSpec audioSpec = { linearSoundInterpolation ? 44100 : 22050, AUDIO_S16, CHN_CNT, 0, linearSoundInterpolation ? 1546 : 768, 0, 0, linearSoundInterpolation ? audioCallbackInterp : audioCallback, NULL };
-	if (!SDL_OpenAudio(&audioSpec, NULL))
+	SDL_AudioSpec audioSpecIn =
 	{
-		uint32_t buffer_size = (audioSpec.samples + 255) & ~255; //Aligned to 256
-		if (linearSoundInterpolation || buffer_size != audioSpec.samples)
+		linearSoundInterpolation ? 44100 : 22050,
+		AUDIO_S16,
+		CHN_CNT,
+		0,
+		1024,
+		0,
+		0,
+		linearSoundInterpolation ? audioCallbackInterp : audioCallback,
+		NULL
+	};
+	SDL_AudioSpec audioSpecOut;
+	audioDevice = SDL_OpenAudioDevice(NULL, 0, &audioSpecIn, &audioSpecOut, 0);
+	if (audioDevice)
+	{
+		uint32_t bufferSize = (audioSpecOut.samples + 255) & ~255; //Aligned to 256
+		if (linearSoundInterpolation || bufferSize != audioSpecOut.samples)
 		{
-			buffer_size += linearSoundInterpolation ? 512 : 256;
-			buffer_size *= CHN_CNT * sizeof(int16_t);
-			buffer = (uint8_t *)malloc(buffer_size);
+			bufferSize += linearSoundInterpolation ? 512 : 256;
+			bufferSize *= CHN_CNT * sizeof(int16_t);
+			buffer = (uint8_t *)malloc(bufferSize);
 		}
-		soundStarted = true;
 	}
 	canGetSamples = true;
 	return 0;
@@ -102,23 +115,24 @@ void iSNDdirectserve_(void)
 {
 	if (canGetSamples)
 	{
-		if (!unPaused && soundStarted)
+		if (!unPaused && audioDevice)
 		{
-			SDL_PauseAudio(0);
+			SDL_PauseAudioDevice(audioDevice, 0);
 			unPaused = true;
 		}
 		fadeInOut();
-		if (!soundStarted)
+		if (!audioDevice)
 			getSamplesNoPlay();
 	}
 }
 uint32_t iSNDdirectstop_(void)
 {
 	canGetSamples = false;
-	if (soundStarted)
+	if (audioDevice)
 	{
-		SDL_CloseAudio();
-		unPaused = soundStarted = false;
+		SDL_CloseAudioDevice(audioDevice);
+		unPaused = false;
+		audioDevice = 0;
 	}
 	buffer_pos = 0;
 	free(buffer);
