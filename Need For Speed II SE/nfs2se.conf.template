@@ -1,6 +1,7 @@
-#This is "Need For Speed II SE" wrapper configuration file.
-#On Linux be sure that you are editing configuration inside home directory (created during the first run): "~/.nfs2se/nfs2se.conf"!
-#Press Alt+Enter in the game to toggle full screen.
+#This is the "Need For Speed II SE" wrapper configuration file.
+#Don't modify the "nfs2se.conf.template" file, be sure that you are editing configuration inside home directory (created during the first run):
+#	Linux:   "~/.nfs2se/nfs2se.conf",
+#	Windows: "%AppData%\.nfs2se\nfs2se.conf".
 #Leave empty line at the end of file!
 
 #UseOnlyOneCPU:
