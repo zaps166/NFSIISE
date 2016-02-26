@@ -71,7 +71,15 @@ STDCALL uint32_t GetLastError_wrap(void)
 }
 STDCALL HANDLE CreateFileA_wrap(const char *fileName, uint32_t desiredAccess, uint32_t shareMode, SECURITY_ATTRIBUTES *securityAttributes, uint32_t creationDisposition, uint32_t flagsAndAttributes, void *templateFile)
 {
-	return CreateFileA(fileName, desiredAccess, shareMode, securityAttributes, creationDisposition, flagsAndAttributes, templateFile);
+	char *tmpFileName;
+	HANDLE handle;
+	if (!strncasecmp(fileName, "\\\\.\\com", 7))
+		tmpFileName = strdup(fileName);
+	else
+		tmpFileName = convertFilePath(fileName, false);
+	handle = CreateFileA(tmpFileName, desiredAccess, shareMode, securityAttributes, creationDisposition, flagsAndAttributes, templateFile);
+	free(tmpFileName);
+	return handle;
 }
 STDCALL HANDLE CreateFileMappingA_wrap(HANDLE hFile, SECURITY_ATTRIBUTES *fileMappingAttributes, uint32_t flProtect, uint32_t dwMaximumSizeHigh, uint32_t dwMaximumSizeLow, const char *lpName)
 {
@@ -131,7 +139,10 @@ STDCALL BOOL SetCommTimeouts_wrap(HANDLE hFile, COMMTIMEOUTS *commTimeouts)
 }
 STDCALL BOOL DeleteFileA_wrap(const char *fileName)
 {
-	return DeleteFileA(fileName);
+	char *tmpFileName = convertFilePath(fileName, false);
+	BOOL ret = DeleteFileA(tmpFileName);
+	free(tmpFileName);
+	return ret;
 }
 STDCALL void *GetModuleHandleA_wrap(const char *moduleName)
 {
@@ -175,7 +186,10 @@ STDCALL uint32_t GetCurrentDirectoryA_wrap(uint32_t bufferLength, char *buffer)
 }
 STDCALL BOOL SetCurrentDirectoryA_wrap(const char *pathName)
 {
-	return SetCurrentDirectoryA(pathName);
+	char *tmpPathName = convertFilePath(pathName, false);
+	BOOL ret = SetCurrentDirectoryA(tmpPathName);
+	free(tmpPathName);
+	return ret;
 }
 STDCALL BOOL FindNextFileA_wrap(void *findFile, WIN32_FIND_DATAA *findFileData)
 {
@@ -195,7 +209,6 @@ STDCALL void *FindFirstFileA_wrap(const char *fileName, WIN32_FIND_DATAA *findFi
 static uint32_t overlapped_error;
 
 extern char *serialPort[4];
-extern char *settingsDir;
 extern SDL_mutex *event_mutex;
 extern SDL_cond *event_cond;
 

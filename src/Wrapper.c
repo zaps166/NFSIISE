@@ -87,9 +87,9 @@ void SetBrightness(float val)
 		SDL_SetWindowBrightness(sdlWin, val < 0.0f ? 1.0f : val);
 }
 
+static char *settingsDir = NULL;
 #ifndef WIN32
 char *serialPort[4] = {NULL};
-char *settingsDir = NULL;
 SDL_mutex *event_mutex;
 SDL_cond *event_cond;
 static
@@ -116,34 +116,15 @@ void exit_func(void)
 	event_cond = NULL;
 	SDL_DestroyMutex(event_mutex);
 	event_mutex = NULL;
-	free(settingsDir);
 #endif
+	free(settingsDir);
 }
 
 #ifndef WIN32
-#include <sys/stat.h>
-#include <signal.h>
+	#include <sys/stat.h>
+#endif
 #include <unistd.h>
 #include <fcntl.h>
-#include <sched.h>
-
-static void signal_handler(int sig)
-{
-	static char errStr[40];
-	if (sig == SIGINT)
-	{
-		exit(0);
-		return;
-	}
-	if (sig == SIGPIPE)
-		return;
-	snprintf(errStr, sizeof errStr, "Application closed with a signal: %d", sig);
-	fprintf(stderr, "%s\n", errStr);
-	SetBrightness(-1.0f);
-	SDL_SetWindowFullscreen(sdlWin, SDL_FALSE);
-	SDL_ShowSimpleMessageBox(0, "Probably crash!", errStr, NULL);
-	raise(SIGKILL);
-}
 
 static char *createSettingsDirPath(const char *subdir, const char *fn)
 {
@@ -165,7 +146,7 @@ char *convertFilePath(const char *srcPth, BOOL convToLower)
 			tmpFileName = createSettingsDirPath("tmptrk", srcPth + 18);
 		else if (!strcasecmp(srcPth, "replay.rpy"))
 			tmpFileName = createSettingsDirPath("tmptrk", srcPth);
-		else if (!strncasecmp(srcPth, ".\\fedata\\pc\\stats\\", 18) && !strcasestr(srcPth, "prh"))
+		else if (!strncasecmp(srcPth, ".\\fedata\\pc\\stats\\", 18) && !strstr(srcPth, "prh"))
 		{
 			i = strlen(srcPth) - 4;
 			if (i > 0 && !strcasecmp(srcPth + i, ".stf"))
@@ -175,19 +156,52 @@ char *convertFilePath(const char *srcPth, BOOL convToLower)
 	if (!tmpFileName)
 	{
 		tmpFileName = strdup(srcPth);
+#ifndef WIN32
 		for (i = 0 ; tmpFileName[i] ; ++i)
 		{
 			if (tmpFileName[i] == '\\')
 				tmpFileName[i] = '/';
-			else if (convToLower)
+			else  if (convToLower)
 				tmpFileName[i] = tolower(tmpFileName[i]);
 		}
+#endif
 	}
 	return tmpFileName;
 }
+
+static inline void mkdir_wrap(const char *path, uint32_t mode)
+{
+#ifdef WIN32
+	CreateDirectoryA(path, NULL);
+#else
+	mkdir(path, mode);
+#endif
+}
+
+#ifndef WIN32
+#include <signal.h>
+#include <sched.h>
+
+static void signal_handler(int sig)
+{
+	static char errStr[40];
+	if (sig == SIGINT)
+	{
+		exit(0);
+		return;
+	}
+	if (sig == SIGPIPE)
+		return;
+	snprintf(errStr, sizeof errStr, "Application closed with a signal: %d", sig);
+	fprintf(stderr, "%s\n", errStr);
+	SetBrightness(-1.0f);
+	SDL_SetWindowFullscreen(sdlWin, SDL_FALSE);
+	SDL_ShowSimpleMessageBox(0, "Probably crash!", errStr, NULL);
+	raise(SIGKILL);
+}
 #endif
 
-static BOOL startAtFullScreen = false;
+static BOOL startAtFullScreen = true;
 
 uint32_t joystickAxes[2][8] = {{0, 1, 2, 3, 0, 0, 0, 0}, {0, 1, 2, 3, 0, 0, 0, 0}};
 int32_t winWidth = 640, winHeight = 480, joystickAxisValueShift[2] = {0}, mouseJoySensitivity = 20, vSync = 1;
@@ -207,69 +221,64 @@ void WrapperInit(void)
 	SDL_JoystickEventState(SDL_IGNORE);
 	SDL_ShowCursor(false);
 
-#ifndef WIN32
+#ifdef WIN32
+	const char *homeDir = getenv("AppData");
+#else
 	const char *homeDir = getenv("HOME");
+#endif
 	if (homeDir && *homeDir)
 	{
+		static const char subdirsToCreate[4][7] = {
+			"config",
+			"save",
+			"stats",
+			"tmptrk"
+		};
 		char buffer[MAX_PATH];
-		struct stat st;
-		int pos;
+		uint32_t pos, i;
 
 		/* Creating ~/.nfs2se directory and subdirectories */
-
 		strcpy(buffer, homeDir);
 		strcat(buffer, "/.nfs2se/");
-		mkdir(buffer, 0755);
+		mkdir_wrap(buffer, 0755);
 		pos = strlen(buffer);
-
-		strcpy(buffer + pos, "config");
-		mkdir(buffer, 0755);
-		if (stat(buffer, &st) == 0)
+		for (i = 0; i < 4; ++i)
 		{
-			strcpy(buffer + pos, "save");
-			mkdir(buffer, 0755);
-			if (stat(buffer, &st) == 0)
+			strcpy(buffer + pos, subdirsToCreate[i]);
+			mkdir_wrap(buffer, 0755);
+		}
+
+		/* Checking for nfs2se.conf and copying it at first tme to home dir */
+		strcpy(buffer + pos, "nfs2se.conf");
+		FILE *fSrc = fopen("nfs2se.conf.template", "r");
+		if (fSrc)
+		{
+			FILE *fDst = fopen(buffer, "r");
+			if (!fDst && (fDst = fopen(buffer, "w")))
 			{
-				strcpy(buffer + pos, "tmptrk");
-				mkdir(buffer, 0755);
-				if (stat(buffer, &st) == 0)
+				char *buffer2 = (char *)malloc(1024);
+				uint32_t bread;
+				do
 				{
-					strcpy(buffer + pos, "stats");
-					mkdir(buffer, 0755);
-					if (stat(buffer, &st) == 0)
-					{
-						/* Checking for nfs2se.conf and copying it at first tme to home dir */
-						strcpy(buffer + pos, "nfs2se.conf");
-						if (stat(buffer, &st) == -1 && stat("nfs2se.conf", &st) == 0)
-						{
-							int fd1 = open("nfs2se.conf", O_RDONLY);
-							if (fd1 > 0)
-							{
-								int fd2 = open(buffer, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-								if (fd2 > 0)
-								{
-									char *buffer2 = (char *)malloc(st.st_size);
-									read(fd1, buffer2, st.st_size);
-									write(fd2, buffer2, st.st_size);
-									free(buffer2);
-									close(fd2);
-								}
-								close(fd1);
-							}
-						}
-						if (stat(buffer, &st) == 0)
-						{
-							f = fopen(buffer, "r");
-							buffer[pos] = '\0';
-							settingsDir = strdup(buffer);
-						}
-					}
-				}
+					bread = fread(buffer2, 1, 1024, fSrc);
+					fwrite(buffer2, 1, bread, fDst);
+				} while (bread == 1024);
+				free(buffer2);
 			}
+			fclose(fDst);
+			fclose(fSrc);
+		}
+
+		/* Open the config file */
+		if ((f = fopen(buffer, "r")))
+		{
+			buffer[pos] = '\0';
+			settingsDir = strdup(buffer);
 		}
 	}
 
-	int32_t i;
+#ifndef WIN32
+	uint32_t i;
 	event_mutex = SDL_CreateMutex();
 	event_cond = SDL_CreateCond();
 	for (i = SIGHUP ; i <= SIGSTKFLT ; ++i)

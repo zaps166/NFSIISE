@@ -19,14 +19,10 @@ typedef struct
 
 static inline FILE *fopen_wrap(const char *fileName, const char *p)
 {
-#ifndef WIN32
 	char *tmpFileName = convertFilePath(fileName, true);
 	FILE *f = fopen(tmpFileName, p);
 	free(tmpFileName);
 	return f;
-#else
-	return fopen(fileName, p);
-#endif
 }
 
 static void readEntry(FILE *f, StfEntry *stfEntry)

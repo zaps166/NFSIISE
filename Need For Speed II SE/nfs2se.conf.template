@@ -7,8 +7,8 @@
 #	0 - The game can use more than one CPU (can be unstable)
 #	1 - The game can use only the first CPU (can be more stable, default)
 #StartAtFullScreen:
-#	0 - The game runs in window (default)
-#	1 - The game runs in full screen
+#	0 - The game runs in window
+#	1 - The game runs in full screen (default)
 #VSync:
 #	-1 - Don't change
 #	 0 - VSync disabled
@@ -59,7 +59,7 @@
 #	Full path to serial port device (ex. /dev/ttyS0)
 
 #UseOnlyOneCPU=1
-StartAtFullScreen=1
+#StartAtFullScreen=1
 #VSync=-1
 #MSAA=4
 #UseWindowSizeForFullscreen=0
