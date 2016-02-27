@@ -91,7 +91,6 @@ extern GetKeyboardType_wrap
 extern GetMessageA_wrap
 extern MessageBoxA_wrap
 extern PostMessageA_wrap
-extern SetForegroundWindow_wrap
 extern SystemParametersInfoA_wrap
 
 extern CloseHandle_wrap
@@ -41405,7 +41404,7 @@ sub_421710: ;SUBROUTINE
 	sub esp, 8
 	mov [esp], al
 	mov ebx, edx
-	call sub_490AD0
+	call getHwnd
 	test eax, eax
 	jz loc_42175B
 	mov ah, [esp]
@@ -41419,7 +41418,7 @@ sub_421710: ;SUBROUTINE
 	jz loc_421788
 	push ebx
 	mov edi, [edi]
-	call sub_490AD0
+	call getHwnd
 	push eax
 	mov ebp, dword dword_4E7348[esi]
 	push ebp
@@ -41470,7 +41469,7 @@ loc_421796:
 	mov eax, dword [dword_4D4C4C]
 	push ebx
 	mov esi, [eax]
-	call sub_490AD0
+	call getHwnd
 	push eax
 	mov edx, dword [dword_4D4C4C]
 	push edx
@@ -41490,7 +41489,7 @@ loc_4217C7:
 	mov eax, dword [lpEventAttributes]
 	push ebx
 	mov esi, [eax]
-	call sub_490AD0
+	call getHwnd
 	push eax
 	mov ecx, dword [lpEventAttributes]
 	push ecx
@@ -60535,7 +60534,6 @@ sub_430200: ;SUBROUTINE
 	mov dword [dword_4DAB7C], edx
 	mov dword [dword_4DAB80], ecx
 	call sub_49D020
-	call sub_430920
 	mov edx, sub_430760
 	mov eax, 1
 	push sub_430380
@@ -60718,37 +60716,6 @@ sub_430870: ;SUBROUTINE
 	pop ebx
 	ret
 ;sub_430870 endp
-
-sub_430920: ;SUBROUTINE
-	call sub_490AD0
-	mov dword [hWnd], eax
-	test eax, eax
-	jz loc_4309F5
-	mov ah, byte [dword_4D5278]
-	and ah, 0E6h
-	mov byte [dword_4D5278], ah
-	jmp loc_4309E8
-
-loc_4309A7:
-	mov eax, dword [hWnd]
-	push eax ; hWnd
-	call SetForegroundWindow_wrap
-	xor eax, eax
-	ret
-
-loc_4309E8:
-	mov dl, ah
-	or dl, 11h
-	mov byte [dword_4D5278], dl
-	jmp loc_4309A7
-
-loc_4309F5:
-	mov eax, 578h
-	pop ebp
-	pop edx
-	pop ecx
-	ret
-;sub_430920 endp
 
 sub_430B80: ;SUBROUTINE
 	push esi
@@ -170087,9 +170054,6 @@ loc_480F6B:
 	mov al, byte [byte_563D5D]
 	cmp ebx, eax
 	jz loc_480EDC
-;	mov edx, ecx
-;	mov eax, ebp
-;	call sub_480A90
 	mov eax, 1
 	jmp loc_480F63
 
@@ -170168,9 +170132,6 @@ loc_481044:
 	ret
 
 loc_481051:
-;	mov edx, [esp+3Ch]
-;	mov eax, ebp
-;	call sub_480A90
 	xor edx, edx
 	mov dword [uiParam], edx
 	mov dword [dword_4DAB20], edx
@@ -170200,21 +170161,9 @@ sub_481080: ;SUBROUTINE
 	mov eax, dword [dword_4DAB14]
 	xor edx, edx
 	call CloseHandleCaller
-	mov ah, byte [byte_563D5D]
 	mov dword [dword_563D54], ebx
 	mov dword [dword_4DAB18], edx
 	mov dword [dword_4DAB14], edx
-	test ah, ah
-	jz loc_4810E7
-	push ebx ; hWnd
-	xor ebx, ebx
-	call SetForegroundWindow_wrap
-;	mov dword_563D64, ebx
-;	mov dword_563D68, ebx
-
-loc_4810E7:
-;	push esi ; hWnd
-;	call SetActiveWindow_wrap
 	cmp esi, dword [dword_563D54]
 	jnz loc_48120E
 
@@ -170227,7 +170176,6 @@ loc_48110F:
 	call GetMessageA_wrap
 	test eax, eax
 	jz loc_48125C
-	mov eax, dword [dword_5637F4]
 	mov eax, dword [dword_4DAB38]
 	call sub_489F48
 	mov eax, esp
@@ -170235,7 +170183,6 @@ loc_48110F:
 	call DispatchMessageA_wrap
 	mov eax, dword [dword_4DAB38]
 	call sub_489F60
-	mov eax, dword [dword_5637F4]
 
 loc_48119F:
 	cmp dword [dword_4DAB18], 0
@@ -180031,7 +179978,7 @@ sub_4886D0: ;SUBROUTINE
 	test ecx, ecx
 	jz loc_488704
 	push edx
-	call sub_490AD0
+	call getHwnd
 	mov ecx, dword [dword_564254]
 	mov edx, eax
 	mov eax, ecx
@@ -180090,7 +180037,7 @@ sub_48883C: ;SUBROUTINE
 	push ecx
 	push edx
 	call sub_488718
-	call sub_490AD0
+	call getHwnd
 	call iSNDdirectcaps_
 	mov edx, eax
 	test eax, eax
@@ -180151,7 +180098,7 @@ loc_488966:
 loc_488976:
 	mov eax, dword [dword_564250]
 	mov [esp], eax
-	call sub_490AD0
+	call getHwnd
 	call iSNDdirectcaps_
 	test eax, eax
 	jle loc_488A49
@@ -180180,7 +180127,7 @@ loc_4889CC:
 	mov ebx, ecx
 	xor eax, eax
 	call sub_488ADC
-	call sub_490AD0
+	call getHwnd
 	mov edx, eax
 	mov eax, [esp]
 	call iSNDdirectstart_
@@ -180318,7 +180265,7 @@ loc_488B48:
 	ret
 
 loc_488B4F:
-	call sub_490AD0
+	call getHwnd
 	test eax, eax
 	jz loc_488B48
 	push ebx
@@ -190475,10 +190422,10 @@ loc_4908FC:
 	ret
 ;sub_4908E4 endp
 
-sub_490AD0: ;SUBROUTINE
+getHwnd: ;SUBROUTINE
 	mov eax, dword [dword_563D54]
 	ret
-;sub_490AD0 endp
+;getHwnd endp
 
 sub_491018: ;SUBROUTINE
 	push ebx
@@ -196895,7 +196842,7 @@ sub_497318: ;SUBROUTINE
 	push 0
 	mov al, byte byte_4DD000[edx]
 	push eax
-	call sub_490AD0
+	call getHwnd
 	push eax
 	call grSstWinOpen
 	mov ebx, eax
@@ -235991,10 +235938,7 @@ flt_4D5260: dd 0.0
 flt_4D5264: dd 0.0
 dword_4D5268: times 2 dd 0
 dword_4D5270: dd 0
-;	HWND hWnd
-hWnd: dd 0
-dword_4D5278: dd 0
-	times 6 dd 0
+	times 8 dd 0 ;?
 dword_4D5294: dd 3F800000h
 flt_4D5298: dd 1.0
 flt_4D529C: dd 0.0
@@ -241380,8 +241324,7 @@ dword_563804: dd ?
 dword_563900: times 4 dd ?
 dword_563910: dd ?
 	times 110h dd ?
-;	HWND dword_563D54
-dword_563D54: dd ?
+dword_563D54: dd ? ; HWND
 	dd ?
 	db ?
 byte_563D5D: db ?

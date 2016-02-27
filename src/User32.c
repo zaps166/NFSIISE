@@ -41,10 +41,6 @@ STDCALL uint32_t DefWindowProcA_wrap(void *hWnd, uint32_t uMsg, uint32_t wParam,
 	}
 	return 0;
 }
-STDCALL BOOL SetForegroundWindow_wrap(void *hWnd)
-{
-	return false;
-}
 STDCALL BOOL DestroyWindow_wrap(void *hWnd)
 {
 	SDL_Event event;
