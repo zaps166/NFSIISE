@@ -176,18 +176,10 @@ static STDCALL uint32_t GetCapabilities(DirectInputDevice **this, DIDEVCAPS *dev
 	{
 	// 	printf("GetCapabilities %p\n", *this);
 		memset(devCaps, 0, sizeof(DIDEVCAPS));
-		if ((*this)->joy)
-		{
-			if ((*this)->haptic)
-				devCaps->flags = 0x100; //DIDC_FORCEFEEDBACK
-			devCaps->buttons = 15;
-			devCaps->axes = 4;
-		}
-		else //Mouse as joystick
-		{
-			devCaps->buttons = 5;
-			devCaps->axes = 2;
-		}
+		if ((*this)->haptic)
+			devCaps->flags = 0x100; //DIDC_FORCEFEEDBACK
+		devCaps->buttons = 15;
+		devCaps->axes = 4;
 	}
 	return 0;
 }
