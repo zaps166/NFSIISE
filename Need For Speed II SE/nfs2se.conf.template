@@ -32,10 +32,10 @@
 #	Specify the number to shift value for the first axis in second joystick (simple deadzone compensation)
 #Joystick0Axes:
 #	Specify which axes will be used in game for first joystick. NFS2SE supports only 4 axes (ex. 0,1,2,3:0,0,0,0)
-#	The numbers after colon chooses axis type (0 - normal axis, 1 - half axis)
+#	The numbers after colon chooses axis type (0 - normal axis, 1 - half axis, -1 - inverted half axis)
 #Joystick1Axes:
 #	Specify which axes will be used in game for second joystick. NFS2SE supports only 4 axes (ex. 0,12,13,3:0,1,1,0)
-#	The numbers after colon chooses axis type (0 - normal axis, 1 - half axis)
+#	The numbers after colon chooses axis type (0 - normal axis, 1 - half axis, -1 - inverted half axis)
 #Joystick0Buttons:
 #	Specify which buttons will be used in game for first joystick. Value less than 0 - disabled. NFS2SE supports 15 buttons
 #Joystick1Buttons:

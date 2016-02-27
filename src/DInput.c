@@ -12,7 +12,7 @@
 extern SDL_Window *sdlWin;
 extern int32_t winWidth, winHeight;
 
-extern uint32_t joystickAxes[2][8], joystickButtons[2][15];
+extern int32_t joystickAxes[2][8], joystickButtons[2][15];
 extern int32_t joystickAxisValueShift[2];
 
 extern uint32_t mousePositionX, mousePositionY;
@@ -248,7 +248,6 @@ static STDCALL uint32_t GetDeviceState(DirectInputDevice **this, uint32_t cbData
 
 		uint32_t numButtons = SDL_JoystickNumButtons(joy);
 		uint32_t numAxes = SDL_JoystickNumAxes(joy);
-
 		if (numButtons > 15)
 			numButtons = 15;
 		if (numAxes > 4)
@@ -258,10 +257,12 @@ static STDCALL uint32_t GetDeviceState(DirectInputDevice **this, uint32_t cbData
 			joyState->buttons[i] = SDL_JoystickGetButton(joy, joystickButtons[joyIdx][i]) << 7;
 		for (i = 0; i < numAxes; ++i)
 		{
-			uint32_t j = i < 3 ? i : 5;
-			joyState->axes[j] = (uint16_t)SDL_JoystickGetAxis(joy, joystickAxes[joyIdx][i]) ^ 0x8000;
-			if (joystickAxes[joyIdx][i + 4])
-				joyState->axes[j] = (joyState->axes[j] >> 1) + 32768;
+			int32_t *axis = &joyState->axes[i < 3 ? i : 5];
+			*axis = (uint16_t)SDL_JoystickGetAxis(joy, joystickAxes[joyIdx][i]) ^ 0x8000;
+			if (joystickAxes[joyIdx][i + 4] > 0)
+				*axis = (*axis >> 1) + 32768;
+			else if (joystickAxes[joyIdx][i + 4] < 0)
+				*axis = 65535 - (*axis >> 1);
 		}
 		if (joystickAxisValueShift[joyIdx])
 		{
