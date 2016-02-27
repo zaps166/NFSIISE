@@ -17,7 +17,7 @@ typedef struct
 	StfEntry laps[3][10];
 } Stf;
 
-static inline FILE *fopen_wrap(const char *fileName, const char *p)
+REGPARM FILE *fopen_wrap(const char *fileName, const char *p)
 {
 	char *tmpFileName = convertFilePath(fileName, true);
 	FILE *f = fopen(tmpFileName, p);

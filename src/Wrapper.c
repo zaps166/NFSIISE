@@ -146,11 +146,16 @@ char *convertFilePath(const char *srcPth, BOOL convToLower)
 			tmpFileName = createSettingsDirPath("tmptrk", srcPth + 18);
 		else if (!strcasecmp(srcPth, "replay.rpy"))
 			tmpFileName = createSettingsDirPath("tmptrk", srcPth);
-		else if (!strncasecmp(srcPth, ".\\fedata\\pc\\stats\\", 18) && !strstr(srcPth, "prh"))
+		else if (!strncasecmp(srcPth, ".\\fedata\\pc\\stats\\", 18))
 		{
 			i = strlen(srcPth) - 4;
 			if (i > 0 && !strcasecmp(srcPth + i, ".stf"))
-				tmpFileName = createSettingsDirPath("stats", srcPth + 18);
+			{
+				if (!strncasecmp(srcPth, ".\\fedata\\pc\\stats\\prh\\", 22))
+					tmpFileName = createSettingsDirPath("stats/prh", srcPth + 22);
+				else
+					tmpFileName = createSettingsDirPath("stats", srcPth + 18);
+			}
 		}
 	}
 	if (!tmpFileName)
@@ -228,10 +233,11 @@ void WrapperInit(void)
 #endif
 	if (homeDir && *homeDir)
 	{
-		static const char subdirsToCreate[4][7] = {
+		static const char subdirsToCreate[5][10] = {
 			"config",
 			"save",
 			"stats",
+			"stats/prh",
 			"tmptrk"
 		};
 		char buffer[MAX_PATH];
@@ -242,7 +248,7 @@ void WrapperInit(void)
 		strcat(buffer, "/.nfs2se/");
 		mkdir_wrap(buffer, 0755);
 		pos = strlen(buffer);
-		for (i = 0; i < 4; ++i)
+		for (i = 0; i < 5; ++i)
 		{
 			strcpy(buffer + pos, subdirsToCreate[i]);
 			mkdir_wrap(buffer, 0755);

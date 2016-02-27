@@ -1,8 +1,8 @@
 [BITS 32]
 
 global start
-
 global sub_41B250
+
 global dword_5637CC
 global dword_5637D8
 global dword_4DB1B0
@@ -75,12 +75,14 @@ extern WrapperInit
 extern startTimer
 extern stopTimer
 
+extern fopen_wrap
 extern vsprintf
+extern fscanf
+extern fclose
 extern calloc
 extern malloc
 extern free
 extern time
-
 
 extern DefWindowProcA_wrap
 extern DestroyWindow_wrap
@@ -46682,7 +46684,7 @@ loc_4250FD:
 
 loc_42510C:
 	mov eax, esi
-;	call sub_425DD0
+	call sub_425DD0
 	mov eax, edi
 	add esp, 7Ch
 	pop ebp
@@ -47536,7 +47538,7 @@ sub_425CE0: ;SUBROUTINE
 	cmp dword [esp+50h], 0
 	jnz loc_425D26
 	mov eax, ebp
-;	call sub_425DD0
+	call sub_425DD0
 	add esp, 5Ch
 	pop ebp
 	pop edi
@@ -47594,6 +47596,202 @@ loc_425D26:
 	pop esi
 	ret 4
 ;sub_425CE0 endp
+
+sub_425DD0: ;SUBROUTINE
+	push ebx
+	push ecx
+	push edx
+	push esi
+	push edi
+	push ebp
+	sub esp, 2394h
+	mov [esp+2390h], ax
+	add eax, 14h
+	lea edx, [esp+233Ch]
+	cwde
+	call sub_425F90
+	mov edx, aR_2 ; "r"
+	lea eax, [esp+233Ch]
+	mov esi, 14h
+	call fopen_wrap
+	mov ecx, eax
+	test eax, eax
+	jnz loc_425F00
+	xor ebx, ebx
+	xor edx, edx
+
+loc_425E1A:
+	movsx eax, bx
+	imul eax, 14h
+	mov [esp+eax], dx
+	mov [esp+eax+2], dx
+	mov [esp+eax+4], dx
+	mov [esp+eax+8], edx
+	mov [esp+eax+0Ch], edx
+	inc ebx
+	mov [esp+eax+10h], edx
+	cmp bx, 1C2h
+	jl loc_425E1A
+	mov eax, eax
+
+loc_425E44:
+	test ecx, ecx
+	jz loc_425E4F
+	push edx
+
+	push ecx
+	call fclose
+	pop ecx
+
+	pop edx
+
+loc_425E4F:
+	mov dword [dword_4DB1D8], aCNfs2seFron_11 ; "c:\\nfs2se\\frontend\\pc\\prhstat.c"
+	imul edx, esi, 1C3h
+	mov ecx, 1EDh
+	mov eax, aRecords_1 ; "records"
+	xor ebx, ebx
+	mov dword [dword_4DB1DC], ecx
+	lea ecx, 0[esi*8]
+	call sub_484498
+	sub ecx, esi
+	mov ebp, eax
+	shl ecx, 5
+	mov edi, eax
+	add ecx, esi
+	mov esi, esp
+	add ecx, ecx
+	mov [esp+238Ch], eax
+	push edi
+	mov eax, ecx
+	shr ecx, 2
+	rep movsd
+	mov cl, al
+	and cl, 3
+	rep movsb
+	pop edi
+	mov eax, [esp+238Eh]
+	lea edx, [esp+233Ch]
+	sar eax, 10h
+	call sub_425F90
+	mov eax, ebp
+	call sub_484D94
+	mov edx, ebp
+	mov ebx, eax
+	lea eax, [esp+233Ch]
+	call sub_4875B0
+	test ax, ax
+	jnz loc_425EDF
+	mov eax, 2F3h
+	call sub_402CD0
+
+loc_425EDF:
+	mov ebx, [esp+238Ch]
+	test ebx, ebx
+	jnz loc_425F73
+	mov eax, 1
+	add esp, 2394h
+	pop ebp
+	pop edi
+	pop esi
+	pop edx
+	pop ecx
+	pop ebx
+	retn
+
+loc_425F00:
+	xor ebx, ebx
+	mov ebp, aD_5 ; "%d"
+
+loc_425F07:
+	movsx eax, bx
+	imul eax, 14h
+	mov edx, esp
+	add edx, eax
+
+	push edx
+	push ebp
+	push ecx
+	call fscanf
+	pop ecx
+	add esp, 4
+	pop edx
+
+	lea eax, [edx+2]
+	push edx
+
+	push eax
+	push ebp
+	push ecx
+	call fscanf
+	pop ecx
+	add esp, 8
+
+	pop edx
+
+	lea eax, [edx+4]
+	push edx
+
+	push eax
+	push ebp
+	push ecx
+	call fscanf
+	pop ecx
+	add esp, 8
+
+	pop edx
+
+	lea eax, [edx+8]
+	push edx
+
+	push eax
+	push ebp
+	push ecx
+	call fscanf
+	pop ecx
+	add esp, 8
+
+	pop edx
+
+	lea eax, [edx+0Ch]
+	push edx
+
+	push eax
+	push ebp
+	push ecx
+	call fscanf
+	pop ecx
+	add esp, 8
+
+	pop edx
+
+	add edx, 10h
+	push edx
+	push aD_6 ; "%d\n"
+	push ecx
+	inc ebx
+	call fscanf
+	pop ecx
+	add esp, 4
+	pop edx
+
+	cmp bx, 1C2h
+	jl loc_425F07
+	jmp loc_425E44
+
+loc_425F73:
+	mov eax, ebx
+	call sub_4848FC
+	mov eax, 1
+	add esp, 2394h
+	pop ebp
+	pop edi
+	pop esi
+	pop edx
+	pop ecx
+	pop ebx
+	retn
+;sub_425DD0 endp
 
 sub_425F90: ;SUBROUTINE
 	push ebx
@@ -233119,6 +233317,8 @@ aSbSS: db '%sb%s%s',0
 aSSS_0: db '%s%s%s',0
 a_stf_0: db '.stf',0
 aD_5: db '%d',0
+aD_6: db '%d',0Ah,0
+aRecords_1: db 'records',0
 aPrhbuf: db 'prhbuf',0
 asc_4C9D9C: db ' ',0
 aPrhdumi: db 'prhdumi',0
