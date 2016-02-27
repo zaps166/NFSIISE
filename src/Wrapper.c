@@ -64,7 +64,7 @@ void SetBrightness(float val)
 		{
 			int screen = SDL_GetWindowDisplayIndex(sdlWin);
 			if (screen < 0)
-				screen = 1;
+				screen = 0;
 			if (gammaToRestore.red == -1.0f && gammaToRestore.green == -1.0f && gammaToRestore.blue == -1.0f)
 				XF86VidModeGetGamma(sysInfo.info.x11.display, screen, &gammaToRestore); //Get brightness at first attempt
 			if (val < 0.0f)
