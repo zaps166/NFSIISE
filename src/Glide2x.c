@@ -49,8 +49,8 @@ static uint32_t trianglesCount, maxTexIdx;
 static PFNGLFOGCOORDFPROC p_glFogCoordf;
 static SDL_GLContext glCtx;
 
-extern BOOL useGlBleginGlEnd, newWindowSize, keepAspectRatio;
-extern int32_t vSync, winWidth, winHeight;
+extern int32_t vSync, winWidth, winHeight, windowResized;
+extern BOOL useGlBleginGlEnd, keepAspectRatio;
 extern SDL_Window *sdlWin;
 
 static void setTextureFiltering()
@@ -103,7 +103,7 @@ STDCALL void grAlphaCombine(GrCombineFunction_t function, GrCombineFactor_t fact
 		glEnable(GL_TEXTURE_2D);
 	else
 		glDisable(GL_TEXTURE_2D);
-// 	printf("grAlphaCombine: %s\n", BoolToStr(other == GR_COMBINE_OTHER_TEXTURE));
+// 	printf("grAlphaCombine: %d\n", (other == GR_COMBINE_OTHER_TEXTURE));
 }
 STDCALL void grAlphaTestFunction(GrCmpFnc_t function)
 {
@@ -112,30 +112,6 @@ STDCALL void grAlphaTestFunction(GrCmpFnc_t function)
 STDCALL void grAlphaTestReferenceValue(GrAlpha_t value)
 {
 // 	printf("grAlphaTestReferenceValue: %f\n", value / 255.0f);
-}
-STDCALL void grBufferClear(GrColor_t color, GrAlpha_t alpha, uint16_t depth)
-{
-	float r, g , b, a;
-	convertColor(color, &r, &g, &b, &a);
-
-	drawTriangles();
-
-	glClearColor(r, g, b, a);
-	glClearDepth(depth / 65535.0f);
-
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-
-// 	printf("grBufferClear: %X %X %X [%d]\n", color, alpha, depth, triangles_count);
-}
-STDCALL void grChromakeyMode(GrChromakeyMode_t mode)
-{
-// 	printf("grChromakeyMode: %X\n", mode);
-// 	chromaKeyEnabled = mode;
-}
-STDCALL void grChromakeyValue(GrColor_t value)
-{
-// 	printf("grChromakeyValue: %X\n", value);
-// 	chromaKeyValue = value;//(value & 0x0000FF00) | ((value & 0x00FF0000) >> 16) | ((value & 0x000000FF) << 16);
 }
 STDCALL void grClipWindow(uint32_t minX, uint32_t minY, uint32_t maxX, uint32_t maxY)
 {
@@ -153,22 +129,14 @@ STDCALL void grClipWindow(uint32_t minX, uint32_t minY, uint32_t maxX, uint32_t 
 
 		xOffset = winWidth  / 2 - widthRatio  * 320;
 		yOffset = winHeight / 2 - heightRatio * 240;
-
-		if (newWindowSize)
-		{
-			/* Clear using black color and restore the previous color */
-			float clearColor[4];
-			glGetFloatv(GL_COLOR_CLEAR_VALUE, clearColor);
-			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-			glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
-		}
 	}
 
 	int32_t scaledMinX = minX * widthRatio;
 	int32_t scaledMinY = minY * heightRatio;
 	int32_t scaledMaxX = SDL_ceil(maxX * widthRatio);
 	int32_t scaledMaxY = SDL_ceil(maxY * heightRatio);
+
+// 	printf("grClipWindow: %d %d %d %d [%d]\n", minX, minY, maxX, maxY, trianglesCount);
 
 	drawTriangles();
 
@@ -180,19 +148,50 @@ STDCALL void grClipWindow(uint32_t minX, uint32_t minY, uint32_t maxX, uint32_t 
 
 	glScalef(widthRatio, heightRatio, 1.0f);
 	glLineWidth(widthRatio + heightRatio);
+}
+STDCALL void grBufferClear(GrColor_t color, GrAlpha_t alpha, uint16_t depth)
+{
+	float r, g , b, a;
+	convertColor(color, &r, &g, &b, &a);
 
-// 	printf("grClipWindow: %d %d %d %d [%d]\n", min_x, min_y, max_x, max_y, triangles_count);
+// 	printf("grBufferClear: %X %X %X [%d]\n", color, alpha, depth, trianglesCount);
+
+	drawTriangles();
+
+	if (windowResized > 0)
+	{
+		if (keepAspectRatio)
+		{
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			glDisable(GL_SCISSOR_TEST);
+			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+			glEnable(GL_SCISSOR_TEST);
+		}
+		if (windowResized == 3) //Change viewport, ortho and scissor only once
+			grClipWindow(0, 0, 640, 480);
+		--windowResized;
+	}
+
+	glClearColor(r, g, b, a);
+	glClearDepth(depth / 65535.0f);
+
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+}
+STDCALL void grChromakeyMode(GrChromakeyMode_t mode)
+{
+// 	printf("grChromakeyMode: %X\n", mode);
+// 	chromaKeyEnabled = mode;
+}
+STDCALL void grChromakeyValue(GrColor_t value)
+{
+// 	printf("grChromakeyValue: %X\n", value);
+// 	chromaKeyValue = value;//(value & 0x0000FF00) | ((value & 0x00FF0000) >> 16) | ((value & 0x000000FF) << 16);
 }
 STDCALL void grBufferSwap(int swap_interval)
 {
-// 	printf("grBufferSwap: [%d]\n", triangles_count);
+// 	printf("grBufferSwap: [%d]\n", trianglesCount);
 	drawTriangles();
 	SDL_GL_SwapWindow(sdlWin);
-	if (newWindowSize)
-	{
-		grClipWindow(0, 0, 640, 480);
-		newWindowSize = false;
-	}
 }
 STDCALL void grColorCombine(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, BOOL invert)
 {
@@ -220,7 +219,7 @@ STDCALL void grDepthMask(BOOL mask)
 {
 	drawTriangles();
 	glDepthMask(mask);
-// 	printf("grDepthMask: %s [%d]\n", BoolToStr(mask), triangles_count);
+// 	printf("grDepthMask: %d [%d]\n", mask, trianglesCount);
 }
 STDCALL void grDitherMode(GrDitherMode_t mode)
 {
@@ -276,7 +275,7 @@ STDCALL void grDrawTriangle(const GrVertex *a, const GrVertex *b, const GrVertex
 }
 STDCALL void grDrawLine(const GrVertex *a, const GrVertex *b)
 {
-// 	printf("grDrawLine: [%d]\n", triangles_count);
+// 	printf("grDrawLine: [%d]\n", trianglesCount);
 	drawTriangles();
 	glBegin(GL_LINES); {
 		glColor4ub(a->r, a->g, a->b, a->a);
@@ -292,7 +291,7 @@ STDCALL void grFogColorValue(GrColor_t fogcolor)
 	convertColor(fogcolor, fogColor + 0, fogColor + 1, fogColor + 2, fogColor + 3);
 	drawTriangles();
 	glFogfv(GL_FOG_COLOR, fogColor);
-// 	printf("grFogColorValue: 0x%.8X [%d]\n", fogcolor, triangles_count);
+// 	printf("grFogColorValue: 0x%.8X [%d]\n", fogcolor, trianglesCount);
 }
 STDCALL void grFogMode(GrFogMode_t mode)
 {

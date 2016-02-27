@@ -19,11 +19,11 @@ static const uint8_t sdl_to_windows_scancode_table[100] =
 	0x50, 0x51, 0x4B, 0x4C, 0x4D, 0x47, 0x48, 0x49, 0x52, 0x53
 };
 
-BOOL newWindowSize = false;
-
 extern int32_t winWidth, winHeight;
 extern uint32_t fullscreenFlag;
 extern SDL_Window *sdlWin;
+
+int32_t windowResized = 0;
 
 WindowProc wndProc;
 
@@ -83,7 +83,7 @@ STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterMin, uint
 						case SDL_WINDOWEVENT_RESIZED:
 							winWidth  = event.window.data1;
 							winHeight = event.window.data2;
-							newWindowSize = true;
+							windowResized = 3; //Clear up to 3 buffers
 							br = false;
 							break;
 						case SDL_WINDOWEVENT_MINIMIZED:
@@ -108,6 +108,7 @@ STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterMin, uint
 						br = false;
 						break;
 					}
+					//no break
 				case SDL_KEYUP:
 				{
 					SDL_Scancode scancode = event.key.keysym.scancode;
