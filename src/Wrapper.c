@@ -19,7 +19,7 @@ static uint32_t atExitProcedureCount;
 void WrapperAtExit(ProcedureType proc)
 {
 	uint32_t i;
-	for (i = 0 ; i < atExitProcedureCount ; ++i)
+	for (i = 0; i < atExitProcedureCount; ++i)
 		if (proc == atExitProcedures[i])
 			return;
 	if (atExitProcedureCount < 10)
@@ -98,14 +98,14 @@ void exit_func(void)
 {
 	SDL_TimerID timerID;
 	uint32_t i;
-	for (i = 0 ; i < atExitProcedureCount ; ++i)
+	for (i = 0; i < atExitProcedureCount; ++i)
 	{
 		timerID = SDL_AddTimer(2500, watchdogTimer, NULL);
 		atExitProcedures[i]();
 		SDL_RemoveTimer(timerID);
 	}
 #ifndef WIN32
-	for (i = 0 ; i < 4 ; ++i)
+	for (i = 0; i < 4; ++i)
 		free(serialPort[i]);
 #endif
 	i = 250;
@@ -162,11 +162,11 @@ char *convertFilePath(const char *srcPth, BOOL convToLower)
 	{
 		tmpFileName = strdup(srcPth);
 #ifndef WIN32
-		for (i = 0 ; tmpFileName[i] ; ++i)
+		for (i = 0; tmpFileName[i]; ++i)
 		{
 			if (tmpFileName[i] == '\\')
 				tmpFileName[i] = '/';
-			else  if (convToLower)
+			else if (convToLower)
 				tmpFileName[i] = tolower(tmpFileName[i]);
 		}
 #endif
@@ -287,7 +287,7 @@ void WrapperInit(void)
 	uint32_t i;
 	event_mutex = SDL_CreateMutex();
 	event_cond = SDL_CreateCond();
-	for (i = SIGHUP ; i <= SIGSTKFLT ; ++i)
+	for (i = SIGHUP; i <= SIGSTKFLT; ++i)
 		if (i != SIGKILL && i != SIGTRAP)
 			signal(i, signal_handler);
 	atexit(exit_func);
@@ -394,7 +394,7 @@ void WrapperInit(void)
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, msaa);
 	}
 #ifndef WIN32
-	for (i = 0 ; i < 4 ; ++i)
+	for (i = 0; i < 4; ++i)
 	{
 		if (!serialPort[i])
 		{
@@ -470,7 +470,7 @@ SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 	}
 
 	icon = (uint32_t *)malloc(32 * 32 * 4);
-	for (i = 0, j = 0 ; i < sizeof compressed_icon ; ++i)
+	for (i = 0, j = 0; i < sizeof compressed_icon; ++i)
 	{
 		uint32_t c;
 		if (compressed_icon[i] & 0x80)

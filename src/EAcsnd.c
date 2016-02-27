@@ -19,7 +19,7 @@ static void audioCallback(void *userdata, uint8_t *stream, int32_t len)
 	if (!buffer)
 	{
 		int32_t i;
-		for (i = 0 ; i < len ; i += 256 * CHN_CNT * sizeof(int16_t))
+		for (i = 0; i < len; i += 256 * CHN_CNT * sizeof(int16_t))
 			getSamples(stream + i, 256);
 	}
 	else
@@ -42,16 +42,16 @@ static void audioCallbackInterp(void *userdata, uint8_t *stream, int32_t len)
 	{
 		buffer_16b = (int16_t *)(buffer + buffer_pos);
 		getSamples(samples, 256);
-		for (i = 0; i < (256 - 1) * CHN_CNT ; i += CHN_CNT)
+		for (i = 0; i < (256 - 1) * CHN_CNT; i += CHN_CNT)
 		{
-			for (c = 0 ; c < CHN_CNT ; ++c)
+			for (c = 0; c < CHN_CNT; ++c)
 			{
 				buffer_16b[c] = samples[i + c];
 				buffer_16b[c + CHN_CNT] = (samples[i + c] + samples[i + c + CHN_CNT]) >> 1;
 			}
 			buffer_16b += CHN_CNT << 1;
 		}
-		for (c = 0 ; c < CHN_CNT ; ++c)
+		for (c = 0; c < CHN_CNT; ++c)
 			buffer_16b[c] = buffer_16b[c + CHN_CNT] = samples[i + c];
 		buffer_pos += 512 * CHN_CNT * sizeof(int16_t);
 	}

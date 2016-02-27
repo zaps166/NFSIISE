@@ -233,7 +233,7 @@ STDCALL void grDrawTriangle(const GrVertex *a, const GrVertex *b, const GrVertex
 	if (useGlBleginGlEnd)
 	{
 		glBegin(GL_TRIANGLES);
-		for (i = 0 ; i < 3 ; ++i)
+		for (i = 0; i < 3; ++i)
 		{
 			const GrVertex *grVertex = grVertices[i];
 
@@ -247,7 +247,7 @@ STDCALL void grDrawTriangle(const GrVertex *a, const GrVertex *b, const GrVertex
 	}
 	else
 	{
-		for (i = 0 ; i < 3 ; ++i)
+		for (i = 0; i < 3; ++i)
 		{
 			const GrVertex *grVertex = grVertices[i];
 
@@ -336,8 +336,8 @@ STDCALL void grFogTable(const GrFog_t ft[GR_FOG_TABLE_SIZE])
 	memcpy(glideFogTable, ft, GR_FOG_TABLE_SIZE * sizeof(GrFog_t));
 	glideFogTable[GR_FOG_TABLE_SIZE] = 255;
 
-	for (i = 0 ; i < GR_FOG_TABLE_SIZE ; ++i)
-		for (j = intStartEnd[i] ; j < intStartEnd[i + 1] ; ++j)
+	for (i = 0; i < GR_FOG_TABLE_SIZE; ++i)
+		for (j = intStartEnd[i]; j < intStartEnd[i + 1]; ++j)
 			fogTable[j] = (uint8_t)(glideFogTable[i] + (glideFogTable[i + 1] - glideFogTable[i]) * (j - intStartEnd[i]) / intEndMinusStart[i]);
 
 // 	printf("grFogTable\n");
@@ -423,7 +423,7 @@ STDCALL BOOL grSstWinOpen(uint32_t hWnd, GrScreenResolution_t screen_resolution,
 
 	/* Indexed color textures */
 	uint32_t i;
-	for (i = 1 ; i <= 5 ; ++i)
+	for (i = 1; i <= 5; ++i)
 	{
 		glBindTexture(GL_TEXTURE_2D, i);
 		setTextureFiltering();
@@ -557,7 +557,7 @@ STDCALL void grTexSource(GrChipID_t tmu, uint32_t startAddress, uint32_t evenOdd
 	{
 		int32_t sqrSize = size * size, i;
 		glBindTexture(GL_TEXTURE_2D, info->largeLod - 2);
-		for (i = 0 ; i < sqrSize ; ++i)
+		for (i = 0; i < sqrSize; ++i)
 			tmpTexture[i] = palette[data[i]];
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size, size, GL_BGRA, GL_UNSIGNED_BYTE, tmpTexture);
 	}
@@ -592,7 +592,7 @@ STDCALL void guFogGenerateExp(GrFog_t fogtable[GR_FOG_TABLE_SIZE], float density
 	dp = density * tableIndexToW[GR_FOG_TABLE_SIZE - 1];
 	scale = 255.0f / (1.0f - (float)SDL_pow(2.71828182845904523536029, -dp));
 
-	for (i = 0 ; i < GR_FOG_TABLE_SIZE ; ++i)
+	for (i = 0; i < GR_FOG_TABLE_SIZE; ++i)
 	{
 		dp = density * tableIndexToW[i];
 		f = (1.0f - (float)SDL_pow(2.71828182845904523536029, -dp)) * scale;

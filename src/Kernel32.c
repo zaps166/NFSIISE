@@ -334,7 +334,7 @@ STDCALL uint32_t WaitForMultipleObjects_wrap(uint32_t count, Event *const *event
 	SDL_LockMutex(event_mutex);
 	for (;;)
 	{
-		for (i = 0 ; i != count ; ++i)
+		for (i = 0; i != count; ++i)
 		{
 			if (events[i]->is_set)
 			{

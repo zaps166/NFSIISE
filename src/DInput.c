@@ -76,7 +76,7 @@ static void setEffect(uint16_t real_type, SDL_HapticEffect *effect, const DIEFFE
 			/* NOT TESTED!!! */
 			SDL_HapticCondition *condition = &effect->condition;
 			uint32_t i;
-			for (i = 0 ; i < di_eff->cAxes ; ++i)
+			for (i = 0; i < di_eff->cAxes; ++i)
 			{
 				DICONDITION *di_condition = (DICONDITION *)di_eff->typeSpecificParams + i;
 				condition->center[i] = CONVERT(di_condition->lOffset);
@@ -114,7 +114,7 @@ static STDCALL uint32_t Release(void **this)
 			uint32_t i;
 // 			printf("Release: close device %p\n", dinputDev->joy);
 
-			for (i = 0 ; i != dinputDev->num_effects ; ++i)
+			for (i = 0; i != dinputDev->num_effects; ++i)
 				free((void *)dinputDev->effects[i] - sizeof(DirectInputObject));
 			free(dinputDev->effects);
 
@@ -220,7 +220,7 @@ static STDCALL uint32_t GetDeviceState(DirectInputDevice **this, uint32_t cbData
 			if ((*this)->haptic)
 			{
 				SDL_HapticClose((*this)->haptic);
-				for (i = 0 ; i < (*this)->num_effects ; ++i)
+				for (i = 0; i < (*this)->num_effects; ++i)
 				{
 					(*this)->effects[i]->haptic = NULL;
 					(*this)->effects[i]->effect_idx = -1;
@@ -238,7 +238,7 @@ static STDCALL uint32_t GetDeviceState(DirectInputDevice **this, uint32_t cbData
 			if ((*this)->num_effects)
 			{
 				(*this)->haptic = SDL_HapticOpenFromJoystick(joy);
-				for (i = 0 ; i < (*this)->num_effects ; ++i)
+				for (i = 0; i < (*this)->num_effects; ++i)
 				{
 					(*this)->effects[i]->haptic = (*this)->haptic;
 					(*this)->effects[i]->effect_idx = SDL_HapticNewEffect((*this)->haptic, &(*this)->effects[i]->effect);
@@ -254,9 +254,9 @@ static STDCALL uint32_t GetDeviceState(DirectInputDevice **this, uint32_t cbData
 		if (numAxes > 4)
 			numAxes = 4;
 
-		for (i = 0 ; i < numButtons ; ++i)
+		for (i = 0; i < numButtons; ++i)
 			joyState->buttons[i] = SDL_JoystickGetButton(joy, joystickButtons[joyIdx][i]) << 7;
-		for (i = 0 ; i < numAxes ; ++i)
+		for (i = 0; i < numAxes; ++i)
 		{
 			uint32_t j = i < 3 ? i : 5;
 			joyState->axes[j] = (uint16_t)SDL_JoystickGetAxis(joy, joystickAxes[joyIdx][i]) ^ 0x8000;
@@ -289,7 +289,7 @@ static STDCALL uint32_t GetDeviceData(DirectInputDevice **this, uint32_t cbObjec
 		rgdod[0].dwOfs = 0; //Mouse X
 		rgdod[1].dwOfs = 4; //Mouse Y
 		rgdod[2].dwOfs = 12; //Mouse Click
-		for (i = 3 ; i < *pdwInOut ; ++i)
+		for (i = 3; i < *pdwInOut; ++i)
 			rgdod[i].dwOfs = 8; //Nothing
 		if (mousePositionX != lastX || mousePositionY != lastY)
 		{
@@ -470,7 +470,7 @@ static STDCALL uint32_t EnumDevices(void **this, uint32_t devType, DIENUMDEVICES
 		DIDEVICEINSTANCEA deviceInstance;
 		memset(&deviceInstance, 0, sizeof deviceInstance);
 		uint32_t i, n = SDL_NumJoysticks();
-		for (i = 0 ; i < n ; ++i)
+		for (i = 0; i < n; ++i)
 		{
 			deviceInstance.guidInstance.a = JOYSTICK;
 			deviceInstance.guidInstance.b = i;

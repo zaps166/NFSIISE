@@ -53,7 +53,7 @@ STDCALL int WSAFDIsSet_wrap(int fd, struct win_fd_set *w_fds)
 	return __WSAFDIsSet(fd, w_fds);
 #else
 	uint32_t i;
-	for (i = 0 ; i < w_fds->fd_count ; ++i)
+	for (i = 0; i < w_fds->fd_count; ++i)
 		if (w_fds->fd_array[i] == fd)
 			return 1;
 	return 0;
@@ -70,7 +70,7 @@ STDCALL int select_wrap(int nfds, struct win_fd_set *readfds, struct win_fd_set 
 	struct timeval tv = {0, 10000}; /* On Linux, exiting from UDP game host hangs for long time */
 
 	FD_ZERO(&fds);
-	for (i = 0 ; i < readfds->fd_count ; ++i)
+	for (i = 0; i < readfds->fd_count; ++i)
 	{
 		FD_SET(readfds->fd_array[i], &fds);
 		if (readfds->fd_array[i] > max_fd)
@@ -78,7 +78,7 @@ STDCALL int select_wrap(int nfds, struct win_fd_set *readfds, struct win_fd_set 
 	}
 
 	if ((fd_count = select(max_fd + 1, &fds, NULL, NULL, &tv)) > 0)
-		for (i = 0, j = 0 ; i < readfds->fd_count ; ++i)
+		for (i = 0, j = 0; i < readfds->fd_count; ++i)
 			if (FD_ISSET(readfds->fd_array[i], &fds) && j != i)
 				readfds->fd_array[j++] = readfds->fd_array[i];
 
