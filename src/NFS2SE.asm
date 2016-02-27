@@ -91,7 +91,6 @@ extern GetKeyboardType_wrap
 extern GetMessageA_wrap
 extern MessageBoxA_wrap
 extern PostMessageA_wrap
-extern SystemParametersInfoA_wrap
 
 extern CloseHandle_wrap
 extern CreateEventA_wrap
@@ -112,7 +111,6 @@ extern GetCurrentDirectoryA_wrap
 extern GetCurrentProcess_wrap
 extern GetCurrentThreadId_wrap
 extern GetCurrentThread_wrap
-extern GetFileAttributesA_wrap
 extern GetFileSize_wrap
 extern GetLastError_wrap
 extern GetModuleHandleA_wrap
@@ -130,7 +128,6 @@ extern SetCommTimeouts_wrap
 extern SetCurrentDirectoryA_wrap
 extern SetEndOfFile_wrap
 extern SetEvent_wrap
-extern SetFileAttributesA_wrap
 extern SetFilePointer_wrap
 extern SetThreadPriority_wrap
 extern SleepEx_wrap
@@ -94098,8 +94095,7 @@ loc_449243:
 	mov esi, eax
 	lea eax, [esp+4]
 	call sub_488570
-	test eax, eax
-	jnz loc_4493AA
+	jmp loc_449292
 
 loc_449292:
 	lea ecx, [esp+70h]
@@ -94172,13 +94168,6 @@ loc_449380:
 	cmp eax, 12Ch
 	jl loc_449380
 	jmp loc_4491EC
-
-loc_4493AA:
-	push 20h ; dwFileAttributes
-	lea eax, [esp+8]
-	push eax ; lpFileName
-	call SetFileAttributesA_wrap
-	jmp loc_449292
 ;sub_449120 endp
 
 sub_4493C0: ;SUBROUTINE
@@ -155809,8 +155798,7 @@ loc_476A46:
 	mov [esp+120h], eax
 	lea eax, [esp+88h]
 	call sub_488570
-	test eax, eax
-	jnz loc_476B8E
+	jmp loc_476ACE
 
 loc_476ACE:
 	lea ecx, [esp+118h]
@@ -155864,13 +155852,6 @@ loc_476B83:
 	pop esi
 	pop ecx
 	ret
-
-loc_476B8E:
-	push 20h ; dwFileAttributes
-	lea eax, [esp+8Ch]
-	push eax ; lpFileName
-	call SetFileAttributesA_wrap
-	jmp loc_476ACE
 ;sub_476A00 endp
 
 sub_476BB0: ;SUBROUTINE
@@ -155913,10 +155894,6 @@ loc_476BE3:
 	ret
 
 loc_476C28:
-	push 20h ; dwFileAttributes
-	lea eax, [esp+4]
-	push eax ; lpFileName
-	call SetFileAttributesA_wrap
 	mov eax, esp
 	call sub_4879AE
 	jmp loc_476BE3
@@ -155942,10 +155919,6 @@ sub_476C40: ;SUBROUTINE
 
 loc_476C73:
 	push ecx
-	push 20h ; dwFileAttributes
-	lea eax, [esp+8]
-	push eax ; lpFileName
-	call SetFileAttributesA_wrap
 	lea eax, [esp+4]
 	call sub_4879AE
 	pop ecx
@@ -179617,12 +179590,6 @@ loc_4883EF:
 	lea edx, [esp+2Ch]
 	mov eax, edi
 	call strncat_
-	push edi ; lpFileName
-	call GetFileAttributesA_wrap
-	cmp eax, 0FFFFFFFFh
-	jz loc_4883DD
-	test al, 10h
-	jnz loc_4883DD
 	mov esi, edi
 	jmp loc_4883DD
 
@@ -179722,23 +179689,7 @@ loc_488500:
 	lea edx, [esp+2Ch]
 	mov eax, FileName
 	call strncat_
-	push FileName ; lpFileName
-	call GetFileAttributesA_wrap
-	cmp eax, 0FFFFFFFFh
-	jz loc_488556
-	test al, 10h
-	jnz loc_488556
 	mov eax, FileName
-	add esp, 140h
-	pop edi
-	pop esi
-	pop edx
-	pop ecx
-	pop ebx
-	ret
-
-loc_488556:
-	call sub_4883C0
 	add esp, 140h
 	pop edi
 	pop esi

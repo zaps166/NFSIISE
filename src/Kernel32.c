@@ -718,14 +718,3 @@ STDCALL FindFile *FindFirstFileA_wrap(const char *fileName, WIN32_FIND_DATA *fin
 }
 
 #endif
-
-/* Common functions (TODO remove) */
-
-STDCALL uint32_t GetFileAttributesA_wrap(const char *fileName)
-{
-	return 0;
-}
-STDCALL BOOL SetFileAttributesA_wrap(const char *fileName, uint32_t fileAttributes)
-{
-	return false;
-}
