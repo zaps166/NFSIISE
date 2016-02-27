@@ -12,7 +12,6 @@
 extern SDL_Window *sdlWin;
 extern int32_t winWidth, winHeight;
 
-extern BOOL mouseAsJoystick;
 extern int32_t joystickAxisValueShift[2], mouseJoySensitivity;
 extern uint32_t joystickAxes[2][8], joystickButtons[2][15];
 
@@ -213,108 +212,78 @@ static STDCALL uint32_t GetDeviceState(DirectInputDevice **this, uint32_t cbData
 	/* Joystick only */
 	if (data && cbData == sizeof(DIJOYSTATE) && (*this)->guid.a == JOYSTICK)
 	{
-		const int32_t joyIdx = (*this)->guid.b - 1;
+		const int32_t joyIdx = (*this)->guid.b;
 		uint32_t i;
 
 		DIJOYSTATE *joyState = (DIJOYSTATE *)data;
 		SDL_memset4(joyState->axes, 0x7FFF, 6);
 		memset(joyState->buttons, 0, sizeof joyState->buttons);
 
-		if (joyIdx > -1) //Real joystick
+		SDL_Joystick *joy = (*this)->joy;
+
+		SDL_JoystickUpdate();
+
+		/* Check if joystick is unplugged */
+		if (!SDL_JoystickGetAttached(joy))
 		{
-			SDL_Joystick *joy = (*this)->joy;
-
-			SDL_JoystickUpdate();
-
-			/* Check if joystick is unplugged */
-			if (!SDL_JoystickGetAttached(joy))
+			/* Close haptic */
+			if ((*this)->haptic)
 			{
-				/* Close haptic */
-				if ((*this)->haptic)
+				SDL_HapticClose((*this)->haptic);
+				for (i = 0 ; i < (*this)->num_effects ; ++i)
 				{
-					SDL_HapticClose((*this)->haptic);
-					for (i = 0 ; i < (*this)->num_effects ; ++i)
-					{
-						(*this)->effects[i]->haptic = NULL;
-						(*this)->effects[i]->effect_idx = -1;
-					}
-					(*this)->haptic = NULL;
+					(*this)->effects[i]->haptic = NULL;
+					(*this)->effects[i]->effect_idx = -1;
 				}
-				/* Close joystick */
-				SDL_JoystickClose(joy);
+				(*this)->haptic = NULL;
+			}
+			/* Close joystick */
+			SDL_JoystickClose(joy);
 
-				/* Try to open a joystick */
-				if (!((*this)->joy = joy = SDL_JoystickOpen(joyIdx)))
-					return 0; //Cannot open the joystick
+			/* Try to open a joystick */
+			if (!((*this)->joy = joy = SDL_JoystickOpen(joyIdx)))
+				return 0; //Cannot open the joystick
 
-				/* Reopen haptic */
-				if ((*this)->num_effects)
+			/* Reopen haptic */
+			if ((*this)->num_effects)
+			{
+				(*this)->haptic = SDL_HapticOpenFromJoystick(joy);
+				for (i = 0 ; i < (*this)->num_effects ; ++i)
 				{
-					(*this)->haptic = SDL_HapticOpenFromJoystick(joy);
-					for (i = 0 ; i < (*this)->num_effects ; ++i)
-					{
-						(*this)->effects[i]->haptic = (*this)->haptic;
-						(*this)->effects[i]->effect_idx = SDL_HapticNewEffect((*this)->haptic, &(*this)->effects[i]->effect);
-					}
+					(*this)->effects[i]->haptic = (*this)->haptic;
+					(*this)->effects[i]->effect_idx = SDL_HapticNewEffect((*this)->haptic, &(*this)->effects[i]->effect);
 				}
-			}
-
-			uint32_t numButtons = SDL_JoystickNumButtons(joy);
-			uint32_t numAxes = SDL_JoystickNumAxes(joy);
-
-			if (numButtons > 15)
-				numButtons = 15;
-			if (numAxes > 4)
-				numAxes = 4;
-
-			for (i = 0 ; i < numButtons ; ++i)
-				joyState->buttons[i] = SDL_JoystickGetButton(joy, joystickButtons[joyIdx][i]) << 7;
-			for (i = 0 ; i < numAxes ; ++i)
-			{
-				uint32_t j = i < 3 ? i : 5;
-				joyState->axes[j] = (uint16_t)SDL_JoystickGetAxis(joy, joystickAxes[joyIdx][i]) ^ 0x8000;
-				if (joystickAxes[joyIdx][i + 4])
-					joyState->axes[j] = (joyState->axes[j] >> 1) + 32768;
-			}
-			if (joystickAxisValueShift[joyIdx])
-			{
-				if (joyState->axes[0] < 0x8000)
-					joyState->axes[0] -= joystickAxisValueShift[joyIdx];
-				else if (joyState->axes[0] > 0x8000)
-					joyState->axes[0] += joystickAxisValueShift[joyIdx];
-
-				if (joyState->axes[0] > 0xFFFF)
-					joyState->axes[0] = 0xFFFF;
-				else if (joyState->axes[0] < 0x0000)
-					joyState->axes[0] = 0x0000;
 			}
 		}
-		else //Mouse as joystick
+
+		uint32_t numButtons = SDL_JoystickNumButtons(joy);
+		uint32_t numAxes = SDL_JoystickNumAxes(joy);
+
+		if (numButtons > 15)
+			numButtons = 15;
+		if (numAxes > 4)
+			numAxes = 4;
+
+		for (i = 0 ; i < numButtons ; ++i)
+			joyState->buttons[i] = SDL_JoystickGetButton(joy, joystickButtons[joyIdx][i]) << 7;
+		for (i = 0 ; i < numAxes ; ++i)
 		{
-			static int32_t x, y, lastT, lastTDiff;
-			int32_t t = SDL_GetTicks();
-			int32_t tDiff = t - lastT;
-			BOOL readAxes = tDiff >= 10;
-			uint32_t buttons = SDL_GetRelativeMouseState(readAxes ? &x : NULL, readAxes ? &y : NULL);
-			joyState->buttons[0] = (buttons & SDL_BUTTON_LMASK)  ? 0x80 : 0;
-			joyState->buttons[1] = (buttons & SDL_BUTTON_RMASK)  ? 0x80 : 0;
-			joyState->buttons[2] = (buttons & SDL_BUTTON_MMASK)  ? 0x80 : 0;
-			joyState->buttons[3] = (buttons & SDL_BUTTON_X1MASK) ? 0x80 : 0;
-			joyState->buttons[4] = (buttons & SDL_BUTTON_X2MASK) ? 0x80 : 0;
-			if (readAxes)
-			{
-				lastT = t;
-				lastTDiff = tDiff;
-			}
-			joyState->axes[0] = 0x7FFF + x * lastTDiff * mouseJoySensitivity;
-			joyState->axes[1] = 0x7FFF + y * lastTDiff * mouseJoySensitivity;
-			for (i = 0 ; i < 2 ; ++i)
-			{
-				if (joyState->axes[i] < 0)
-					joyState->axes[i] = 0;
-				else if (joyState->axes[i] > 0xFFFF)
-					joyState->axes[i] = 0xFFFF;
-			}
+			uint32_t j = i < 3 ? i : 5;
+			joyState->axes[j] = (uint16_t)SDL_JoystickGetAxis(joy, joystickAxes[joyIdx][i]) ^ 0x8000;
+			if (joystickAxes[joyIdx][i + 4])
+				joyState->axes[j] = (joyState->axes[j] >> 1) + 32768;
+		}
+		if (joystickAxisValueShift[joyIdx])
+		{
+			if (joyState->axes[0] < 0x8000)
+				joyState->axes[0] -= joystickAxisValueShift[joyIdx];
+			else if (joyState->axes[0] > 0x8000)
+				joyState->axes[0] += joystickAxisValueShift[joyIdx];
+
+			if (joyState->axes[0] > 0xFFFF)
+				joyState->axes[0] = 0xFFFF;
+			else if (joyState->axes[0] < 0x0000)
+				joyState->axes[0] = 0x0000;
 		}
 	}
 	return 0;
@@ -324,42 +293,39 @@ static STDCALL uint32_t GetDeviceData(DirectInputDevice **this, uint32_t cbObjec
 	/* Mouse only. This implementation forces the absolute position of the mouse cursor. */
 	if (rgdod && pdwInOut && (*this)->guid.a == MOUSE && *pdwInOut >= 3)
 	{
-		int i;
+		static uint32_t lastX, lastY;
+		uint32_t i;
 		memset(rgdod, 0, *pdwInOut * sizeof(DIDEVICEOBJECTDATA));
 		rgdod[0].dwOfs = 0; //Mouse X
 		rgdod[1].dwOfs = 4; //Mouse Y
 		rgdod[2].dwOfs = 12; //Mouse Click
 		for (i = 3 ; i < *pdwInOut ; ++i)
 			rgdod[i].dwOfs = 8; //Nothing
-		if (!mouseAsJoystick)
+		if (mousePositionX != lastX || mousePositionY != lastY)
 		{
-			static uint32_t lastX, lastY;
-			if (mousePositionX != lastX || mousePositionY != lastY)
+			/* Move the mouse cursor if game changes cursor position */
+			SDL_WarpMouseInWindow(NULL, mousePositionX * winWidth / 640, mousePositionY * winHeight / 480);
+			lastX = mousePositionX;
+			lastY = mousePositionY;
+		}
+		else
+		{
+			static BOOL lastMouseButton;
+			int32_t x, y;
+			const BOOL mouseButton = SDL_GetRelativeMouseState(&x, &y) & SDL_BUTTON_LMASK;
+			if (x || y)
 			{
-				/* Move the mouse cursor if game changes cursor position */
-				SDL_WarpMouseInWindow(NULL, mousePositionX * winWidth / 640, mousePositionY * winHeight / 480);
-				lastX = mousePositionX;
-				lastY = mousePositionY;
+				/* Only when mouse moved */
+				SDL_GetMouseState(&x, &y);
+				lastX = x * 640 / winWidth;
+				lastY = y * 480 / winHeight;
+				/* Set as absolute position */
+				rgdod[0].dwData = lastX - mousePositionX;
+				rgdod[1].dwData = lastY - mousePositionY;
 			}
-			else
-			{
-				int x, y;
-				static BOOL lastMouseButton;
-				const BOOL mouseButton = SDL_GetRelativeMouseState(&x, &y) & SDL_BUTTON_LMASK;
-				if (x || y)
-				{
-					/* Only when mouse moved */
-					SDL_GetMouseState(&x, &y);
-					lastX = x * 640 / winWidth;
-					lastY = y * 480 / winHeight;
-					/* Set as absolute position */
-					rgdod[0].dwData = lastX - mousePositionX;
-					rgdod[1].dwData = lastY - mousePositionY;
-				}
-				if (!lastMouseButton)
-					rgdod[2].dwData = -mouseButton;
-				lastMouseButton = mouseButton;
-			}
+			if (!lastMouseButton)
+				rgdod[2].dwData = -mouseButton;
+			lastMouseButton = mouseButton;
 		}
 	}
 	return 0;
@@ -486,9 +452,9 @@ static STDCALL uint32_t CreateDevice(void **this, const GUID *const rguid, Direc
 	memcpy(&dinputDev->guid, rguid, sizeof(GUID));
 
 	BOOL isOK = true;
-	if (dinputDev->guid.a == JOYSTICK && dinputDev->guid.b > 0)
+	if (dinputDev->guid.a == JOYSTICK)
 	{
-		dinputDev->joy = SDL_JoystickOpen(dinputDev->guid.b - 1);
+		dinputDev->joy = SDL_JoystickOpen(dinputDev->guid.b);
 		if (!dinputDev->joy)
 			isOK = false;
 		else
@@ -510,11 +476,9 @@ static STDCALL uint32_t EnumDevices(void **this, uint32_t devType, DIENUMDEVICES
 	{
 		DIDEVICEINSTANCEA deviceInstance;
 		memset(&deviceInstance, 0, sizeof deviceInstance);
-		uint32_t i, n = SDL_NumJoysticks() + 1;
+		uint32_t i, n = SDL_NumJoysticks();
 		for (i = 0 ; i < n ; ++i)
 		{
-			if (!mouseAsJoystick && !i)
-				continue;
 // #ifdef WIN32
 // 			printf("%s\n", SDL_JoystickNameForIndex(i - 1));
 // 			/* To prevent joysticks duplicates - discard any xinput devices */

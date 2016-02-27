@@ -26,9 +26,6 @@
 #KeepAspectRatio:
 #	0 - Fills the entire window
 #	1 - Keeps the original aspect ratio (4:3, default)
-#MouseAsJoystick:
-#	0 - Normal mouse mode (default)
-#	1 - Use mouse as first joystick (2 axes, 5 buttons)
 #MouseJoySensitivity:
 #	Values from 1 to 100
 #Joystick0AxisValueShift:
@@ -66,7 +63,6 @@
 #UseWindowSizeForFullscreen=0
 #WindowSize=640x480
 #KeepAspectRatio=1
-#MouseAsJoystick=0
 #MouseJoySensitivity=20
 #Joystick0AxisValueShift=8448
 #Joystick1AxisValueShift=8448
