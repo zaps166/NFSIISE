@@ -12,8 +12,8 @@
 extern SDL_Window *sdlWin;
 extern int32_t winWidth, winHeight;
 
-extern int32_t joystickAxisValueShift[2], mouseJoySensitivity;
 extern uint32_t joystickAxes[2][8], joystickButtons[2][15];
+extern int32_t joystickAxisValueShift[2];
 
 extern uint32_t mousePositionX, mousePositionY;
 
@@ -221,8 +221,6 @@ static STDCALL uint32_t GetDeviceState(DirectInputDevice **this, uint32_t cbData
 
 		SDL_Joystick *joy = (*this)->joy;
 
-		SDL_JoystickUpdate();
-
 		/* Check if joystick is unplugged */
 		if (!SDL_JoystickGetAttached(joy))
 		{
@@ -422,6 +420,7 @@ static STDCALL uint32_t SendForceFeedbackCommand(DirectInputDevice **this, uint3
 static STDCALL uint32_t Poll(DirectInputDevice **this)
 {
 	/* Joystick only */
+	SDL_JoystickUpdate();
 	return 0;
 }
 
@@ -457,8 +456,10 @@ static STDCALL uint32_t CreateDevice(void **this, const GUID *const rguid, Direc
 		dinputDev->joy = SDL_JoystickOpen(dinputDev->guid.b);
 		if (!dinputDev->joy)
 			isOK = false;
+#ifndef WIN32
 		else
-			dinputDev->haptic = SDL_HapticOpenFromJoystick(dinputDev->joy); //This doesn't work on Window$ in SDL 2.0.3...
+			dinputDev->haptic = SDL_HapticOpenFromJoystick(dinputDev->joy);
+#endif
 	}
 	if (isOK && (dinputDev->guid.a == MOUSE || dinputDev->guid.a == JOYSTICK))
 	{
@@ -479,12 +480,6 @@ static STDCALL uint32_t EnumDevices(void **this, uint32_t devType, DIENUMDEVICES
 		uint32_t i, n = SDL_NumJoysticks();
 		for (i = 0 ; i < n ; ++i)
 		{
-// #ifdef WIN32
-// 			printf("%s\n", SDL_JoystickNameForIndex(i - 1));
-// 			/* To prevent joysticks duplicates - discard any xinput devices */
-// 			if (!strncasecmp(SDL_JoystickNameForIndex(i - 1), "xinput", 6))
-// 				continue;
-// #endif
 			deviceInstance.guidInstance.a = JOYSTICK;
 			deviceInstance.guidInstance.b = i;
 			if (!callback(&deviceInstance, ref))

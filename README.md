@@ -40,7 +40,7 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol!
 ## What does not work:
 
 * Modem connection (it will never work again, this feature was removed from assembly code),
-* Force Feedback on Window$ may not work due to bugs in SDL2.
+* Force Feedback is disabled on Windows due to serious bugs in SDL2.
 
 ## Patches:
 
