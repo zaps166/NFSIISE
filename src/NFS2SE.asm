@@ -169908,31 +169908,11 @@ sub_480BA0: ;SUBROUTINE
 	push edx
 	push esi
 	cmp dword [dword_563D54], 0
-	jnz loc_480BB0
+	jnz loc_480BF4
 	pop esi
 	pop edx
 	pop ecx
 	ret
-
-loc_480BB0:
-	mov ecx, dword [uiParam]
-	test ecx, ecx
-	jz loc_480BDC
-	push 2 ; fWinIni
-	push 0 ; pvParam
-	push ecx ; uiParam
-	push 11h ; uiAction
-	call SystemParametersInfoA_wrap
-
-loc_480BDC:
-	mov esi, dword [dword_4DAB20]
-	test esi, esi
-	jz loc_480BF4
-	push 2 ; fWinIni
-	push 0 ; pvParam
-	push esi ; uiParam
-	push 56h ; uiAction
-	call SystemParametersInfoA_wrap
 
 loc_480BF4:
 	push ebx
@@ -170085,56 +170065,6 @@ loc_480FBF:
 	lea eax, [eax+0]
 
 loc_480FD8:
-	lea esi, [esp+28h]
-	mov edi, dword_5635B0
-	mov dh, byte [byte_563D5D]
-	movsd
-	movsd
-	movsd
-	movsd
-	movsd
-	test dh, dh
-	jz loc_481051
-	push 0 ; fWinIni
-	push uiParam ; pvParam
-	push 0 ; uiParam
-	push 10h ; uiAction
-	call SystemParametersInfoA_wrap
-	push 0 ; fWinIni
-	push dword_4DAB20 ; pvParam
-	push 0 ; uiParam
-	push 54h ; uiAction
-	call SystemParametersInfoA_wrap
-	cmp dword [uiParam], 0
-	jz loc_48102C
-	push 2 ; fWinIni
-	push 0 ; pvParam
-	push 0 ; uiParam
-	push 11h ; uiAction
-	call SystemParametersInfoA_wrap
-
-loc_48102C:
-	cmp dword [dword_4DAB20], 0
-	jz loc_481044
-	push 2 ; fWinIni
-	push 0 ; pvParam
-	push 0 ; uiParam
-	push 56h ; uiAction
-	call SystemParametersInfoA_wrap
-
-loc_481044:
-	mov eax, dword [dword_563D54]
-	add esp, 40h
-	pop ebp
-	pop edi
-	pop esi
-	pop ecx
-	ret
-
-loc_481051:
-	xor edx, edx
-	mov dword [uiParam], edx
-	mov dword [dword_4DAB20], edx
 	mov eax, dword [dword_563D54]
 	add esp, 40h
 	pop ebp
@@ -237663,10 +237593,7 @@ dword_4DAB08: dd 0
 dword_4DAB10: dd 0
 dword_4DAB14: dd 0
 dword_4DAB18: dd 0
-;	UINT uiParam
-uiParam: dd 0
-;	UINT dword_4DAB20
-dword_4DAB20: dd 0
+	times 2 dd 0 ;?
 dword_4DAB34: dd 10000000h
 dword_4DAB38: dd 0
 dword_4DAB40: dd 0
@@ -241283,7 +241210,7 @@ dword_563130: dd ?
 dword_5631B0: dd ?
 dword_5631B4: dd ?
 	times 0FEh dd ?
-dword_5635B0: times 5 dd ?
+	times 5 dd ? ;?
 dword_5635C4: dd ?
 dword_5635C8: dd ?
 dword_5635CC: dd ?

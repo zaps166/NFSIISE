@@ -282,11 +282,6 @@ STDCALL int GetKeyboardType_wrap(int typeFlag)
 	return 0;
 }
 
-STDCALL BOOL SystemParametersInfoA_wrap(uint32_t uiAction, uint32_t uiParam, void *param, uint32_t fWinIni)
-{
-	return false;
-}
-
 STDCALL int MessageBoxA_wrap(void *hWnd, const char *text, const char *caption, uint32_t type)
 {
 	SDL_MessageBoxButtonData buttons[] = {{SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "OK"}, {SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 2, "Cancel"}};
