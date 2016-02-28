@@ -157981,6 +157981,7 @@ loc_4781E0:
 	jmp loc_4781CA
 ;sub_4781C0 endp
 
+;Provides Force Feedback (Constant Force) when you crash on something
 sub_4781F0: ;SUBROUTINE
 	push esi
 	mov esi, dword [dword_511E60]
@@ -157992,7 +157993,7 @@ sub_4781F0: ;SUBROUTINE
 loc_478201:
 	push ecx
 	push 0
-	mov ecx, edx
+	mov ecx, [edx]
 	push 0
 	sar ecx, 3
 	push ebx
