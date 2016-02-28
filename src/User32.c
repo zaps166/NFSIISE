@@ -83,7 +83,7 @@ STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterMin, uint
 						case SDL_WINDOWEVENT_RESIZED:
 							winWidth  = event.window.data1;
 							winHeight = event.window.data2;
-							windowResized = 3; //Clear up to 3 buffers
+							windowResized = NUM_BUFFERS_TO_CLEAR;
 							br = false;
 							break;
 						case SDL_WINDOWEVENT_MINIMIZED:

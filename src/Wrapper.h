@@ -10,9 +10,10 @@
 #include <stdio.h>
 
 #define STDCALL __attribute__((stdcall))
-#define REGPARM __attribute__((regparm(2))) //first two arguments are compatible with Watcom fastcall
+#define REGPARM __attribute__((regparm(2))) //First two arguments are compatible with Watcom fastcall
 
 #define MAX_PATH 260
+#define NUM_BUFFERS_TO_CLEAR 7 //This should be enough
 
 #define BOOL int32_t
 #define false 0

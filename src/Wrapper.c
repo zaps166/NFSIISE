@@ -226,7 +226,6 @@ void WrapperInit(void)
 	FILE *f = NULL;
 
 	SDL_Init((SDL_INIT_EVERYTHING | SDL_INIT_NOPARACHUTE) & ~SDL_INIT_GAMECONTROLLER);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_JoystickEventState(SDL_IGNORE);
 	SDL_ShowCursor(false);
 

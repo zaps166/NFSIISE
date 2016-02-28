@@ -49,6 +49,8 @@ static uint32_t trianglesCount, maxTexIdx;
 static PFNGLFOGCOORDFPROC p_glFogCoordf;
 static SDL_GLContext glCtx;
 
+static BOOL windowCleared;
+
 extern int32_t vSync, winWidth, winHeight, windowResized;
 extern BOOL useGlBleginGlEnd, keepAspectRatio;
 extern SDL_Window *sdlWin;
@@ -158,7 +160,7 @@ STDCALL void grBufferClear(GrColor_t color, GrAlpha_t alpha, uint16_t depth)
 
 	drawTriangles();
 
-	if (windowResized > 0)
+	if (!windowCleared && windowResized > 0)
 	{
 		if (keepAspectRatio)
 		{
@@ -167,9 +169,9 @@ STDCALL void grBufferClear(GrColor_t color, GrAlpha_t alpha, uint16_t depth)
 			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 			glEnable(GL_SCISSOR_TEST);
 		}
-		if (windowResized == 3) //Change viewport, ortho and scissor only once
+		if (windowResized == NUM_BUFFERS_TO_CLEAR) //Change viewport, ortho and scissor only once
 			grClipWindow(0, 0, 640, 480);
-		--windowResized;
+		windowCleared = true;
 	}
 
 	glClearColor(r, g, b, a);
@@ -192,6 +194,14 @@ STDCALL void grBufferSwap(int swap_interval)
 // 	printf("grBufferSwap: [%d]\n", trianglesCount);
 	drawTriangles();
 	SDL_GL_SwapWindow(sdlWin);
+	if (windowCleared && windowResized > 0)
+	{
+		if (keepAspectRatio)
+			--windowResized;
+		else
+			windowResized = 0;
+		windowCleared = false;
+	}
 }
 STDCALL void grColorCombine(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, BOOL invert)
 {
