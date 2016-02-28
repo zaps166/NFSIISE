@@ -7,7 +7,7 @@
 #UseOnlyOneCPU:
 #	0 - The game can use more than one CPU (can be unstable)
 #	1 - The game can use only the first CPU (can be more stable, default)
-#StartAtFullScreen:
+#StartInFullScreen:
 #	0 - The game runs in window
 #	1 - The game runs in full screen (default)
 #VSync:
@@ -18,7 +18,7 @@
 #	0 - Don't change (default)
 #	1 - Disable MSAA
 #	2, 4, 8, 16 - Enable MSAA. If not supported, the game probably won't run.
-#UseWindowSizeForFullscreen:
+#UseWindowSizeForFullScreen:
 #	0 - Don't change screen size (default)
 #	1 - Use screen size from "WindowSize"
 #WindowSize:
@@ -60,10 +60,10 @@
 #	Full path to serial port device (ex. /dev/ttyS0)
 
 #UseOnlyOneCPU=1
-#StartAtFullScreen=1
+#StartInFullScreen=1
 #VSync=-1
 #MSAA=4
-#UseWindowSizeForFullscreen=0
+#UseWindowSizeForFullScreen=0
 #WindowSize=640x480
 #KeepAspectRatio=1
 #Joystick0AxisValueShift=8448

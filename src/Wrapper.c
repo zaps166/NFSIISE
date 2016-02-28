@@ -206,7 +206,7 @@ static void signal_handler(int sig)
 }
 #endif
 
-static BOOL startAtFullScreen = true;
+static BOOL startInFullScreen = true;
 
 int32_t joystickAxes[2][8] = {{0, 1, 2, 3, 0, 0, 0, 0}, {0, 1, 2, 3, 0, 0, 0, 0}};
 int32_t winWidth = 640, winHeight = 480, joystickAxisValueShift[2] = {0}, vSync = 1;
@@ -216,7 +216,7 @@ BOOL useSpringForceFeedbackEffect = false;
 	uint32_t windowsForceFeedbackDevice = -1;
 #endif
 BOOL linearSoundInterpolation = false, useGlBleginGlEnd = false, keepAspectRatio = true;
-uint32_t fullscreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP, broadcast = 0xFFFFFFFF;
+uint32_t fullScreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP, broadcast = 0xFFFFFFFF;
 uint16_t PORT1 = 1030, PORT2 = 1029;
 
 void WrapperInit(void)
@@ -321,8 +321,8 @@ void WrapperInit(void)
 			line[nPos] = '\0';
 			if (!strncasecmp("UseOnlyOneCPU=", line, 14))
 				useOnlyOneCPU = !!atoi(line + 14);
-			else if (!strncasecmp("StartAtFullScreen=", line, 18))
-				startAtFullScreen = !!atoi(line + 18);
+			else if (!strncasecmp("StartInFullScreen=", line, 18))
+				startInFullScreen = !!atoi(line + 18);
 			else if (!strncasecmp("VSync=", line, 6))
 			{
 				vSync = atoi(line + 6);
@@ -335,10 +335,10 @@ void WrapperInit(void)
 				if (msaa > 16 || (msaa & (msaa - 1)))
 					msaa = 0;
 			}
-			else if (!strncasecmp("UseWindowSizeForFullscreen=", line, 27))
+			else if (!strncasecmp("UseWindowSizeForFullScreen=", line, 27))
 			{
 				if (atoi(line + 27))
-					fullscreenFlag = SDL_WINDOW_FULLSCREEN;
+					fullScreenFlag = SDL_WINDOW_FULLSCREEN;
 			}
 			else if (!strncasecmp("WindowSize=", line, 11))
 				sscanf(line + 11, "%dx%d", &winWidth, &winHeight);
@@ -471,7 +471,7 @@ SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 
 	uint32_t *icon, i, j;
 
-	sdlWin = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, winWidth, winHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (startAtFullScreen ? fullscreenFlag : 0));
+	sdlWin = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, winWidth, winHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (startInFullScreen ? fullScreenFlag : 0));
 	if (!sdlWin)
 	{
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, "Cannot create window, check OpenGL installation and game settings.", NULL);

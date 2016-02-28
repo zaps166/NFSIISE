@@ -20,7 +20,7 @@ static const uint8_t sdl_to_windows_scancode_table[100] =
 };
 
 extern int32_t winWidth, winHeight;
-extern uint32_t fullscreenFlag;
+extern uint32_t fullScreenFlag;
 extern SDL_Window *sdlWin;
 
 int32_t windowResized = 0;
@@ -104,7 +104,7 @@ STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterMin, uint
 					if (event.key.keysym.sym == SDLK_RETURN && (event.key.keysym.mod & KMOD_LALT))
 					{
 						if (!event.key.repeat)
-							SDL_SetWindowFullscreen(sdlWin, (SDL_GetWindowFlags(sdlWin) & fullscreenFlag) ? SDL_FALSE : fullscreenFlag);
+							SDL_SetWindowFullscreen(sdlWin, (SDL_GetWindowFlags(sdlWin) & fullScreenFlag) ? SDL_FALSE : fullScreenFlag);
 						br = false;
 						break;
 					}
