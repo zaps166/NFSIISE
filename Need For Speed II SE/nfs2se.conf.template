@@ -17,7 +17,7 @@
 #MSAA (Multisample antialiasing):
 #	0 - Don't change (default)
 #	1 - Disable MSAA
-#	2, 4, 8, 16 - Enable MSAA. If not supported, game probably won't run.
+#	2, 4, 8, 16 - Enable MSAA. If not supported, the game probably won't run.
 #UseWindowSizeForFullscreen:
 #	0 - Don't change screen size (default)
 #	1 - Use screen size from "WindowSize"
@@ -40,6 +40,11 @@
 #	Specify which buttons will be used in game for first joystick. Value less than 0 - disabled. NFS2SE supports 15 buttons
 #Joystick1Buttons:
 #	Specify which buttons will be used in game for second joystick. Value less than 0 - disabled. NFS2SE supports 15 buttons
+#UseSpringForceFeedbackEffect:
+#	0 - Don't use Spring Force Feedback Effect (default)
+#	1 - Use Spring Force Feedback Effect (experimental)
+#WindowsForceFeedbackDevice:
+#	Specify the Force Feedback device for Windows (-1 - disabled, default)
 #LinearSoundInterpolation:
 #	0 - Original samplerate - 22050Hz (default)
 #	1 - Linear interpolated sound to 44100Hz (artificial highs)
@@ -67,6 +72,8 @@
 #Joystick1Axes=0,12,13,3:0,1,1,0
 #Joystick0Buttons=0,15,16,3,4,5,6,7,-1,-1,10,11,12,13,14
 #Joystick1Buttons=0,15,16,3,4,5,6,7,-1,-1,10,11,12,13,14
+#UseSpringForceFeedbackEffect=0
+#WindowsForceFeedbackDevice=-1
 #LinearSoundInterpolation=1
 #UseGlBleginGlEnd=0
 #Port1=1030

@@ -15,9 +15,13 @@ extern int32_t winWidth, winHeight;
 extern int32_t joystickAxes[2][8], joystickButtons[2][15];
 extern int32_t joystickAxisValueShift[2];
 
+extern BOOL useSpringForceFeedbackEffect;
+extern uint32_t windowsForceFeedbackDevice;
+
 extern uint32_t mousePositionX, mousePositionY;
 
 #define CONVERT(x) (((x)*0x7FFF)/10000)
+#define CONVERT_LENGTH(x) (((x) == SDL_HAPTIC_INFINITY) ? SDL_HAPTIC_INFINITY : ((x) / 1000))
 
 static inline void setEnvelope(uint16_t *attack_length, uint16_t *attack_level, uint16_t *fade_length, uint16_t *fade_level, DIENVELOPE *envelope)
 {
@@ -26,71 +30,91 @@ static inline void setEnvelope(uint16_t *attack_length, uint16_t *attack_level, 
 	*fade_length = envelope->fadeTime / 1000;
 	*fade_level = CONVERT(envelope->fadeLevel);
 }
-static void setEffect(uint16_t real_type, SDL_HapticEffect *effect, const DIEFFECT *di_eff)
+static void setEffect(DirectInputEffect *dinputEffect, const DIEFFECT *di_eff)
 {
-	switch (real_type)
+	uint32_t i;
+	switch (dinputEffect->real_type)
 	{
 		case SDL_HAPTIC_CONSTANT:
 		{
 			DICONSTANTFORCE *di_constant = (DICONSTANTFORCE *)di_eff->typeSpecificParams;
-			if (effect->type == SDL_HAPTIC_SINE)
+			if (dinputEffect->effect.type == SDL_HAPTIC_SINE)
 			{
-				SDL_HapticPeriodic *periodic = &effect->periodic;
+				SDL_HapticPeriodic *periodic = &dinputEffect->effect.periodic;
 				if (di_constant)
 					periodic->magnitude = CONVERT(di_constant->magnitude);
-				periodic->length = di_eff->duration == SDL_HAPTIC_INFINITY ? SDL_HAPTIC_INFINITY : di_eff->duration / 1000;
-// 				printf("Constant: %d\n", periodic->length);
+				periodic->length = CONVERT_LENGTH(di_eff->duration);
+// 				printf("Constant as Sine: %d, %d\n", periodic->length, periodic->magnitude);
 			}
 			else
 			{
-				SDL_HapticConstant *constant = &effect->constant;
+				SDL_HapticConstant *constant = &dinputEffect->effect.constant;
 				if (di_constant)
 					constant->level = CONVERT(di_constant->magnitude);
-				constant->length = di_eff->duration == SDL_HAPTIC_INFINITY ? SDL_HAPTIC_INFINITY : di_eff->duration / 1000;
-// 				printf("Constant: %d\n", constant->length);
+				constant->length = CONVERT_LENGTH(di_eff->duration);
+				constant->direction.type = SDL_HAPTIC_POLAR; //di_eff->flags shows that POLAR is used (0x20)
+				for (i = 0; i < di_eff->cAxes; ++i)
+					constant->direction.dir[i] = di_eff->rglDirection[i];
+// 				printf("Constant: %d %d %d, %X\n", constant->length, constant->level, di_eff->cAxes, di_eff->flags);
 			}
 		} break;
 		case SDL_HAPTIC_SINE:
 		{
 			DIPERIODIC *di_periodic = (DIPERIODIC *)di_eff->typeSpecificParams;
-
-			SDL_HapticPeriodic *periodic = &effect->periodic;
-
+			SDL_HapticPeriodic *periodic = &dinputEffect->effect.periodic;
 			if (di_periodic)
 			{
 				periodic->magnitude = CONVERT(di_periodic->magnitude);
 				periodic->offset = CONVERT(di_periodic->offset);
-				periodic->period = di_periodic->period / 1000;
+				periodic->period = CONVERT_LENGTH(di_periodic->period);
 				periodic->phase = di_periodic->phase;
 			}
-
-			periodic->length = di_eff->duration == SDL_HAPTIC_INFINITY ? SDL_HAPTIC_INFINITY : di_eff->duration / 1000;
-
+			periodic->length = CONVERT_LENGTH(di_eff->duration);
 			if (di_eff->envelope)
 				setEnvelope(&periodic->attack_length, &periodic->attack_level, &periodic->fade_length, &periodic->fade_level, di_eff->envelope);
-
-// 			printf("Square: %d\n", periodic->length);
+// 			printf("Square as Sine: %d\n", periodic->magnitude);
 		} break;
 		case SDL_HAPTIC_SPRING:
 		{
-			/* NOT TESTED!!! */
-			SDL_HapticCondition *condition = &effect->condition;
-			uint32_t i;
-			for (i = 0; i < di_eff->cAxes; ++i)
+			/* Deadband always 0, Coeff and Saturation always the same */
+			if (dinputEffect->effect.type == SDL_HAPTIC_SPRING)
 			{
-				DICONDITION *di_condition = (DICONDITION *)di_eff->typeSpecificParams + i;
-				condition->center[i] = CONVERT(di_condition->lOffset);
-				condition->right_coeff[i] = CONVERT(di_condition->lPositiveCoefficient);
-				condition->left_coeff[i] = CONVERT(di_condition->lNegativeCoefficient);
-				condition->right_sat[i] = CONVERT(di_condition->dwPositiveSaturation);
-				condition->left_sat[i] = CONVERT(di_condition->dwNegativeSaturation);
-				condition->deadband[i] = CONVERT(di_condition->lDeadBand);
-// 				printf("Spring[%d]: %d %d %d %d %d %d\n", i, condition->center[i], condition->right_coeff[i], condition->left_coeff[i], condition->right_sat[i], condition->left_sat[i], condition->deadband[i]);
+				/* Is it OK? I can't test it! */
+				SDL_HapticCondition *condition = &dinputEffect->effect.condition;
+				for (i = 0; i < di_eff->cAxes; ++i)
+				{
+					DICONDITION *di_condition = (DICONDITION *)di_eff->typeSpecificParams + i;
+					condition->center[i] = CONVERT(di_condition->lOffset);
+					condition->right_coeff[i] = CONVERT(di_condition->lPositiveCoefficient);
+					condition->left_coeff[i] = CONVERT(di_condition->lNegativeCoefficient);
+					condition->right_sat[i] = CONVERT(di_condition->dwPositiveSaturation);
+					condition->left_sat[i] = CONVERT(di_condition->dwNegativeSaturation);
+					condition->deadband[i] = CONVERT(di_condition->lDeadBand);
+// 					printf("Spring[%d]: %d %d %d %d %d %d\n", i, condition->center[i], condition->right_coeff[i], condition->left_coeff[i], condition->right_sat[i], condition->left_sat[i], condition->deadband[i]);
+				}
+				condition->length = CONVERT_LENGTH(di_eff->duration);
 			}
+			else if (dinputEffect->effect.type == SDL_HAPTIC_CONSTANT && di_eff->cAxes)
+			{
+				/* Simulate Spring with Constant - this probably works bad :D */
 
-			condition->length = di_eff->duration == SDL_HAPTIC_INFINITY ? SDL_HAPTIC_INFINITY : di_eff->duration / 1000;
+				SDL_HapticConstant *constant = &dinputEffect->effect.constant;
+				DICONDITION *di_condition = (DICONDITION *)di_eff->typeSpecificParams;
 
-// 			printf("Spring: %X\n", condition->length);
+				int32_t axis = *dinputEffect->xAxis * 20000 / 65535 - 10000;
+				int32_t force;
+				if (*dinputEffect->xAxis > 0)
+					force = di_condition->lPositiveCoefficient * (axis - di_condition->lOffset);
+				else
+					force = di_condition->lNegativeCoefficient * (axis - di_condition->lOffset);
+
+				constant->direction.type = SDL_HAPTIC_CARTESIAN;
+				constant->direction.dir[0] = (force == 0) ? 0 : (force < 0 ? -1 : 1);
+				constant->attack_level = SDL_abs(force / 3052);
+				constant->attack_length = CONVERT_LENGTH(di_eff->duration);
+
+// 				printf("Spring as Constant: coeffP: %d, coeffN: %d, offset: %d, xAxis: %d, force: %d, attack: %d\n", di_condition->lPositiveCoefficient, di_condition->lNegativeCoefficient, di_condition->lOffset, axis, force, force / 3052);
+			}
 		} break;
 	}
 }
@@ -131,14 +155,13 @@ static STDCALL uint32_t Release(void **this)
 
 static STDCALL uint32_t SetParameters(DirectInputEffect **this, const DIEFFECT *eff, uint32_t flags)
 {
-// 	if ((*this)->real_type != SDL_HAPTIC_SPRING)
-// 		printf("SetParameters: %X %X\n", flags, (*this)->real_type);
+// 	printf("SetParameters: %X %X\n", flags, (*this)->real_type);
 	if ((*this)->haptic)
 	{
-		setEffect((*this)->real_type, &(*this)->effect, eff);
+		setEffect(*this, eff);
 		if (!SDL_HapticUpdateEffect((*this)->haptic, (*this)->effect_idx, &(*this)->effect))
 		{
-			if ((*this)->effect.type == SDL_HAPTIC_SINE && (*this)->real_type == SDL_HAPTIC_CONSTANT)
+			if ((*this)->real_type != SDL_HAPTIC_SINE)
 				SDL_HapticRunEffect((*this)->haptic, (*this)->effect_idx, 1);
 		}
 	}
@@ -146,15 +169,14 @@ static STDCALL uint32_t SetParameters(DirectInputEffect **this, const DIEFFECT *
 }
 static STDCALL uint32_t Start(DirectInputEffect **this, uint32_t iterations, uint32_t flags)
 {
-// 	if ((*this)->real_type != SDL_HAPTIC_SPRING)
-// 		printf("Start: %X\n", (*this)->real_type);
-	SDL_HapticRunEffect((*this)->haptic, (*this)->effect_idx, iterations);
+// 	printf("Start: %X\n", (*this)->real_type);
+	if ((*this)->real_type == SDL_HAPTIC_SINE)
+		SDL_HapticRunEffect((*this)->haptic, (*this)->effect_idx, iterations);
 	return 0;
 }
 static STDCALL uint32_t Stop(DirectInputEffect **this)
 {
-// 	if ((*this)->real_type != SDL_HAPTIC_SPRING)
-// 		printf("Stop: %X\n", (*this)->real_type);
+// 	printf("Stop: %X\n", (*this)->real_type);
 	SDL_HapticStopEffect((*this)->haptic, (*this)->effect_idx);
 	return 0;
 }
@@ -165,6 +187,7 @@ static STDCALL uint32_t Download(DirectInputEffect **this)
 }
 static STDCALL uint32_t Unload(DirectInputEffect **this)
 {
+// 	printf("Unload: %X\n", (*this)->real_type);
 	SDL_HapticStopEffect((*this)->haptic, (*this)->effect_idx);
 	return 0;
 }
@@ -264,6 +287,8 @@ static STDCALL uint32_t GetDeviceState(DirectInputDevice **this, uint32_t cbData
 			else if (joystickAxes[joyIdx][i + 4] < 0)
 				*axis = 65535 - (*axis >> 1);
 		}
+		if (numAxes > 0)
+			(*this)->xAxis = joyState->axes[0]; //For Spring effect, when Constant Force is used instead
 		if (joystickAxisValueShift[joyIdx])
 		{
 			if (joyState->axes[0] < 0x8000)
@@ -345,6 +370,7 @@ static STDCALL uint32_t CreateEffect(DirectInputDevice **this, const GUID *const
 	DirectInputEffect *dinputEff = (DirectInputEffect *)calloc(1, sizeof(DirectInputObject) + sizeof(DirectInputEffect));
 	((DirectInputObject *)dinputEff)->ref = 1;
 	dinputEff = (void *)dinputEff + sizeof(DirectInputObject);
+	dinputEff->xAxis = &(*this)->xAxis;
 
 	dinputEff->SetParameters = SetParameters;
 	dinputEff->Start = Start;
@@ -357,18 +383,25 @@ static STDCALL uint32_t CreateEffect(DirectInputDevice **this, const GUID *const
 	switch (rguid->a)
 	{
 		case FORCE_CONST:
+			/* Use Sine effect instead of Constant if it doesn't exists */
 			dinputEff->effect.type = (SDL_HapticQuery((*this)->haptic) & SDL_HAPTIC_CONSTANT) ? SDL_HAPTIC_CONSTANT : SDL_HAPTIC_SINE;
 			dinputEff->real_type = SDL_HAPTIC_CONSTANT;
 			break;
 		case FORCE_SQUARE:
+			/* Use Sine effect instead of Square (SDL 2.0 doesn't have square)*/
 			dinputEff->real_type = dinputEff->effect.type = SDL_HAPTIC_SINE;
 			break;
 		case FORCE_SPRING:
-			dinputEff->real_type = dinputEff->effect.type = SDL_HAPTIC_SPRING;
+			/* If there is no Spring effect, use Constant Force instead */
+			dinputEff->effect.type = (SDL_HapticQuery((*this)->haptic) & SDL_HAPTIC_SPRING) ? SDL_HAPTIC_SPRING : SDL_HAPTIC_CONSTANT;
+			dinputEff->real_type = SDL_HAPTIC_SPRING;
 			break;
 	}
-	setEffect(dinputEff->real_type, &dinputEff->effect, eff);
-	dinputEff->effect_idx = SDL_HapticNewEffect((*this)->haptic, &dinputEff->effect);
+	setEffect(dinputEff, eff);
+	if (rguid->a == FORCE_SPRING && !useSpringForceFeedbackEffect)
+		dinputEff->effect_idx = -1;
+	else
+		dinputEff->effect_idx = SDL_HapticNewEffect((*this)->haptic, &dinputEff->effect);
 
 // 	printf("%X %d %s\n", dinputEff->guid.a, dinputEff->effect_idx, dinputEff->effect_idx == -1 ? SDL_GetError() : "");
 
@@ -449,10 +482,15 @@ static STDCALL uint32_t CreateDevice(void **this, const GUID *const rguid, Direc
 		dinputDev->joy = SDL_JoystickOpen(dinputDev->guid.b);
 		if (!dinputDev->joy)
 			isOK = false;
-#ifndef WIN32
 		else
+		{
+#ifndef WIN32
+			/* This doesn't work properly on Windows and SDL 2.0 */
 			dinputDev->haptic = SDL_HapticOpenFromJoystick(dinputDev->joy);
+#else
+			dinputDev->haptic = SDL_HapticOpen(windowsForceFeedbackDevice);
 #endif
+		}
 	}
 	if (isOK && (dinputDev->guid.a == MOUSE || dinputDev->guid.a == JOYSTICK))
 	{

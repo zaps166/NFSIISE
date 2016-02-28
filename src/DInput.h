@@ -201,7 +201,7 @@ typedef struct DirectInputEffect
 	SDL_Haptic *haptic;
 	SDL_HapticEffect effect;
 	uint16_t real_type;
-	int effect_idx;
+	int32_t effect_idx, *xAxis;
 } DirectInputEffect;
 
 typedef struct DirectInputDevice
@@ -241,6 +241,7 @@ typedef struct DirectInputDevice
 	SDL_Joystick *joy;
 	SDL_Haptic *haptic;
 	uint32_t num_effects;
+	int32_t xAxis;
 	DirectInputEffect **effects;
 } DirectInputDevice;
 

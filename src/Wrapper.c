@@ -211,6 +211,10 @@ static BOOL startAtFullScreen = true;
 int32_t joystickAxes[2][8] = {{0, 1, 2, 3, 0, 0, 0, 0}, {0, 1, 2, 3, 0, 0, 0, 0}};
 int32_t winWidth = 640, winHeight = 480, joystickAxisValueShift[2] = {0}, vSync = 1;
 int32_t joystickButtons[2][15] = {{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}};
+BOOL useSpringForceFeedbackEffect = false;
+#ifdef WIN32
+	uint32_t windowsForceFeedbackDevice = -1;
+#endif
 BOOL linearSoundInterpolation = false, useGlBleginGlEnd = false, keepAspectRatio = true;
 uint32_t fullscreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP, broadcast = 0xFFFFFFFF;
 uint16_t PORT1 = 1030, PORT2 = 1029;
@@ -361,6 +365,12 @@ void WrapperInit(void)
 				sscanf(line + 17, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", joystickButtons[0]+0, joystickButtons[0]+1, joystickButtons[0]+2, joystickButtons[0]+3, joystickButtons[0]+4, joystickButtons[0]+5, joystickButtons[0]+6, joystickButtons[0]+7, joystickButtons[0]+8, joystickButtons[0]+9, joystickButtons[0]+10, joystickButtons[0]+11, joystickButtons[0]+12, joystickButtons[0]+13, joystickButtons[0]+14);
 			else if (!strncasecmp("Joystick1Buttons=", line, 17))
 				sscanf(line + 17, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", joystickButtons[1]+0, joystickButtons[1]+1, joystickButtons[1]+2, joystickButtons[1]+3, joystickButtons[1]+4, joystickButtons[1]+5, joystickButtons[1]+6, joystickButtons[1]+7, joystickButtons[1]+8, joystickButtons[1]+9, joystickButtons[1]+10, joystickButtons[1]+11, joystickButtons[1]+12, joystickButtons[1]+13, joystickButtons[1]+14);
+			else if (!strncasecmp("UseSpringForceFeedbackEffect=", line, 29))
+				useSpringForceFeedbackEffect = atoi(line + 29);
+#ifdef WIN32
+			else if (!strncasecmp("WindowsForceFeedbackDevice=", line, 27))
+				windowsForceFeedbackDevice = atoi(line + 27);
+#endif
 			else if (!strncasecmp("LinearSoundInterpolation=", line, 25))
 				linearSoundInterpolation = !!atoi(line + 25);
 			else if (!strncasecmp("UseGlBleginGlEnd=", line, 17))
