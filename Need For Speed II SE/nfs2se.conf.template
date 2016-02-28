@@ -34,7 +34,7 @@
 #	Specify which axes will be used in game for first joystick. NFS2SE supports only 4 axes (ex. 0,1,2,3:0,0,0,0)
 #	The numbers after colon chooses axis type (0 - normal axis, 1 - half axis, -1 - inverted half axis)
 #Joystick1Axes:
-#	Specify which axes will be used in game for second joystick. NFS2SE supports only 4 axes (ex. 0,12,13,3:0,1,1,0)
+#	Specify which axes will be used in game for second joystick. NFS2SE supports only 4 axes (ex. 0,12,13,14:0,1,1,1)
 #	The numbers after colon chooses axis type (0 - normal axis, 1 - half axis, -1 - inverted half axis)
 #Joystick0Buttons:
 #	Specify which buttons will be used in game for first joystick. Value less than 0 - disabled. NFS2SE supports 15 buttons
@@ -68,10 +68,10 @@
 #KeepAspectRatio=1
 #Joystick0AxisValueShift=8448
 #Joystick1AxisValueShift=8448
-#Joystick0Axes=0,12,13,3:0,1,1,0
-#Joystick1Axes=0,12,13,3:0,1,1,0
-#Joystick0Buttons=0,15,16,3,4,5,6,7,-1,-1,10,11,12,13,14
-#Joystick1Buttons=0,15,16,3,4,5,6,7,-1,-1,10,11,12,13,14
+#Joystick0Axes=0,12,13,14:0,1,1,1
+#Joystick1Axes=0,12,13,14:0,1,1,1
+#Joystick0Buttons=0,15,16,3,4,5,6,7,-1,-1,-1,11,12,13,14
+#Joystick1Buttons=0,15,16,3,4,5,6,7,-1,-1,-1,11,12,13,14
 #UseSpringForceFeedbackEffect=0
 #WindowsForceFeedbackDevice=-1
 #LinearSoundInterpolation=1
