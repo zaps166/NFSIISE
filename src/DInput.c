@@ -320,7 +320,7 @@ static STDCALL uint32_t GetDeviceData(DirectInputDevice **this, uint32_t cbObjec
 		if (mousePositionX != lastX || mousePositionY != lastY)
 		{
 			/* Move the mouse cursor if game changes cursor position */
-			SDL_WarpMouseInWindow(NULL, mousePositionX * winWidth / 640, mousePositionY * winHeight / 480);
+			SDL_WarpMouseInWindow(NULL, (mousePositionX * winWidth / 640.0f) + 0.5f, (mousePositionY * winHeight / 480.0f) + 0.5f);
 			lastX = mousePositionX;
 			lastY = mousePositionY;
 		}
@@ -333,8 +333,8 @@ static STDCALL uint32_t GetDeviceData(DirectInputDevice **this, uint32_t cbObjec
 			{
 				/* Only when mouse moved */
 				SDL_GetMouseState(&x, &y);
-				lastX = x * 640 / winWidth;
-				lastY = y * 480 / winHeight;
+				lastX = (x * 640.0f / winWidth)  + 0.5f;
+				lastY = (y * 480.0f / winHeight) + 0.5f;
 				/* Set as absolute position */
 				rgdod[0].dwData = lastX - mousePositionX;
 				rgdod[1].dwData = lastY - mousePositionY;
