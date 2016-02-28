@@ -7018,18 +7018,6 @@ loc_405D23:
 	ret
 ;sub_405D10 endp
 
-dword_405D40: dd 10001h, 0
-	times 2 db 0
-word_405D4A: dw 2
-	dd 2, 0
-dword_405D54: dd 20002h, 10002h
-	times 2 db 0
-word_405D5E: dw 1
-	dd 1, 0
-dword_405D68: times 2 dd 0
-	db 1, 0
-word_405D72: dw 1
-	times 2 dd 0
 dword_405D7C: dd 6050200h, 0D0B0A09h, 1211100Fh, 17161513h
 dword_405D8C: dd 0
 	dd 2, 4, 5, 3, 6, 7, 8, 0
@@ -10387,106 +10375,30 @@ loc_4085D0:
 ;sub_408558 endp
 
 sub_408610: ;SUBROUTINE
-	push ebx
 	push ecx
 	push edx
-	push esi
-	push edi
-	sub esp, 48h
-	mov edi, esp
-	mov esi, dword_405D40
-	movsd
-	movsd
-	movsw
-	lea edi, [esp+0Ch]
-	mov esi, word_405D4A
-	movsd
-	movsd
-	movsw
-	lea edi, [esp+18h]
-	mov esi, dword_405D54
-	movsd
-	movsd
-	movsw
-	lea edi, [esp+24h]
-	mov esi, word_405D5E
-	movsd
-	movsd
-	movsw
-	lea edi, [esp+30h]
-	mov esi, dword_405D68
-	movsd
-	movsd
-	movsw
-	mov ah, 2
-	lea edi, [esp+3Ch]
-	mov esi, word_405D72
-	mov byte [byte_512ECD], ah
-	movsd
-	movsd
-	movsw
-	call sub_4879D0
-	mov edx, dword [dword_4DABA4]
-	mov ecx, 4
-	test edx, edx
-	jnz loc_4086D6
 
-loc_408680:
-	mov dl, [esp+ecx*2]
+	mov ah, 2
+	mov byte [byte_512ECD], ah
+
+	call sub_4879D0 ;Detects the CPU type
+
+	;Set graphics settings to maximum
+	xor dl, dl
 	mov byte [byte_512ECE], dl
-	mov dl, [esp+ecx*2+0Ch]
-	mov eax, [esp+ecx*2+2Eh]
 	mov byte [byte_512ECF], dl
-	mov dl, [esp+ecx*2+18h]
-	sar eax, 10h
-	mov byte [byte_512ED0], dl
-	mov dl, [esp+ecx*2+24h]
+	mov byte [byte_512ED0], dl ;View distance
+	mov eax, 1
 	mov dword [dword_4D69C0], eax
-	mov byte [byte_512ED2], dl
-	mov dl, [esp+ecx*2+3Ch]
+	mov byte [byte_512ED2], dl ;Horizon
+	mov byte [byte_512ED1], dl ;Car detail
 	mov ecx, 3FC00000h
-	mov byte [byte_512ED1], dl
-	mov dword [dword_4D4D20], ecx
+	mov dword [dword_4D4D20], ecx ;Brightness
+
 	call sub_428990
-	add esp, 48h
-	pop edi
-	pop esi
 	pop edx
 	pop ecx
-	pop ebx
 	ret
-
-loc_4086D6:
-	call sub_487BF4
-	mov edx, eax
-	mov ebx, 0F4240h
-	sar edx, 1Fh
-	idiv ebx
-	cmp eax, 0A6h
-	jg loc_4086F3
-	mov ecx, 3
-
-loc_4086F3:
-	cmp eax, 85h
-	jg loc_4086FF
-	mov ecx, 2
-
-loc_4086FF:
-	cmp eax, 64h
-	jg loc_408709
-	mov ecx, 1
-
-loc_408709:
-	cmp eax, 5Ah
-	jg loc_408710
-	xor ecx, ecx
-
-loc_408710:
-	cmp eax, 78h
-	jg loc_408680
-	xor dl, dl
-	mov byte [byte_512ECD], dl
-	jmp loc_408680
 ;sub_408610 endp
 
 sub_408730: ;SUBROUTINE
@@ -178753,357 +178665,6 @@ loc_487B93:
 	ret
 ;sub_4879D0 endp
 
-sub_487BB0: ;SUBROUTINE
-	sub esp, 10h
-	sub eax, edx
-	mov [esp+0Ch], eax
-	fild dword [esp+0Ch]
-	fmul dword [esp+14h]
-	fst dword [esp+8]
-	fstp qword [esp]
-	fldz
-	fcomp qword [esp]
-	fnstsw ax
-	sahf
-	ja loc_487BDC
-	fld dword [esp+8]
-	add esp, 10h
-	ret 4
-
-loc_487BDC:
-	fld qword [esp]
-	fmul qword [dbl_4CFBF4]
-	fstp dword [esp+8]
-	fld dword [esp+8]
-	add esp, 10h
-	ret 4
-;sub_487BB0 endp
-
-sub_487BF4: ;SUBROUTINE
-	push ebx
-	push ecx
-	push edx
-	sub esp, 18h
-	cmp dword [dword_4DABB0], 0
-	jz loc_487D99
-
-loc_487C07:
-	cmp dword [dword_4DABA4], 0
-	jz loc_487DA3
-	cmp dword [dword_4DB624], 0
-	jnz loc_487DA3
-	call sub_487DB0
-
-loc_487C26:
-	mov edx, eax
-	mov ecx, 0F4240h
-	mov eax, edx
-	sar edx, 1Fh
-	idiv ecx
-	mov [esp+14h], eax
-	fild dword [esp+14h]
-	fld st0
-	fadd qword [dbl_4CFBFC]
-	fmul qword [dbl_4CFC04]
-	mov ecx, eax
-	call __CHP
-	fistp dword [esp+14h]
-	mov eax, [esp+14h]
-	mov [esp+14h], eax
-	fild dword [esp+14h]
-	fmul qword [dbl_4CFC0C]
-	fld qword [dbl_4CFC14]
-	fxch st1
-	fadd st0, st1
-	call __CHP
-	fistp dword [esp+10h]
-	fld st1
-	fadd qword [dbl_4CFC1C]
-	fmul qword [dbl_4CFC24]
-	call __CHP
-	fistp dword [esp+14h]
-	mov eax, [esp+14h]
-	mov [esp+14h], eax
-	fild dword [esp+14h]
-	fmul qword [dbl_4CFC2C]
-	fadd qword [dbl_4CFC34]
-	call __CHP
-	fistp dword [esp+8]
-	fxch st1
-	fadd qword [dbl_4CFC3C]
-	fmul qword [dbl_4CFC44]
-	call __CHP
-	fistp dword [esp+14h]
-	mov eax, [esp+14h]
-	mov [esp+14h], eax
-	fild dword [esp+14h]
-	fmul qword [dbl_4CFC4C]
-	mov edx, ecx
-	faddp st1, st0
-	mov eax, [esp+8]
-	call __CHP
-	fistp dword [esp+0Ch]
-	push 3F800000h
-	call sub_487BB0
-	fstp dword [esp+14h]
-	mov eax, [esp+10h]
-	mov edx, ecx
-	push 3F8CCCCDh
-	call sub_487BB0
-	fstp dword [esp+14h]
-	mov eax, [esp+0Ch]
-	mov edx, ecx
-	push 3F99999Ah
-	call sub_487BB0
-	fstp dword [esp+14h]
-	push 3F8CCCCDh
-	mov eax, [esp+14h]
-	mov edx, ecx
-	mov ebx, [esp+0Ch]
-	call sub_487BB0
-	fstp dword [esp+14h]
-	mov edx, ecx
-	mov eax, ebx
-	push 3F800000h
-	call sub_487BB0
-	fcomp dword [esp+14h]
-	fnstsw ax
-	sahf
-	jbe loc_487D55
-	mov ebx, [esp+10h]
-
-loc_487D55:
-	mov eax, [esp+0Ch]
-	mov edx, ecx
-	push 3F99999Ah
-	call sub_487BB0
-	fstp dword [esp+14h]
-	mov edx, ecx
-	mov eax, ebx
-	push 3F800000h
-	call sub_487BB0
-	fcomp dword [esp+14h]
-	fnstsw ax
-	sahf
-	jbe loc_487D84
-	mov ebx, [esp+0Ch]
-
-loc_487D84:
-	imul ebx, 0F4240h
-	mov dword [dword_4DB620], ebx
-	mov eax, ebx
-	add esp, 18h
-	pop edx
-	pop ecx
-	pop ebx
-	ret
-
-loc_487D99:
-	call sub_4879D0
-	jmp loc_487C07
-
-loc_487DA3:
-	call sub_487E30
-	jmp loc_487C26
-;sub_487BF4 endp
-
-sub_487DB0: ;SUBROUTINE
-	push ebx
-	push ecx
-	push edx
-	push esi
-	push edi
-	push ebp
-	mov ebp, 5
-	xor ebx, ebx
-	xor ecx, ecx
-	xor esi, esi
-
-loc_487DC1:
-	mov eax, 1
-	call sub_483410
-	cmp dword [dword_4DABB0], 0
-	jz loc_487DD6
-	rdtsc
-
-loc_487DD6:
-	mov edi, eax
-	mov eax, dword [dword_4DABCC]
-	mov edx, eax
-	sar edx, 1Fh
-	idiv ebp
-	call sub_483410
-	cmp dword [dword_4DABB0], 0
-	jz loc_487DF4
-	rdtsc
-
-loc_487DF4:
-	sub eax, edi
-	test esi, esi
-	jz loc_487E02
-	cmp eax, ebx
-	jge loc_487E1E
-
-loc_487DFE:
-	mov ecx, ebx
-	mov ebx, eax
-
-loc_487E02:
-	inc esi
-	cmp esi, 5
-	jl loc_487DC1
-	test ecx, ecx
-	jnz loc_487E0E
-	mov ecx, ebx
-
-loc_487E0E:
-	lea eax, 0[ecx*4]
-	add eax, ecx
-	pop ebp
-	pop edi
-	pop esi
-	pop edx
-	pop ecx
-	pop ebx
-	ret
-
-loc_487E1E:
-	test ebx, ebx
-	jz loc_487DFE
-	cmp eax, ecx
-	jge loc_487E2A
-
-loc_487E26:
-	mov ecx, eax
-	jmp loc_487E02
-
-loc_487E2A:
-	test ecx, ecx
-	jz loc_487E26
-	jmp loc_487E02
-;sub_487DB0 endp
-
-sub_487E30: ;SUBROUTINE
-	push ebx
-	push ecx
-	push edx
-	push esi
-	push edi
-	push ebp
-	sub esp, 10h
-	xor edx, edx
-	xor ebp, ebp
-	mov [esp+8], edx
-	mov [esp+4], edx
-
-loc_487E45:
-	mov eax, 1
-	call sub_483410
-	mov eax, dword [dword_5637F4]
-	mov edi, dword [dword_4DABCC]
-	sar edi, 2
-	xor ecx, ecx
-	mov esi, dword [dword_5637F4]
-
-loc_487E65:
-	xor edx, edx
-	mov eax, 5555AAAAh
-	mov ebx, 21h
-	idiv ebx
-	mov eax, dword [dword_5637F4]
-	sub eax, esi
-	inc ecx
-	cmp eax, edi
-	jl loc_487E65
-	mov ebx, [esp+4]
-	mov edi, ecx
-	test ebx, ebx
-	jz loc_487E9D
-	mov esi, [esp+8]
-	cmp ecx, esi
-	jge loc_487F11
-
-loc_487E95:
-	mov ebp, [esp+8]
-	mov [esp+8], edi
-
-loc_487E9D:
-	mov edx, [esp+4]
-	inc edx
-	mov [esp+4], edx
-	cmp edx, 5
-	jl loc_487E45
-	test ebp, ebp
-	jnz loc_487EB3
-	mov ebp, [esp+8]
-
-loc_487EB3:
-	mov ebx, dword [dword_4DABA8]
-	shl ebp, 2
-	test ebx, ebx
-	jnz loc_487F26
-	cmp dword [dword_4DABA4], 0
-	jnz loc_487F3C
-	cmp dword [dword_4DABBC], 0
-	jz loc_487F52
-	mov [esp+0Ch], ebp
-	fild dword [esp+0Ch]
-	fmul qword [dbl_4CFCA4]
-	fmul qword [dbl_4CFCAC]
-
-loc_487EEE:
-	fstp dword [esp]
-	fld dword [esp]
-	fmul dword [flt_4CFCD4]
-	call __CHP
-	fistp dword [esp+0Ch]
-	mov eax, [esp+0Ch]
-	add esp, 10h
-	pop ebp
-	pop edi
-	pop esi
-	pop edx
-	pop ecx
-	pop ebx
-	ret
-
-loc_487F11:
-	test esi, esi
-	jz loc_487E95
-	cmp ecx, ebp
-	jge loc_487F1D
-
-loc_487F19:
-	mov ebp, edi
-	jmp loc_487E9D
-
-loc_487F1D:
-	test ebp, ebp
-	jz loc_487F19
-	jmp loc_487E9D
-
-loc_487F26:
-	mov [esp+0Ch], ebp
-	fild dword [esp+0Ch]
-	fmul qword [dbl_4CFCC4]
-	fmul qword [dbl_4CFCCC]
-	jmp loc_487EEE
-
-loc_487F3C:
-	mov [esp+0Ch], ebp
-	fild dword [esp+0Ch]
-	fmul qword [dbl_4CFCB4]
-	fmul qword [dbl_4CFCBC]
-	jmp loc_487EEE
-
-loc_487F52:
-	mov [esp+0Ch], ebp
-	fild dword [esp+0Ch]
-	fmul qword [dbl_4CFC94]
-	fmul qword [dbl_4CFC9C]
-	jmp loc_487EEE
-;sub_487E30 endp
-
 sub_487F70: ;SUBROUTINE
 	push ecx
 	push esi
@@ -201421,7 +200982,7 @@ loc_49D069:
 	mov eax, dword [dword_4DABCC]
 	call sub_483C18
 	call sub_4879D0
-	call sub_487BF4
+;	call sub_487BF4
 	call sub_4B09C0
 	mov eax, dword_4DF380 ; "FNTF"
 	call sub_487060
@@ -233634,27 +233195,6 @@ aAsyncfile: db 'asyncfile',0
 aGenuineintel: db 'GenuineIntel',0
 aAuthenticamd: db 'AuthenticAMD',0
 aCyrixinstead: db 'CyrixInstead',0
-dbl_4CFBF4: dq -8.0
-dbl_4CFBFC: dq 15.0
-dbl_4CFC04: dq 0.03333333333333333
-dbl_4CFC0C: dq 30.0
-dbl_4CFC14: dq 0.5
-dbl_4CFC1C: dq 16.66666666666667
-dbl_4CFC24: dq 0.03
-dbl_4CFC2C: dq 33.33333333333334
-dbl_4CFC34: dq 0.1
-dbl_4CFC3C: dq 37.5
-dbl_4CFC44: dq 0.01333333333333333
-dbl_4CFC4C: dq 75.0
-dbl_4CFC94: dq 33.0
-dbl_4CFC9C: dq 0.000001769698514161128
-dbl_4CFCA4: dq 166.0
-dbl_4CFCAC: dq 3.451746652841271e-7
-dbl_4CFCB4: dq 90.0
-dbl_4CFCBC: dq 6.382602557253541e-7
-dbl_4CFCC4: dq 233.0
-dbl_4CFCCC: dq 1.774336039018359e-7
-flt_4CFCD4: dd 1000000.0
 a_fsh: db '.fsh',0
 aResize: db 'RESIZE',0
 aAttn: db 'ATTN',0
@@ -237809,8 +237349,7 @@ byte_4DB610: db 0
 dword_4DB614: dd 0
 dword_4DB618: dd 0
 dword_4DB61C: dd 0
-dword_4DB620: dd 0
-dword_4DB624: dd 0
+	dq 0.0 ;?
 off_4DB628: dd a_fsh
 dword_4DB62C: dd 0F22D0E56h
 dword_4DB630: dd 883126E9h

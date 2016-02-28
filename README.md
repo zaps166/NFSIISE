@@ -24,7 +24,7 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol!
  * italian,
  * spanish,
  * swedish.
-* Run the game. Go to Options->Graphics and set all to maximum.
+* Run the game.
 * The game settings files are located in "~/.nfs2se" ("%AppData%\.nfs2se" on Windows). At the first run the "nfs2se.conf.template" will be copied there. You can modify the file if you want to configure the game.
 * The game will crash without original game data.
 
