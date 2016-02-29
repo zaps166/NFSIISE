@@ -133,8 +133,8 @@ STDCALL void grClipWindow(uint32_t minX, uint32_t minY, uint32_t maxX, uint32_t 
 
 	int32_t scaledMinX = minX * widthRatio;
 	int32_t scaledMinY = minY * heightRatio;
-	int32_t scaledMaxX = SDL_ceil(maxX * widthRatio);
-	int32_t scaledMaxY = SDL_ceil(maxY * heightRatio);
+	int32_t scaledMaxX = maxX * widthRatio  + 0.5f;
+	int32_t scaledMaxY = maxY * heightRatio + 0.5f;
 
 // 	printf("grClipWindow: %d %d %d %d [%d]\n", minX, minY, maxX, maxY, trianglesCount);
 
