@@ -49,10 +49,8 @@ static uint32_t trianglesCount, maxTexIdx;
 static PFNGLFOGCOORDFPROC p_glFogCoordf;
 static SDL_GLContext glCtx;
 
-static BOOL windowCleared;
-
+extern BOOL useGlBleginGlEnd, keepAspectRatio, windowCleared;
 extern int32_t vSync, winWidth, winHeight, windowResized;
-extern BOOL useGlBleginGlEnd, keepAspectRatio;
 extern SDL_Window *sdlWin;
 
 static void setTextureFiltering()
