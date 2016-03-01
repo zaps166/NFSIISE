@@ -2,7 +2,7 @@
 #Don't modify the "nfs2se.conf.template" file, be sure that you are editing configuration inside home directory (created during the first run):
 #	Linux:   "~/.nfs2se/nfs2se.conf",
 #	Windows: "%AppData%\.nfs2se\nfs2se.conf".
-#Leave empty line at the end of file!
+#Leave empty line at the end of the file!
 
 #UseOnlyOneCPU:
 #	0 - The game can use more than one CPU (can be unstable)

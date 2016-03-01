@@ -1,4 +1,5 @@
 #include "Wrapper.h"
+#include "Version"
 #include <SDL2/SDL.h>
 #ifdef WIN32
 	#include <windows.h>
@@ -432,7 +433,7 @@ extern WindowProc wndProc;
 
 SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 {
-	static const char title[] = "The Need For Speed 2";
+	static const char title[] = "The Need For Speed 2 - v" NFSIISE_VERSION;
 	static const uint32_t palette[8] = {0xFF000000, 0xFF000080, 0xFF0000FF, 0xFFC0C0C0, 0xFF00FFFF, 0xFFFFFFFF, 0x00000000, 0xFF008080};
 	static const uint8_t compressed_icon[372] =
 	{
