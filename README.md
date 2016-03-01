@@ -33,7 +33,7 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol!
 ## What works:
 
 * Game controllers (reconnected game controllers should be the same),
-* Force Feedback (tested on Linux)
+* Force Feedback (tested on Linux),
 * TCP and UDP connection,
 * Serial port connection,
 * Brightness,
