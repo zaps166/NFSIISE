@@ -10,11 +10,13 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol!
  * YASM assembler,
  * OpenGL devel,
  * SDL2 devel.
-* Edit the "compile_nfs" script, modify what is needed, and then compile the game by executing script. It should automaticly generate executable file in "Need For Speed II SE" directory.
+* Edit the "compile_nfs" script, modify what do you want. Compile the game by executing the script - it will automaticly generate executable file inside "Need For Speed II SE" directory:
+ * `./compile_nfs` - compilation for Linux,
+ * `./compile_nfs win32` - cross compilation for Windows.
 
 ## Run:
 
-* Copy fedata" and "gamedata" directories from the Need For Speed II SE original CD-ROM (or from CD image from the Internet) into "Need For Speed II SE" directory.
+* Copy "fedata" and "gamedata" directories from the Need For Speed II SE original CD-ROM (or from CD image from the Internet) into "Need For Speed II SE" directory.
 * You can delete unnecessary files, e.g. "fedata/pc/text/text.*", because TCP version uses new files in root directory.
 * All files and directories copied from CD-ROM must have *small letters* on Linux!!!
 * If you want to change the language, edit "install.win" file and change the first line. Leave "4nn" as is and modify only language name. Possible languages are:
@@ -45,3 +47,8 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol!
 ## Patches:
 
 * This directory contains patch for SDL 2.0.3 (SDL 2.0.4 has already this bugfix). It allows to use all axes in DualShock3 gamepad! You must also modify "nfs2se.conf" file (Joystick0Axes, Joystick0Buttons).
+
+## Additional information:
+
+* The game doesn't work on OS X due to different stack alignment (OS X needs 16 bytes, the game has 4 bytes).
+* The game is not tested under *BSD systems. Probably it can run after a few code changes.
