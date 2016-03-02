@@ -1,7 +1,7 @@
 NFSIISE
 =======
 
-Need For Speed II SE - Linux port with 3D acceleration and TCP protocol!
+Need For Speed II SE - Linux port with 3D acceleration and TCP protocol! The game also can run under Windows.
 
 ## Compile:
 
