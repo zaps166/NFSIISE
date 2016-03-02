@@ -222,11 +222,13 @@ uint16_t PORT1 = 1030, PORT2 = 1029;
 
 void WrapperInit(void)
 {
+	if (SDL_Init((SDL_INIT_EVERYTHING | SDL_INIT_NOPARACHUTE) & ~SDL_INIT_GAMECONTROLLER) < 0)
+		fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
+
 	BOOL useOnlyOneCPU = true;
 	uint32_t msaa = 0;
 	FILE *f = NULL;
 
-	SDL_Init((SDL_INIT_EVERYTHING | SDL_INIT_NOPARACHUTE) & ~SDL_INIT_GAMECONTROLLER);
 	SDL_JoystickEventState(SDL_IGNORE);
 	SDL_ShowCursor(false);
 
@@ -475,7 +477,12 @@ SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 	sdlWin = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, winWidth, winHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (startInFullScreen ? fullScreenFlag : 0));
 	if (!sdlWin)
 	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, "Cannot create window, check OpenGL installation and game settings.", NULL);
+		const char *error = SDL_GetError();
+		int bufferSize = strlen(error) + 71;
+		char *buffer = (char *)malloc(bufferSize);
+		snprintf(buffer, bufferSize, "Cannot create window: %s\nCheck the OpenGL drivers and the game settings!", error);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, buffer, NULL);
+		free(buffer);
 		exit(0);
 	}
 
