@@ -327,11 +327,7 @@ void WrapperInit(void)
 			else if (!strncasecmp("StartInFullScreen=", line, 18))
 				startInFullScreen = !!atoi(line + 18);
 			else if (!strncasecmp("VSync=", line, 6))
-			{
 				vSync = atoi(line + 6);
-				if (vSync > 1)
-					vSync = 1;
-			}
 			else if (!strncasecmp("MSAA=", line, 5))
 			{
 				msaa = atoi(line + 5);
