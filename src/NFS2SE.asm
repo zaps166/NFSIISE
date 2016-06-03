@@ -76237,7 +76237,7 @@ sub_43CA70: ;SUBROUTINE
 	call sub_43CF10
 	call sub_464440
 	call sub_440420
-	jmp nullsub_53
+	ret
 ;sub_43CA70 endp
 
 sub_43CA90: ;SUBROUTINE
@@ -76303,7 +76303,7 @@ loc_43CABC:
 
 sub_43CB40: ;SUBROUTINE
 	call sub_440410
-	jmp nullsub_54
+	ret
 ;sub_43CB40 endp
 
 sub_43CB60: ;SUBROUTINE
@@ -81317,10 +81317,6 @@ loc_44031E:
 	pop ecx
 	ret
 ;sub_440270 endp
-
-nullsub_53: ;SUBROUTINE
-	ret
-;nullsub_53 endp
 
 sub_440370: ;SUBROUTINE
 	push ebx
@@ -93486,7 +93482,7 @@ sub_448BB0: ;SUBROUTINE
 loc_448BBF:
 	add eax, 8
 	xor edx, edx
-	jmp nullsub_55
+	ret
 ;sub_448BB0 endp
 
 sub_448BD0: ;SUBROUTINE
@@ -129782,10 +129778,6 @@ sub_464440: ;SUBROUTINE
 	ret
 ;sub_464440 endp
 
-nullsub_54: ;SUBROUTINE
-	ret
-;nullsub_54 endp
-
 sub_464470: ;SUBROUTINE
 	push ebx
 	push ecx
@@ -143481,8 +143473,6 @@ loc_46E5EB:
 	jmp loc_46E588
 ;sub_46E4F0 endp
 
-;	Attributes: library function
-
 sub_46E600: ;SUBROUTINE
 	push ebx
 	mov ebx, 1
@@ -154767,10 +154757,6 @@ loc_476061:
 dword_4760A0: dd 9, 0
 	dd 0Bh, 2, 0Dh, 4, 0Eh, 5, 0Ch, 3, 0Fh, 6, 10h, 7, 11h
 	dd 8
-
-nullsub_55: ;SUBROUTINE
-	ret
-;nullsub_55 endp
 
 sub_4760F0: ;SUBROUTINE
 	push ebx
@@ -172045,8 +172031,6 @@ sub_482EA8: ;SUBROUTINE
 	ret
 ;sub_482EA8 endp
 
-;	Attributes: library function
-
 sub_482EB4: ;SUBROUTINE
 	push ebx
 	mov ebx, 1
@@ -177491,8 +177475,6 @@ sub_486F28: ;SUBROUTINE
 	ret
 ;sub_486F28 endp
 
-;	Attributes: library function
-
 sub_486F40: ;SUBROUTINE
 	push ebx
 	mov ebx, 1
@@ -178792,8 +178774,6 @@ sub_488058: ;SUBROUTINE
 	ret
 ;sub_488058 endp
 
-;	Attributes: library function
-
 sub_488064: ;SUBROUTINE
 	push ebx
 	mov ebx, 1
@@ -179687,7 +179667,7 @@ sub_488B24: ;SUBROUTINE
 	cmp byte [byte_4DDA74], 0
 	jnz sub_488ADC
 	lea eax, [eax+0]
-;sub_488B24 endp ; sp-analysis failed
+;sub_488B24 endp
 
 sub_488B30: ;SUBROUTINE
 	xor eax, eax
@@ -181596,7 +181576,7 @@ sub_48A026: ;SUBROUTINE
 	shl eax, 10h
 	or ebx, eax
 	pop eax
-;sub_48A026 endp ; sp-analysis failed
+;sub_48A026 endp
 
 sub_48A031: ;SUBROUTINE
 	test eax, 7
@@ -187031,8 +187011,6 @@ loc_48E282:
 	pop ebx
 	ret
 ;sub_48E1EC endp
-
-;	Attributes: library function
 
 sub_48E2C0: ;SUBROUTINE
 	mov eax, 1
@@ -196543,9 +196521,7 @@ loc_4975C7:
 	test edx, edx
 	jnz loc_4975C7
 	mov eax, eax
-;sub_4975B0 endp ; sp-analysis failed
-
-;	Attributes: library function
+;sub_4975B0 endp
 
 sub_4975E0: ;SUBROUTINE
 	mov eax, 1
@@ -200704,8 +200680,6 @@ loc_49C5DA:
 	ret
 ;sub_49C580 endp
 
-;	Attributes: library function
-
 sub_49C618: ;SUBROUTINE
 	push ebx
 	mov ebx, 1
@@ -200950,8 +200924,6 @@ loc_49CB21:
 	mov dword [dword_4DD3A8], eax
 	jmp loc_49CAEC
 ;sub_49CAD4 endp
-
-;	Attributes: library function
 
 sub_49D020: ;SUBROUTINE
 	push ebx
@@ -201576,8 +201548,6 @@ loc_49D676:
 	pop ecx
 	ret
 ;sub_49D664 endp
-
-;	Attributes: library function
 
 sub_49D67C: ;SUBROUTINE
 	push ebx
@@ -205826,7 +205796,7 @@ loc_4A14C5:
 
 sub_4A14D4: ;SUBROUTINE
 	xchg eax, edx
-;sub_4A14D4 endp ; sp-analysis failed
+;sub_4A14D4 endp
 
 sub_4A14D5: ;SUBROUTINE
 	push ecx
@@ -207750,7 +207720,7 @@ locret_4A5136:
 
 loc_4A5137:
 	call sub_4A5068
-;sub_4A5124 endp ; sp-analysis failed
+;sub_4A5124 endp
 
 sub_4A513C: ;SUBROUTINE
 	push ebx
@@ -207814,7 +207784,6 @@ sub_4A5170: ;SUBROUTINE
 	push ebp
 	inc dword [dword_4DDAB4]
 	inc dword [dword_59C608]
-	call nullsub_10
 	cmp dword [dword_4DDA84], 0
 	jnz loc_4A52B8
 
@@ -213896,11 +213865,8 @@ loc_4A9786:
 
 sub_4A9CF0: ;SUBROUTINE
 	mov eax, dword [lpTlsValue]
-;sub_4A9CF0 endp
-
-nullsub_51: ;SUBROUTINE
 	ret
-;nullsub_51 endp
+;sub_4A9CF0 endp
 
 ;	Attributes: library function
 
