@@ -59,12 +59,6 @@ static void audioCallbackInterp(void *userdata, uint8_t *stream, int32_t len)
 	memcpy(buffer, buffer + len, buffer_pos -= len);
 }
 
-static void getSamplesNoPlay()
-{
-	uint8_t buffer[256 * sizeof(int16_t) * CHN_CNT];
-	getSamples(buffer, sizeof buffer >> 2);
-}
-
 /**/
 
 REALIGN uint32_t iSNDdllversion_(void)
@@ -98,7 +92,9 @@ REALIGN REGPARM uint32_t iSNDdirectstart_(uint32_t arg1, void *hWnd)
 	};
 	SDL_AudioSpec audioSpecOut;
 	audioDevice = SDL_OpenAudioDevice(NULL, 0, &audioSpecIn, &audioSpecOut, 0);
-	if (audioDevice)
+	if (!audioDevice)
+		buffer = (uint8_t *)malloc(256 * CHN_CNT * sizeof(int16_t));
+	else
 	{
 		uint32_t bufferSize = (audioSpecOut.samples + 255) & ~255; //Aligned to 256
 		if (linearSoundInterpolation || bufferSize != audioSpecOut.samples)
@@ -122,7 +118,7 @@ REALIGN void iSNDdirectserve_(void)
 		}
 		fadeInOut();
 		if (!audioDevice)
-			getSamplesNoPlay();
+			getSamples(buffer, 256);
 	}
 }
 REALIGN uint32_t iSNDdirectstop_(void)
