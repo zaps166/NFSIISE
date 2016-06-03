@@ -32,7 +32,7 @@ static SDL_TimerID timerID;
 void SetBrightness(float val);
 uint32_t watchdogTimer(uint32_t interval, void *param);
 
-STDCALL uint32_t DefWindowProcA_wrap(void *hWnd, uint32_t uMsg, uint32_t wParam, uint32_t lParam)
+REALIGN STDCALL uint32_t DefWindowProcA_wrap(void *hWnd, uint32_t uMsg, uint32_t wParam, uint32_t lParam)
 {
 	if (uMsg == WM_DESTROY)
 	{
@@ -42,7 +42,7 @@ STDCALL uint32_t DefWindowProcA_wrap(void *hWnd, uint32_t uMsg, uint32_t wParam,
 	}
 	return 0;
 }
-STDCALL BOOL DestroyWindow_wrap(void *hWnd)
+REALIGN STDCALL BOOL DestroyWindow_wrap(void *hWnd)
 {
 	SDL_Event event;
 	event.type = WM_DESTROY;
@@ -54,7 +54,7 @@ STDCALL BOOL DestroyWindow_wrap(void *hWnd)
 	return SDL_PushEvent(&event) == 1;
 }
 
-STDCALL BOOL PostMessageA_wrap(void *hWnd, uint32_t uMsg, uint32_t wParam, uint32_t lParam)
+REALIGN STDCALL BOOL PostMessageA_wrap(void *hWnd, uint32_t uMsg, uint32_t wParam, uint32_t lParam)
 {
 	if (uMsg >= WM_USER && uMsg < WM_USER_END)
 	{
@@ -65,7 +65,7 @@ STDCALL BOOL PostMessageA_wrap(void *hWnd, uint32_t uMsg, uint32_t wParam, uint3
 	}
 	return false;
 }
-STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterMin, uint32_t wMsgFilterMax)
+REALIGN STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterMin, uint32_t wMsgFilterMax)
 {
 	static uint32_t lastLParam;
 	BOOL br;
@@ -274,18 +274,18 @@ STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterMin, uint
 	} while (!br);
 	return -1;
 }
-STDCALL uint32_t DispatchMessageA_wrap(const MSG *msg)
+REALIGN STDCALL uint32_t DispatchMessageA_wrap(const MSG *msg)
 {
 	wndProc(sdlWin, msg->uMsg, msg->wParam, msg->lParam);
 	return 0;
 }
 
-STDCALL int GetKeyboardType_wrap(int typeFlag)
+REALIGN STDCALL int GetKeyboardType_wrap(int typeFlag)
 {
 	return 0;
 }
 
-STDCALL int MessageBoxA_wrap(void *hWnd, const char *text, const char *caption, uint32_t type)
+REALIGN STDCALL int MessageBoxA_wrap(void *hWnd, const char *text, const char *caption, uint32_t type)
 {
 	SDL_MessageBoxButtonData buttons[] = {{SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "OK"}, {SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 2, "Cancel"}};
 	SDL_MessageBoxData msgb = {SDL_MESSAGEBOX_WARNING, NULL, caption, text, (int32_t)(type & 0x1) + 1, buttons, NULL};

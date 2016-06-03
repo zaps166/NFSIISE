@@ -16,60 +16,60 @@
 
 #ifdef WIN32
 
-STDCALL void *CreateThread_wrap(void *threadAttributes, uint32_t stackSize, LPTHREAD_START_ROUTINE startAddress, void *parameter, uint32_t creationFlags, uint32_t *threadId)
+REALIGN STDCALL void *CreateThread_wrap(void *threadAttributes, uint32_t stackSize, LPTHREAD_START_ROUTINE startAddress, void *parameter, uint32_t creationFlags, uint32_t *threadId)
 {
 	return CreateThread(threadAttributes, stackSize, startAddress, parameter, creationFlags, (DWORD *)threadId);
 }
-STDCALL uint32_t ResumeThread_wrap(HANDLE hThread)
+REALIGN STDCALL uint32_t ResumeThread_wrap(HANDLE hThread)
 {
 	return ResumeThread(hThread);
 }
-STDCALL BOOL SetThreadPriority_wrap(HANDLE hThread, int priority)
+REALIGN STDCALL BOOL SetThreadPriority_wrap(HANDLE hThread, int priority)
 {
 	return SetThreadPriority(hThread, priority);
 }
-STDCALL uint32_t GetCurrentThreadId_wrap(void)
+REALIGN STDCALL uint32_t GetCurrentThreadId_wrap(void)
 {
 	return GetCurrentThreadId();
 }
-STDCALL void *GetCurrentThread_wrap(void)
+REALIGN STDCALL void *GetCurrentThread_wrap(void)
 {
 	return GetCurrentThread();
 }
-STDCALL BOOL TerminateThread_wrap(HANDLE hThread, uint32_t exitCode)
+REALIGN STDCALL BOOL TerminateThread_wrap(HANDLE hThread, uint32_t exitCode)
 {
 	return TerminateThread(hThread, exitCode);
 }
-STDCALL void InitializeCriticalSection_wrap(CRITICAL_SECTION *criticalSection)
+REALIGN STDCALL void InitializeCriticalSection_wrap(CRITICAL_SECTION *criticalSection)
 {
 	InitializeCriticalSection(criticalSection);
 }
-STDCALL void EnterCriticalSection_wrap(CRITICAL_SECTION *criticalSection)
+REALIGN STDCALL void EnterCriticalSection_wrap(CRITICAL_SECTION *criticalSection)
 {
 	EnterCriticalSection(criticalSection);
 }
-STDCALL void LeaveCriticalSection_wrap(CRITICAL_SECTION *criticalSection)
+REALIGN STDCALL void LeaveCriticalSection_wrap(CRITICAL_SECTION *criticalSection)
 {
 	LeaveCriticalSection(criticalSection);
 }
-STDCALL void DeleteCriticalSection_wrap(CRITICAL_SECTION *criticalSection)
+REALIGN STDCALL void DeleteCriticalSection_wrap(CRITICAL_SECTION *criticalSection)
 {
 	DeleteCriticalSection(criticalSection);
 }
-STDCALL void GlobalMemoryStatus_wrap(MEMORYSTATUS *memoryStatus)
+REALIGN STDCALL void GlobalMemoryStatus_wrap(MEMORYSTATUS *memoryStatus)
 {
 	GlobalMemoryStatus(memoryStatus);
 }
-STDCALL void ExitProcess_wrap(uint32_t exitCode)
+REALIGN STDCALL void ExitProcess_wrap(uint32_t exitCode)
 {
 	exit_func();
 	ExitProcess(exitCode);
 }
-STDCALL uint32_t GetLastError_wrap(void)
+REALIGN STDCALL uint32_t GetLastError_wrap(void)
 {
 	return GetLastError();
 }
-STDCALL HANDLE CreateFileA_wrap(const char *fileName, uint32_t desiredAccess, uint32_t shareMode, SECURITY_ATTRIBUTES *securityAttributes, uint32_t creationDisposition, uint32_t flagsAndAttributes, void *templateFile)
+REALIGN STDCALL HANDLE CreateFileA_wrap(const char *fileName, uint32_t desiredAccess, uint32_t shareMode, SECURITY_ATTRIBUTES *securityAttributes, uint32_t creationDisposition, uint32_t flagsAndAttributes, void *templateFile)
 {
 	char *tmpFileName;
 	HANDLE handle;
@@ -81,125 +81,125 @@ STDCALL HANDLE CreateFileA_wrap(const char *fileName, uint32_t desiredAccess, ui
 	free(tmpFileName);
 	return handle;
 }
-STDCALL HANDLE CreateFileMappingA_wrap(HANDLE hFile, SECURITY_ATTRIBUTES *fileMappingAttributes, uint32_t flProtect, uint32_t dwMaximumSizeHigh, uint32_t dwMaximumSizeLow, const char *lpName)
+REALIGN STDCALL HANDLE CreateFileMappingA_wrap(HANDLE hFile, SECURITY_ATTRIBUTES *fileMappingAttributes, uint32_t flProtect, uint32_t dwMaximumSizeHigh, uint32_t dwMaximumSizeLow, const char *lpName)
 {
 	return CreateFileMappingA(hFile, fileMappingAttributes, flProtect, dwMaximumSizeHigh, dwMaximumSizeLow, lpName);
 }
-STDCALL void *MapViewOfFile_wrap(HANDLE fMapping, uint32_t desiredAccess, uint32_t dwFileOffsetHigh, uint32_t dwFileOffsetLow, uint32_t dwNumberOfBytesToMap)
+REALIGN STDCALL void *MapViewOfFile_wrap(HANDLE fMapping, uint32_t desiredAccess, uint32_t dwFileOffsetHigh, uint32_t dwFileOffsetLow, uint32_t dwNumberOfBytesToMap)
 {
 	return MapViewOfFile(fMapping, desiredAccess, dwFileOffsetHigh, dwFileOffsetLow, dwNumberOfBytesToMap);
 }
-STDCALL BOOL UnmapViewOfFile_wrap(const void *lpBaseAddress)
+REALIGN STDCALL BOOL UnmapViewOfFile_wrap(const void *lpBaseAddress)
 {
 	return UnmapViewOfFile(lpBaseAddress);
 }
-STDCALL BOOL FlushFileBuffers_wrap(HANDLE hFile)
+REALIGN STDCALL BOOL FlushFileBuffers_wrap(HANDLE hFile)
 {
 	return FlushFileBuffers(hFile);
 }
-STDCALL BOOL GetOverlappedResult_wrap(HANDLE hFile, OVERLAPPED *overlapped, uint32_t *lpNumberOfBytesTransferred, BOOL bWait)
+REALIGN STDCALL BOOL GetOverlappedResult_wrap(HANDLE hFile, OVERLAPPED *overlapped, uint32_t *lpNumberOfBytesTransferred, BOOL bWait)
 {
 	return GetOverlappedResult(hFile, overlapped, (DWORD *)lpNumberOfBytesTransferred, bWait);
 }
-STDCALL uint32_t GetFileSize_wrap(HANDLE hFile, uint32_t *lpFileSizeHigh)
+REALIGN STDCALL uint32_t GetFileSize_wrap(HANDLE hFile, uint32_t *lpFileSizeHigh)
 {
 	return GetFileSize(hFile, (DWORD *)lpFileSizeHigh);
 }
-STDCALL BOOL SetEndOfFile_wrap(HANDLE hFile)
+REALIGN STDCALL BOOL SetEndOfFile_wrap(HANDLE hFile)
 {
 	return SetEndOfFile(hFile);
 }
-STDCALL uint32_t SetFilePointer_wrap(HANDLE hFile, uint32_t distanceToMove, uint32_t *distanceToMoveHigh, uint32_t moveMethod)
+REALIGN STDCALL uint32_t SetFilePointer_wrap(HANDLE hFile, uint32_t distanceToMove, uint32_t *distanceToMoveHigh, uint32_t moveMethod)
 {
 	return SetFilePointer(hFile, distanceToMove, (LONG *)distanceToMoveHigh, moveMethod);
 }
-STDCALL BOOL WriteFile_wrap(HANDLE hFile, const void *buffer, uint32_t numberOfBytesToWrite, uint32_t *numberOfBytesWritten, OVERLAPPED *overlapped)
+REALIGN STDCALL BOOL WriteFile_wrap(HANDLE hFile, const void *buffer, uint32_t numberOfBytesToWrite, uint32_t *numberOfBytesWritten, OVERLAPPED *overlapped)
 {
 	return WriteFile(hFile, buffer, numberOfBytesToWrite, (DWORD *)numberOfBytesWritten, overlapped);
 }
-STDCALL BOOL ReadFile_wrap(HANDLE hFile, void *buffer, uint32_t numberOfBytesToRead, uint32_t *numberOfBytesRead, OVERLAPPED *overlapped)
+REALIGN STDCALL BOOL ReadFile_wrap(HANDLE hFile, void *buffer, uint32_t numberOfBytesToRead, uint32_t *numberOfBytesRead, OVERLAPPED *overlapped)
 {
 	return ReadFile(hFile, buffer, numberOfBytesToRead, (DWORD *)numberOfBytesRead, overlapped);
 }
-STDCALL BOOL GetCommState_wrap(HANDLE hFile, DCB *dcb)
+REALIGN STDCALL BOOL GetCommState_wrap(HANDLE hFile, DCB *dcb)
 {
 	return GetCommState(hFile, dcb);
 }
-STDCALL BOOL PurgeComm_wrap(HANDLE hFile, uint32_t dwFlags)
+REALIGN STDCALL BOOL PurgeComm_wrap(HANDLE hFile, uint32_t dwFlags)
 {
 	return PurgeComm(hFile, dwFlags);
 }
-STDCALL BOOL SetCommState_wrap(HANDLE hFile, DCB *dcb)
+REALIGN STDCALL BOOL SetCommState_wrap(HANDLE hFile, DCB *dcb)
 {
 	return SetCommState(hFile, dcb);
 }
-STDCALL BOOL SetCommTimeouts_wrap(HANDLE hFile, COMMTIMEOUTS *commTimeouts)
+REALIGN STDCALL BOOL SetCommTimeouts_wrap(HANDLE hFile, COMMTIMEOUTS *commTimeouts)
 {
 	return SetCommTimeouts(hFile, commTimeouts);
 }
-STDCALL BOOL DeleteFileA_wrap(const char *fileName)
+REALIGN STDCALL BOOL DeleteFileA_wrap(const char *fileName)
 {
 	char *tmpFileName = convertFilePath(fileName, false);
 	BOOL ret = DeleteFileA(tmpFileName);
 	free(tmpFileName);
 	return ret;
 }
-STDCALL void *GetModuleHandleA_wrap(const char *moduleName)
+REALIGN STDCALL void *GetModuleHandleA_wrap(const char *moduleName)
 {
 	return GetModuleHandleA(moduleName);
 }
-STDCALL BOOL CloseHandle_wrap(void *handle)
+REALIGN STDCALL BOOL CloseHandle_wrap(void *handle)
 {
 	return CloseHandle(handle);
 }
-STDCALL HANDLE CreateEventA_wrap(SECURITY_ATTRIBUTES *eventAttributes, BOOL bManualReset, BOOL bInitialState, const char *lpName)
+REALIGN STDCALL HANDLE CreateEventA_wrap(SECURITY_ATTRIBUTES *eventAttributes, BOOL bManualReset, BOOL bInitialState, const char *lpName)
 {
 	return CreateEventA(eventAttributes, bManualReset, bInitialState, lpName);
 }
-STDCALL BOOL SetEvent_wrap(HANDLE event)
+REALIGN STDCALL BOOL SetEvent_wrap(HANDLE event)
 {
 	return SetEvent(event);
 }
-STDCALL uint32_t WaitForMultipleObjects_wrap(uint32_t nCount, void *const *lpHandles, BOOL bWaitAll, uint32_t dwMilliseconds)
+REALIGN STDCALL uint32_t WaitForMultipleObjects_wrap(uint32_t nCount, void *const *lpHandles, BOOL bWaitAll, uint32_t dwMilliseconds)
 {
 	return WaitForMultipleObjects(nCount, lpHandles, bWaitAll, dwMilliseconds);
 }
-STDCALL BOOL DuplicateHandle_wrap(void *hSourceProcessHandle, void *hSourceHandle, void *hTargetProcessHandle, void **lpTargetHandle, uint32_t desiredAccess, BOOL bInheritHandle, uint32_t dwOptions)
+REALIGN STDCALL BOOL DuplicateHandle_wrap(void *hSourceProcessHandle, void *hSourceHandle, void *hTargetProcessHandle, void **lpTargetHandle, uint32_t desiredAccess, BOOL bInheritHandle, uint32_t dwOptions)
 {
 	return DuplicateHandle(hSourceProcessHandle, hSourceHandle, hTargetProcessHandle, lpTargetHandle, desiredAccess, bInheritHandle, dwOptions);
 }
-STDCALL void *GetCurrentProcess_wrap(void)
+REALIGN STDCALL void *GetCurrentProcess_wrap(void)
 {
 	return GetCurrentProcess();
 }
-STDCALL void GetSystemInfo_wrap(SYSTEM_INFO *lpSystemInfo)
+REALIGN STDCALL void GetSystemInfo_wrap(SYSTEM_INFO *lpSystemInfo)
 {
 	return GetSystemInfo(lpSystemInfo);
 }
-STDCALL uint32_t SleepEx_wrap(uint32_t dwMilliseconds, BOOL bAlertable)
+REALIGN STDCALL uint32_t SleepEx_wrap(uint32_t dwMilliseconds, BOOL bAlertable)
 {
 	return SleepEx(dwMilliseconds, bAlertable);
 }
-STDCALL uint32_t GetCurrentDirectoryA_wrap(uint32_t bufferLength, char *buffer)
+REALIGN STDCALL uint32_t GetCurrentDirectoryA_wrap(uint32_t bufferLength, char *buffer)
 {
 	return GetCurrentDirectoryA(bufferLength, buffer);
 }
-STDCALL BOOL SetCurrentDirectoryA_wrap(const char *pathName)
+REALIGN STDCALL BOOL SetCurrentDirectoryA_wrap(const char *pathName)
 {
 	char *tmpPathName = convertFilePath(pathName, false);
 	BOOL ret = SetCurrentDirectoryA(tmpPathName);
 	free(tmpPathName);
 	return ret;
 }
-STDCALL BOOL FindNextFileA_wrap(void *findFile, WIN32_FIND_DATAA *findFileData)
+REALIGN STDCALL BOOL FindNextFileA_wrap(void *findFile, WIN32_FIND_DATAA *findFileData)
 {
 	return FindNextFileA(findFile, findFileData);
 }
-STDCALL BOOL FindClose_wrap(void *findFile)
+REALIGN STDCALL BOOL FindClose_wrap(void *findFile)
 {
 	return FindClose(findFile);
 }
-STDCALL void *FindFirstFileA_wrap(const char *fileName, WIN32_FIND_DATAA *findFileData)
+REALIGN STDCALL void *FindFirstFileA_wrap(const char *fileName, WIN32_FIND_DATAA *findFileData)
 {
 	return FindFirstFileA(fileName, findFileData);
 }
@@ -223,7 +223,7 @@ static int threadFunction(void *data)
 
 /**/
 
-STDCALL void *CreateThread_wrap(void *threadAttributes, uint32_t stackSize, THREAD_START_ROUTINE startAddress, void *parameter, uint32_t creationFlags, uint32_t *threadId)
+REALIGN STDCALL void *CreateThread_wrap(void *threadAttributes, uint32_t stackSize, THREAD_START_ROUTINE startAddress, void *parameter, uint32_t creationFlags, uint32_t *threadId)
 {
 	Thread *thread = (Thread *)malloc(sizeof(Thread));
 	thread->handleType = HandleThread;
@@ -235,45 +235,45 @@ STDCALL void *CreateThread_wrap(void *threadAttributes, uint32_t stackSize, THRE
 	SDL_DetachThread(sdl_thread);
 	return thread;
 }
-STDCALL uint32_t ResumeThread_wrap(Thread *thread)
+REALIGN STDCALL uint32_t ResumeThread_wrap(Thread *thread)
 {
 	SDL_SemPost(thread->sem);
 	return 0;
 }
-STDCALL BOOL SetThreadPriority_wrap(Thread *thread, int priority)
+REALIGN STDCALL BOOL SetThreadPriority_wrap(Thread *thread, int priority)
 {
 	return false;
 }
-STDCALL uint32_t GetCurrentThreadId_wrap(void)
+REALIGN STDCALL uint32_t GetCurrentThreadId_wrap(void)
 {
 	return SDL_ThreadID();
 }
-STDCALL void *GetCurrentThread_wrap(void)
+REALIGN STDCALL void *GetCurrentThread_wrap(void)
 {
 	return NULL;
 }
-STDCALL BOOL TerminateThread_wrap(Thread *thread, uint32_t exitCode)
+REALIGN STDCALL BOOL TerminateThread_wrap(Thread *thread, uint32_t exitCode)
 {
 	return false;
 }
-STDCALL void InitializeCriticalSection_wrap(CRITICAL_SECTION *criticalSection)
+REALIGN STDCALL void InitializeCriticalSection_wrap(CRITICAL_SECTION *criticalSection)
 {
 	criticalSection->mutex = SDL_CreateMutex();
 }
-STDCALL void EnterCriticalSection_wrap(CRITICAL_SECTION *criticalSection)
+REALIGN STDCALL void EnterCriticalSection_wrap(CRITICAL_SECTION *criticalSection)
 {
 	SDL_LockMutex(criticalSection->mutex);
 }
-STDCALL void LeaveCriticalSection_wrap(CRITICAL_SECTION *criticalSection)
+REALIGN STDCALL void LeaveCriticalSection_wrap(CRITICAL_SECTION *criticalSection)
 {
 	SDL_UnlockMutex(criticalSection->mutex);
 }
-STDCALL void DeleteCriticalSection_wrap(CRITICAL_SECTION *criticalSection)
+REALIGN STDCALL void DeleteCriticalSection_wrap(CRITICAL_SECTION *criticalSection)
 {
 	SDL_DestroyMutex(criticalSection->mutex);
 }
 
-STDCALL void GlobalMemoryStatus_wrap(MEMORYSTATUS *memoryStatus)
+REALIGN STDCALL void GlobalMemoryStatus_wrap(MEMORYSTATUS *memoryStatus)
 {
 	memset(memoryStatus, 0, sizeof(MEMORYSTATUS));
 	memoryStatus->length = sizeof(MEMORYSTATUS);
@@ -285,12 +285,12 @@ STDCALL void GlobalMemoryStatus_wrap(MEMORYSTATUS *memoryStatus)
 	memoryStatus->availVirtual = 0x7FFFFFFF;
 }
 
-STDCALL void ExitProcess_wrap(uint32_t exitCode)
+REALIGN STDCALL void ExitProcess_wrap(uint32_t exitCode)
 {
 	exit(exitCode);
 }
 
-STDCALL uint32_t GetLastError_wrap(void)
+REALIGN STDCALL uint32_t GetLastError_wrap(void)
 {
 	if (overlapped_error)
 	{
@@ -306,7 +306,7 @@ STDCALL uint32_t GetLastError_wrap(void)
 	return 0;
 }
 
-STDCALL Event *CreateEventA_wrap(SECURITY_ATTRIBUTES *eventAttributes, BOOL manualReset, BOOL initialState, const char *name)
+REALIGN STDCALL Event *CreateEventA_wrap(SECURITY_ATTRIBUTES *eventAttributes, BOOL manualReset, BOOL initialState, const char *name)
 {
 	Event *event = (Event *)malloc(sizeof(Event));
 	event->handleType = HandleEvent;
@@ -314,7 +314,7 @@ STDCALL Event *CreateEventA_wrap(SECURITY_ATTRIBUTES *eventAttributes, BOOL manu
 	event->is_set = initialState;
 	return event;
 }
-STDCALL BOOL SetEvent_wrap(Event *event)
+REALIGN STDCALL BOOL SetEvent_wrap(Event *event)
 {
 	if (event)
 	{
@@ -326,7 +326,7 @@ STDCALL BOOL SetEvent_wrap(Event *event)
 	}
 	return false;
 }
-STDCALL uint32_t WaitForMultipleObjects_wrap(uint32_t count, Event *const *events, BOOL waitAll, uint32_t milliseconds)
+REALIGN STDCALL uint32_t WaitForMultipleObjects_wrap(uint32_t count, Event *const *events, BOOL waitAll, uint32_t milliseconds)
 {
 	//milliseconds always -1 or 0
 	//waitAll always false
@@ -404,7 +404,7 @@ static int serialPortThread(void *data)
 	return 0;
 }
 
-STDCALL File *CreateFileA_wrap(const char *fileName, uint32_t desiredAccess, uint32_t shareMode, SECURITY_ATTRIBUTES *securityAttributes, uint32_t creationDisposition, uint32_t flagsAndAttributes, void *templateFile)
+REALIGN STDCALL File *CreateFileA_wrap(const char *fileName, uint32_t desiredAccess, uint32_t shareMode, SECURITY_ATTRIBUTES *securityAttributes, uint32_t creationDisposition, uint32_t flagsAndAttributes, void *templateFile)
 {
 	uint32_t COM_number = 0;
 	if (!strncasecmp(fileName, "\\\\.\\com", 7))
@@ -439,21 +439,21 @@ STDCALL File *CreateFileA_wrap(const char *fileName, uint32_t desiredAccess, uin
 
 	return file ? file : (File *)-1;
 }
-STDCALL uint32_t GetFileSize_wrap(File *file, uint32_t *fileSizeHigh)
+REALIGN STDCALL uint32_t GetFileSize_wrap(File *file, uint32_t *fileSizeHigh)
 {
 	struct stat stat;
 	if (!fstat(file->fd, &stat))
 		return stat.st_size;
 	return -1;
 }
-STDCALL FileMapping *CreateFileMappingA_wrap(File *file, SECURITY_ATTRIBUTES *fileMappingAttributes, uint32_t protect, uint32_t maximumSizeHigh, uint32_t maximumSizeLow, const char *name)
+REALIGN STDCALL FileMapping *CreateFileMappingA_wrap(File *file, SECURITY_ATTRIBUTES *fileMappingAttributes, uint32_t protect, uint32_t maximumSizeHigh, uint32_t maximumSizeLow, const char *name)
 {
 	FileMapping *fileMapping = (FileMapping *)malloc(sizeof(FileMapping));
 	fileMapping->handleType = HandleFileMapping;
 	fileMapping->fd = file->fd;
 	return fileMapping;
 }
-STDCALL void *MapViewOfFile_wrap(FileMapping *fMapping, uint32_t desiredAccess, uint32_t fileOffsetHigh, uint32_t fileOffsetLow, uint32_t numberOfBytesToMap)
+REALIGN STDCALL void *MapViewOfFile_wrap(FileMapping *fMapping, uint32_t desiredAccess, uint32_t fileOffsetHigh, uint32_t fileOffsetLow, uint32_t numberOfBytesToMap)
 {
 	//Cannot use mmap() because UnmapViewOfFile doesn't provide the size. I don't want to use an array for sizes. This is also OK.
 	uint32_t size = GetFileSize_wrap((File *)fMapping, NULL);
@@ -468,16 +468,16 @@ STDCALL void *MapViewOfFile_wrap(FileMapping *fMapping, uint32_t desiredAccess, 
 	}
 	return fileMap;
 }
-STDCALL BOOL UnmapViewOfFile_wrap(const void *lpBaseAddress)
+REALIGN STDCALL BOOL UnmapViewOfFile_wrap(const void *lpBaseAddress)
 {
 	free((void *)lpBaseAddress);
 	return true;
 }
-STDCALL BOOL FlusfileBuffers_wrap(File *file)
+REALIGN STDCALL BOOL FlusfileBuffers_wrap(File *file)
 {
 	return !fsync(file->fd);
 }
-STDCALL BOOL GetOverlappedResult_wrap(File *file, OVERLAPPED *overlapped, uint32_t *lpNumberOfBytesTransferred, BOOL bWait)
+REALIGN STDCALL BOOL GetOverlappedResult_wrap(File *file, OVERLAPPED *overlapped, uint32_t *lpNumberOfBytesTransferred, BOOL bWait)
 {
 	SDL_LockMutex(file->mutex);
 	if (file->readOverlapped == overlapped)
@@ -491,15 +491,15 @@ STDCALL BOOL GetOverlappedResult_wrap(File *file, OVERLAPPED *overlapped, uint32
 	SDL_UnlockMutex(file->mutex);
 	return false;
 }
-STDCALL BOOL SetEndOfFile_wrap(File *file)
+REALIGN STDCALL BOOL SetEndOfFile_wrap(File *file)
 {
 	return !lseek(file->fd, 0, SEEK_END);
 }
-STDCALL uint32_t SetFilePointer_wrap(File *file, uint32_t distanceToMove, uint32_t *distanceToMoveHigh, uint32_t moveMethod)
+REALIGN STDCALL uint32_t SetFilePointer_wrap(File *file, uint32_t distanceToMove, uint32_t *distanceToMoveHigh, uint32_t moveMethod)
 {
 	return lseek(file->fd, distanceToMove, moveMethod);
 }
-STDCALL BOOL WriteFile_wrap(File *file, const void *buffer, uint32_t numberOfBytesToWrite, uint32_t *numberOfBytesWritten, OVERLAPPED *overlapped)
+REALIGN STDCALL BOOL WriteFile_wrap(File *file, const void *buffer, uint32_t numberOfBytesToWrite, uint32_t *numberOfBytesWritten, OVERLAPPED *overlapped)
 {
 	BOOL hasEvent = file->async && overlapped && overlapped->hEvent, ret;
 	if (hasEvent)
@@ -517,7 +517,7 @@ STDCALL BOOL WriteFile_wrap(File *file, const void *buffer, uint32_t numberOfByt
 	}
 	return ret;
 }
-STDCALL BOOL ReadFile_wrap(File *file, void *buffer, uint32_t numberOfBytesToRead, uint32_t *numberOfBytesRead, OVERLAPPED *overlapped)
+REALIGN STDCALL BOOL ReadFile_wrap(File *file, void *buffer, uint32_t numberOfBytesToRead, uint32_t *numberOfBytesRead, OVERLAPPED *overlapped)
 {
 	if (file->async)
 	{
@@ -549,11 +549,11 @@ STDCALL BOOL ReadFile_wrap(File *file, void *buffer, uint32_t numberOfBytesToRea
 	*numberOfBytesRead = read(file->fd, buffer, numberOfBytesToRead);
 	return *numberOfBytesRead == numberOfBytesToRead;
 }
-STDCALL BOOL GetCommState_wrap(File *file, DCB *dcb)
+REALIGN STDCALL BOOL GetCommState_wrap(File *file, DCB *dcb)
 {
 	return true;
 }
-STDCALL BOOL PurgeComm_wrap(File *file, uint32_t flags)
+REALIGN STDCALL BOOL PurgeComm_wrap(File *file, uint32_t flags)
 {
 	if (flags & 0x5)
 		tcflush(file->fd, TCOFLUSH);
@@ -561,7 +561,7 @@ STDCALL BOOL PurgeComm_wrap(File *file, uint32_t flags)
 		tcflush(file->fd, TCIFLUSH);
 	return true;
 }
-STDCALL BOOL SetCommState_wrap(File *file, DCB *dcb)
+REALIGN STDCALL BOOL SetCommState_wrap(File *file, DCB *dcb)
 {
 	struct termios tty;
 	memset(&tty, 0, sizeof(struct termios));
@@ -571,13 +571,13 @@ STDCALL BOOL SetCommState_wrap(File *file, DCB *dcb)
 	tty.c_cflag |= CS8 | CLOCAL | CREAD;
 	return !tcsetattr(file->fd, TCSANOW, &tty);
 }
-STDCALL BOOL SetCommTimeouts_wrap(File *file, COMMTIMEOUTS *commTimeouts)
+REALIGN STDCALL BOOL SetCommTimeouts_wrap(File *file, COMMTIMEOUTS *commTimeouts)
 {
 	file->us_timeout = commTimeouts->ReadTotalTimeoutConstant * 1000;
 	return true;
 }
 
-STDCALL BOOL DeleteFileA_wrap(const char *fileName)
+REALIGN STDCALL BOOL DeleteFileA_wrap(const char *fileName)
 {
 	char *tmpFileName = convertFilePath(fileName, true);
 	BOOL ret = !unlink(tmpFileName);
@@ -585,11 +585,11 @@ STDCALL BOOL DeleteFileA_wrap(const char *fileName)
 	return ret;
 }
 
-STDCALL void *GetModuleHandleA_wrap(const char *moduleName)
+REALIGN STDCALL void *GetModuleHandleA_wrap(const char *moduleName)
 {
 	return NULL;
 }
-STDCALL BOOL CloseHandle_wrap(void *handle)
+REALIGN STDCALL BOOL CloseHandle_wrap(void *handle)
 {
 	if (!handle)
 		return false;
@@ -629,35 +629,35 @@ STDCALL BOOL CloseHandle_wrap(void *handle)
 	return false;
 }
 
-STDCALL BOOL DuplicateHandle_wrap(void *hSourceProcessHandle, void *hSourceHandle, void *hTargetProcessHandle, void **lpTargetHandle, uint32_t desiredAccess, BOOL bInheritHandle, uint32_t dwOptions)
+REALIGN STDCALL BOOL DuplicateHandle_wrap(void *hSourceProcessHandle, void *hSourceHandle, void *hTargetProcessHandle, void **lpTargetHandle, uint32_t desiredAccess, BOOL bInheritHandle, uint32_t dwOptions)
 {
 	*lpTargetHandle = NULL;
 	return false;
 }
 
-STDCALL void *GetCurrentProcess_wrap(void)
+REALIGN STDCALL void *GetCurrentProcess_wrap(void)
 {
 	return NULL;
 }
 
-STDCALL void GetSystemInfo_wrap(SYSTEM_INFO *systemInfo)
+REALIGN STDCALL void GetSystemInfo_wrap(SYSTEM_INFO *systemInfo)
 {
 	memset(systemInfo, 0, sizeof(SYSTEM_INFO));
 	systemInfo->pageSize = getpagesize();
 }
-STDCALL uint32_t SleepEx_wrap(uint32_t milliseconds, BOOL alertable)
+REALIGN STDCALL uint32_t SleepEx_wrap(uint32_t milliseconds, BOOL alertable)
 {
 	SDL_Delay(milliseconds);
 	return 0;
 }
 
-STDCALL uint32_t GetCurrentDirectoryA_wrap(uint32_t bufferLength, char *buffer)
+REALIGN STDCALL uint32_t GetCurrentDirectoryA_wrap(uint32_t bufferLength, char *buffer)
 {
 	if (getcwd(buffer, bufferLength))
 		return bufferLength;
 	return 0;
 }
-STDCALL BOOL SetCurrentDirectoryA_wrap(const char *pathName)
+REALIGN STDCALL BOOL SetCurrentDirectoryA_wrap(const char *pathName)
 {
 	char *tmpPathName = convertFilePath(pathName, false);
 	BOOL ret = !chdir(tmpPathName);
@@ -665,7 +665,7 @@ STDCALL BOOL SetCurrentDirectoryA_wrap(const char *pathName)
 	return ret;
 }
 
-STDCALL BOOL FindNextFileA_wrap(FindFile *findFile, WIN32_FIND_DATA *findFileData)
+REALIGN STDCALL BOOL FindNextFileA_wrap(FindFile *findFile, WIN32_FIND_DATA *findFileData)
 {
 	struct dirent *de;
 	int pos;
@@ -681,7 +681,7 @@ STDCALL BOOL FindNextFileA_wrap(FindFile *findFile, WIN32_FIND_DATA *findFileDat
 	}
 	return false;
 }
-STDCALL BOOL FindClose_wrap(FindFile *findFile)
+REALIGN STDCALL BOOL FindClose_wrap(FindFile *findFile)
 {
 	if (findFile)
 	{
@@ -693,7 +693,7 @@ STDCALL BOOL FindClose_wrap(FindFile *findFile)
 	}
 	return false;
 }
-STDCALL FindFile *FindFirstFileA_wrap(const char *fileName, WIN32_FIND_DATA *findFileData)
+REALIGN STDCALL FindFile *FindFirstFileA_wrap(const char *fileName, WIN32_FIND_DATA *findFileData)
 {
 	memset(findFileData, 0, sizeof(WIN32_FIND_DATA));
 

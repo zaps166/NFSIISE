@@ -11,8 +11,8 @@ global dword_5637A0
 global mousePositionX
 global mousePositionY
 
-extern SDL_NumJoysticks
-extern SDL_GetTicks
+extern SDL_NumJoysticks_wrap
+extern SDL_GetTicks_wrap
 
 extern iSNDdllversion_
 extern iSNDdirectsetfunctions_
@@ -75,14 +75,14 @@ extern WrapperInit
 extern startTimer
 extern stopTimer
 
+extern vsprintf_wrap
+extern fscanf_wrap
+extern fclose_wrap
+extern calloc_wrap
+extern malloc_wrap
 extern fopen_wrap
-extern vsprintf
-extern fscanf
-extern fclose
-extern calloc
-extern malloc
-extern free
-extern time
+extern free_wrap
+extern time_wrap
 
 extern DefWindowProcA_wrap
 extern DestroyWindow_wrap
@@ -10516,13 +10516,13 @@ loc_4088A6:
 loc_4088B9:
 	xor eax, eax
 	push eax
-	call time
+	call time_wrap
 	add esp, 4
 	mov word [dword_512D9E+2], ax
 	xor eax, eax
 	xor eax, eax
 	push eax
-	call time
+	call time_wrap
 	add esp, 4
 	mov byte [byte_50B480], al
 	call sub_408B40
@@ -37902,7 +37902,7 @@ loc_41E4BE:
 	call sub_41EBB0
 	mov ebx, eax
 	mov [esp+0Ch], eax
-	call SDL_GetTicks
+	call SDL_GetTicks_wrap
 	add eax, 3E8h
 	mov [esp+10h], eax
 	cmp ebx, 0FFFFFFFFh
@@ -37931,7 +37931,7 @@ loc_41E4F1:
 	jz loc_41E55C
 
 loc_41E522:
-	call SDL_GetTicks
+	call SDL_GetTicks_wrap
 	cmp eax, [esp+10h]
 	jnb loc_41E55C
 	xor eax, eax
@@ -47548,7 +47548,7 @@ loc_425E44:
 	push edx
 
 	push ecx
-	call fclose
+	call fclose_wrap
 	pop ecx
 
 	pop edx
@@ -47620,7 +47620,7 @@ loc_425F07:
 	push edx
 	push ebp
 	push ecx
-	call fscanf
+	call fscanf_wrap
 	pop ecx
 	add esp, 4
 	pop edx
@@ -47631,7 +47631,7 @@ loc_425F07:
 	push eax
 	push ebp
 	push ecx
-	call fscanf
+	call fscanf_wrap
 	pop ecx
 	add esp, 8
 
@@ -47643,7 +47643,7 @@ loc_425F07:
 	push eax
 	push ebp
 	push ecx
-	call fscanf
+	call fscanf_wrap
 	pop ecx
 	add esp, 8
 
@@ -47655,7 +47655,7 @@ loc_425F07:
 	push eax
 	push ebp
 	push ecx
-	call fscanf
+	call fscanf_wrap
 	pop ecx
 	add esp, 8
 
@@ -47667,7 +47667,7 @@ loc_425F07:
 	push eax
 	push ebp
 	push ecx
-	call fscanf
+	call fscanf_wrap
 	pop ecx
 	add esp, 8
 
@@ -47678,7 +47678,7 @@ loc_425F07:
 	push aD_6 ; "%d\n"
 	push ecx
 	inc ebx
-	call fscanf
+	call fscanf_wrap
 	pop ecx
 	add esp, 4
 	pop edx
@@ -157738,7 +157738,7 @@ sub_478060: ;SUBROUTINE
 	push edx
 	push ecx
 	call sub_421F10
-	call SDL_NumJoysticks
+	call SDL_NumJoysticks_wrap
 	cmp eax, 10h
 	jb loc_4780AB
 	mov eax, 10h
@@ -157762,7 +157762,7 @@ loc_478085:
 	ret
 
 loc_4780AB:
-	call SDL_NumJoysticks
+	call SDL_NumJoysticks_wrap
 	jmp loc_478078
 ;sub_478060 endp
 
@@ -170094,7 +170094,6 @@ loc_4812EA:
 loc_481339:
 	push sub_481590
 	call WrapperCreateWindow
-	add esp, 4
 	mov esi, eax
 	call sub_497244
 ;	push 1
@@ -172791,7 +172790,7 @@ sub_4837D0: ;SUBROUTINE
 	push esi
 	push edi
 	push ebp
-	call SDL_GetTicks
+	call SDL_GetTicks_wrap
 	mov esi, eax
 	call sub_489E0C
 	xor ebx, ebx
@@ -172805,7 +172804,7 @@ loc_4837ED:
 	jz loc_483862
 	inc dword [dword_5637F4]
 	inc dword [dword_5637F0]
-	call SDL_GetTicks
+	call SDL_GetTicks_wrap
 	mov edx, eax
 	sub edx, esi
 	imul edx, 4A9h
@@ -173190,7 +173189,7 @@ loc_483CB7:
 loc_483D02:
 	mov eax, dword [dword_5637F4]
 	mov ebx, eax
-	call SDL_GetTicks
+	call SDL_GetTicks_wrap
 	mov esi, eax
 	mov eax, 2710h
 	mov edx, eax
@@ -173200,7 +173199,7 @@ loc_483D02:
 	add esi, eax
 
 loc_483D26:
-	call SDL_GetTicks
+	call SDL_GetTicks_wrap
 	cmp eax, esi
 	jnb loc_483D93
 	mov eax, dword [dword_5637F4]
@@ -176518,7 +176517,7 @@ sprintf_: ;SUBROUTINE
 	push eax
 	push dword [esp+14h]
 	push dword [esp+14h]
-	call vsprintf
+	call vsprintf_wrap
 	add esp, 0Ch
 
 	pop edx
@@ -186776,7 +186775,7 @@ sub_48DFD4: ;SUBROUTINE
 	mov ebx, esi
 	call sub_48A980
 	add esi, 10h
-	call SDL_GetTicks
+	call SDL_GetTicks_wrap
 	mov dword [dword_5643E8], eax
 	xor ecx, ecx
 
@@ -186832,7 +186831,7 @@ loc_48E09F:
 loc_48E0AB:
 	xor edx, edx
 	mov dword [dword_5643F0], edx
-	call SDL_GetTicks
+	call SDL_GetTicks_wrap
 	mov dword [dword_5643E8], eax
 	mov eax, dword [dword_5643F4]
 	add esp, 2004h
@@ -186930,7 +186929,7 @@ loc_48E191:
 	jz loc_48E1C5
 	mov ebx, dword [dword_5643E8]
 	add ebx, 2710h
-	call SDL_GetTicks
+	call SDL_GetTicks_wrap
 	cmp eax, ebx
 	ja loc_48E1C5
 
@@ -186984,7 +186983,7 @@ loc_48E223:
 	call sub_48A01C
 	mov dword [dword_5643A4], ebp
 	mov dword [dword_5643B0], sub_48DFA8
-	call SDL_GetTicks
+	call SDL_GetTicks_wrap
 	add eax, ebx
 	mov dword [dword_5643E4], eax
 	mov ecx, dword_5643C0
@@ -190097,7 +190096,7 @@ loc_491C6D:
 	mov ebx, eax
 
 loc_491C7A:
-	call SDL_GetTicks
+	call SDL_GetTicks_wrap
 	mov dword [dword_4DBF34], eax
 	test ebx, ebx
 	jz loc_491CE9
@@ -190195,7 +190194,7 @@ loc_491D80:
 	call dword [edx+80h]
 	mov dword [ebx+43Ch], 0
 	mov dword [ebx+440h], 0
-	call SDL_GetTicks
+	call SDL_GetTicks_wrap
 	mov ebx, dword [dword_4DBF34]
 	sub eax, ebx
 	mov ebx, dword [dword_4DBF2C]
@@ -199883,7 +199882,6 @@ atexit_: ;SUBROUTINE
 
 	push eax
 	call WrapperAtExit
-	add esp, 4
 
 	pop edx
 	pop ecx
@@ -200934,7 +200932,7 @@ loc_49CAEC:
 
 	push 1
 	push eax
-	call calloc
+	call calloc_wrap
 	add esp, 8
 
 	add esp, 24h
@@ -205952,7 +205950,7 @@ loc_4A15C7:
 sub_4A3DB0: ;SUBROUTINE
 	push ecx
 	push edx
-	call SDL_GetTicks
+	call SDL_GetTicks_wrap
 	pop edx
 	pop ecx
 	ret
@@ -206259,7 +206257,7 @@ vsprintf_: ;SUBROUTINE
 	push ebx
 	push edx
 	push eax
-	call vsprintf
+	call vsprintf_wrap
 	add esp, 0Ch
 
 	pop ecx
@@ -209746,7 +209744,7 @@ malloc_: ;SUBROUTINE
 	push edx
 
 	push eax
-	call malloc
+	call malloc_wrap
 	add esp, 4
 
 	pop edx
@@ -213911,7 +213909,7 @@ free_: ;SUBROUTINE
 	push edx
 
 	push eax
-	call free
+	call free_wrap
 	add esp, 4
 
 	pop edx

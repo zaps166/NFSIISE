@@ -26,12 +26,17 @@ if [[ $1 == "win32" ]]; then
 	i686-w64-mingw32-gcc -Wall $C_FLAGS $CPU_FLAGS -c *.c &&
 	yasm -f win32 NFS2SE.asm -o NFS2SE.o $DEBUG_ASM --prefix=_ &&
 	yasm -f win32 EAcsnd.asm -o EAcsnd.asm.o $DEBUG_ASM --prefix=_ &&
-	i686-w64-mingw32-ld --enable-stdcall-fixup -o "../Need For Speed II SE/nfs2se.exe" *.o --stack=0x7D00,0x7D00 --heap=0x2000,0x1000 -lws2_32 -lwinmm -lkernel32 -lmsvcrt -lopengl32 -lSDL2 -subsystem=$WIN_SUBSYSTEM $STRIP -e _start &&
+	i686-w64-mingw32-ld --enable-stdcall-fixup -o "../Need For Speed II SE/nfs2se.exe" *.o --stack=0x7D00,0x7D00 --heap=0x2000,0x1000 -lws2_32 -lwinmm -lkernel32 -lmingwex -lmsvcrt -lopengl32 -lSDL2 -subsystem=$WIN_SUBSYSTEM $STRIP -e _start &&
 	rm -f *.o &&
 	echo "OK!"
 else
 	#Compile for Linux
-	echo -n " Linux... "
+
+	if [ -z $CC ]; then
+		CC=gcc
+	fi
+
+	echo -n " Linux ($CC)... "
 
 	#32bit libraries for Linux
 	LIB32_DIR=/usr/lib
@@ -39,7 +44,7 @@ else
 		LIB32_DIR=/usr/lib32
 	fi
 
-	gcc -Wall -m32 $C_FLAGS $CPU_FLAGS -c *.c &&
+	$CC -Wall -Wno-constant-conversion -m32 $C_FLAGS $CPU_FLAGS -DSTACK_REALIGN -c *.c &&
 	yasm -f elf32 NFS2SE.asm -o NFS2SE.o $DEBUG_ASM &&
 	yasm -f elf32 EAcsnd.asm -o EAcsnd.asm.o $DEBUG_ASM &&
 	ld -m elf_i386 -dynamic-linker /lib/ld-linux.so.2 -o "../Need For Speed II SE/nfs2se" *.o -L$LIB32_DIR -lc -lSDL2 -lGL $STRIP -rpath=\$ORIGIN -e start &&

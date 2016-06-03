@@ -17,7 +17,7 @@
 typedef void (*ProcedureType)(void);
 static ProcedureType atExitProcedures[10];
 static uint32_t atExitProcedureCount;
-void WrapperAtExit(ProcedureType proc)
+REALIGN STDCALL void WrapperAtExit(ProcedureType proc)
 {
 	uint32_t i;
 	for (i = 0; i < atExitProcedureCount; ++i)
@@ -429,7 +429,7 @@ void WrapperInit(void)
 
 extern WindowProc wndProc;
 
-SDL_Window *WrapperCreateWindow(WindowProc windowProc)
+REALIGN STDCALL SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 {
 	static const char title[] = "The Need For Speed 2 - v" NFSIISE_VERSION;
 	static const uint32_t palette[8] = {0xFF000000, 0xFF000080, 0xFF0000FF, 0xFFC0C0C0, 0xFF00FFFF, 0xFFFFFFFF, 0x00000000, 0xFF008080};
@@ -505,4 +505,52 @@ SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 	wndProc = windowProc;
 
 	return sdlWin;
+}
+
+/* Wrapper for functions called from Assembly code for stack realignment */
+
+#include <stdarg.h>
+#include <time.h>
+
+REALIGN SDLCALL int32_t SDL_NumJoysticks_wrap(void)
+{
+	return SDL_NumJoysticks();
+}
+REALIGN SDLCALL uint32_t SDL_GetTicks_wrap(void)
+{
+	return SDL_GetTicks();
+}
+
+REALIGN int32_t vsprintf_wrap(char *s, const char *fmt, va_list arg)
+{
+	return vsprintf(s, fmt, arg);
+}
+REALIGN int32_t fscanf_wrap(FILE *f, const char *fmt, ...)
+{
+	int ret;
+	va_list arg;
+	va_start(arg, fmt);
+	ret = vfscanf(f, fmt, arg);
+	va_end(arg);
+	return ret;
+}
+REALIGN int32_t fclose_wrap(FILE *f)
+{
+	return fclose(f);
+}
+REALIGN void *calloc_wrap(size_t num, size_t size)
+{
+	return calloc(num, size);
+}
+REALIGN void *malloc_wrap(size_t num)
+{
+	return malloc(num);
+}
+REALIGN void free_wrap(void *ptr)
+{
+	free(ptr);
+}
+REALIGN time_t time_wrap(time_t *timer)
+{
+	return time(timer);
 }

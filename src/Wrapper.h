@@ -9,6 +9,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#ifdef STACK_REALIGN
+	#define REALIGN __attribute__((force_align_arg_pointer))
+#else
+	#define REALIGN
+#endif
+
 #define STDCALL __attribute__((stdcall))
 #define REGPARM __attribute__((regparm(2))) //First two arguments are compatible with Watcom fastcall
 

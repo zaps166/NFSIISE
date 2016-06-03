@@ -82,7 +82,7 @@ static inline void drawTriangles()
 
 /**/
 
-STDCALL void grAlphaBlendFunction(GrAlphaBlendFnc_t rgb_sf, GrAlphaBlendFnc_t rgb_df, GrAlphaBlendFnc_t alpha_sf, GrAlphaBlendFnc_t alpha_df)
+REALIGN STDCALL void grAlphaBlendFunction(GrAlphaBlendFnc_t rgb_sf, GrAlphaBlendFnc_t rgb_df, GrAlphaBlendFnc_t alpha_sf, GrAlphaBlendFnc_t alpha_df)
 {
 	drawTriangles();
 	switch (rgb_df)
@@ -96,7 +96,7 @@ STDCALL void grAlphaBlendFunction(GrAlphaBlendFnc_t rgb_sf, GrAlphaBlendFnc_t rg
 	}
 // 	printf("grAlphaBlendFunction: %d %d %d %d\n", rgb_sf, rgb_df, alpha_sf, alpha_df);
 }
-STDCALL void grAlphaCombine(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, BOOL invert)
+REALIGN STDCALL void grAlphaCombine(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, BOOL invert)
 {
 	drawTriangles();
 	if (other == GR_COMBINE_OTHER_TEXTURE)
@@ -105,15 +105,15 @@ STDCALL void grAlphaCombine(GrCombineFunction_t function, GrCombineFactor_t fact
 		glDisable(GL_TEXTURE_2D);
 // 	printf("grAlphaCombine: %d\n", (other == GR_COMBINE_OTHER_TEXTURE));
 }
-STDCALL void grAlphaTestFunction(GrCmpFnc_t function)
+REALIGN STDCALL void grAlphaTestFunction(GrCmpFnc_t function)
 {
 // 	printf("grAlphaTestFunction: %X\n", function);
 }
-STDCALL void grAlphaTestReferenceValue(GrAlpha_t value)
+REALIGN STDCALL void grAlphaTestReferenceValue(GrAlpha_t value)
 {
 // 	printf("grAlphaTestReferenceValue: %f\n", value / 255.0f);
 }
-STDCALL void grClipWindow(uint32_t minX, uint32_t minY, uint32_t maxX, uint32_t maxY)
+REALIGN STDCALL void grClipWindow(uint32_t minX, uint32_t minY, uint32_t maxX, uint32_t maxY)
 {
 	float widthRatio  = winWidth  / 640.0f;
 	float heightRatio = winHeight / 480.0f;
@@ -149,7 +149,7 @@ STDCALL void grClipWindow(uint32_t minX, uint32_t minY, uint32_t maxX, uint32_t 
 	glScalef(widthRatio, heightRatio, 1.0f);
 	glLineWidth(widthRatio + heightRatio);
 }
-STDCALL void grBufferClear(GrColor_t color, GrAlpha_t alpha, uint16_t depth)
+REALIGN STDCALL void grBufferClear(GrColor_t color, GrAlpha_t alpha, uint16_t depth)
 {
 	float r, g , b, a;
 	convertColor(color, &r, &g, &b, &a);
@@ -177,17 +177,17 @@ STDCALL void grBufferClear(GrColor_t color, GrAlpha_t alpha, uint16_t depth)
 
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 }
-STDCALL void grChromakeyMode(GrChromakeyMode_t mode)
+REALIGN STDCALL void grChromakeyMode(GrChromakeyMode_t mode)
 {
 // 	printf("grChromakeyMode: %X\n", mode);
 // 	chromaKeyEnabled = mode;
 }
-STDCALL void grChromakeyValue(GrColor_t value)
+REALIGN STDCALL void grChromakeyValue(GrColor_t value)
 {
 // 	printf("grChromakeyValue: %X\n", value);
 // 	chromaKeyValue = value;//(value & 0x0000FF00) | ((value & 0x00FF0000) >> 16) | ((value & 0x000000FF) << 16);
 }
-STDCALL void grBufferSwap(int swap_interval)
+REALIGN STDCALL void grBufferSwap(int swap_interval)
 {
 // 	printf("grBufferSwap: [%d]\n", trianglesCount);
 	drawTriangles();
@@ -201,39 +201,39 @@ STDCALL void grBufferSwap(int swap_interval)
 		windowCleared = false;
 	}
 }
-STDCALL void grColorCombine(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, BOOL invert)
+REALIGN STDCALL void grColorCombine(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, BOOL invert)
 {
 // 	printf("grColorCombine\n");
 }
-STDCALL void grCullMode(GrCullMode_t mode)
+REALIGN STDCALL void grCullMode(GrCullMode_t mode)
 {
 // 	printf("grCullMode: %d\n", mode);
 }
-STDCALL void grDepthBiasLevel(int16_t level)
+REALIGN STDCALL void grDepthBiasLevel(int16_t level)
 {
 // 	printf("grDepthBiasLevel: %d\n", level);
 }
-STDCALL void grDepthBufferFunction(GrCmpFnc_t function)
+REALIGN STDCALL void grDepthBufferFunction(GrCmpFnc_t function)
 {
 // 	drawTriangles();
 // 	glDepthFunc(GL_NEVER + function);
 // 	printf("grDepthBufferFunction: %X\n", function);
 }
-STDCALL void grDepthBufferMode(GrDepthBufferMode_t mode)
+REALIGN STDCALL void grDepthBufferMode(GrDepthBufferMode_t mode)
 {
 // 	printf("grDepthBufferMode: %X\n", mode);
 }
-STDCALL void grDepthMask(BOOL mask)
+REALIGN STDCALL void grDepthMask(BOOL mask)
 {
 	drawTriangles();
 	glDepthMask(mask);
 // 	printf("grDepthMask: %d [%d]\n", mask, trianglesCount);
 }
-STDCALL void grDitherMode(GrDitherMode_t mode)
+REALIGN STDCALL void grDitherMode(GrDitherMode_t mode)
 {
 // 	printf("grDitherMode: %d\n", mode);
 }
-STDCALL void grDrawTriangle(const GrVertex *a, const GrVertex *b, const GrVertex *c)
+REALIGN STDCALL void grDrawTriangle(const GrVertex *a, const GrVertex *b, const GrVertex *c)
 {
 // 	printf("grDrawTriangle\n");
 	const GrVertex *grVertices[3] = {a, b, c};
@@ -281,7 +281,7 @@ STDCALL void grDrawTriangle(const GrVertex *a, const GrVertex *b, const GrVertex
 		}
 	}
 }
-STDCALL void grDrawLine(const GrVertex *a, const GrVertex *b)
+REALIGN STDCALL void grDrawLine(const GrVertex *a, const GrVertex *b)
 {
 // 	printf("grDrawLine: [%d]\n", trianglesCount);
 	drawTriangles();
@@ -293,7 +293,7 @@ STDCALL void grDrawLine(const GrVertex *a, const GrVertex *b)
 		glVertex3f(b->x - VertexSnap, b->y - VertexSnap, b->oow);
 	} glEnd();
 }
-STDCALL void grFogColorValue(GrColor_t fogcolor)
+REALIGN STDCALL void grFogColorValue(GrColor_t fogcolor)
 {
 	float fogColor[4];
 	convertColor(fogcolor, fogColor + 0, fogColor + 1, fogColor + 2, fogColor + 3);
@@ -301,7 +301,7 @@ STDCALL void grFogColorValue(GrColor_t fogcolor)
 	glFogfv(GL_FOG_COLOR, fogColor);
 // 	printf("grFogColorValue: 0x%.8X [%d]\n", fogcolor, trianglesCount);
 }
-STDCALL void grFogMode(GrFogMode_t mode)
+REALIGN STDCALL void grFogMode(GrFogMode_t mode)
 {
 	switch (mode)
 	{
@@ -319,7 +319,7 @@ STDCALL void grFogMode(GrFogMode_t mode)
 	}
 // 	printf("grFogMode: %X\n", mode);
 }
-STDCALL void grFogTable(const GrFog_t ft[GR_FOG_TABLE_SIZE])
+REALIGN STDCALL void grFogTable(const GrFog_t ft[GR_FOG_TABLE_SIZE])
 {
 	/* Copied from OpenGLIDE */
 
@@ -350,15 +350,15 @@ STDCALL void grFogTable(const GrFog_t ft[GR_FOG_TABLE_SIZE])
 
 // 	printf("grFogTable\n");
 }
-STDCALL void grGammaCorrectionValue(float value)
+REALIGN STDCALL void grGammaCorrectionValue(float value)
 {
 	SetBrightness(value);
 }
-STDCALL void grGlideInit(void)
+REALIGN STDCALL void grGlideInit(void)
 {
 // 	printf("grGlideInit\n");
 }
-STDCALL void grGlideShutdown(void)
+REALIGN STDCALL void grGlideShutdown(void)
 {
 // 	SDL_GL_DeleteContext(glCtx);
 	palette = NULL;
@@ -366,7 +366,7 @@ STDCALL void grGlideShutdown(void)
 
 // 	printf("grGlideShutdown\n");
 }
-STDCALL BOOL grLfbLock(GrLock_t type, GrBuffer_t buffer, GrLfbWriteMode_t writeMode, GrOriginLocation_t origin, BOOL pixelPipeline, GrLfbInfo_t *info)
+REALIGN STDCALL BOOL grLfbLock(GrLock_t type, GrBuffer_t buffer, GrLfbWriteMode_t writeMode, GrOriginLocation_t origin, BOOL pixelPipeline, GrLfbInfo_t *info)
 {
 	memset(info, 0, sizeof(GrLfbInfo_t));
 	if (type == GR_LFB_WRITE_ONLY)
@@ -377,43 +377,43 @@ STDCALL BOOL grLfbLock(GrLock_t type, GrBuffer_t buffer, GrLfbWriteMode_t writeM
 	}
 	return false;
 }
-STDCALL BOOL grLfbUnlock(GrLock_t type, GrBuffer_t buffer)
+REALIGN STDCALL BOOL grLfbUnlock(GrLock_t type, GrBuffer_t buffer)
 {
 	free(lfb);
 	lfb = NULL;
 	return true;
 }
-STDCALL void grRenderBuffer(GrBuffer_t buffer)
+REALIGN STDCALL void grRenderBuffer(GrBuffer_t buffer)
 {
 // 	printf("grRenderBuffer\n");
 }
-STDCALL void grSstIdle(void)
+REALIGN STDCALL void grSstIdle(void)
 {
 // 	printf("grSstIdle\n");
 }
-STDCALL BOOL grSstIsBusy(void)
+REALIGN STDCALL BOOL grSstIsBusy(void)
 {
 // 	printf("grSstIsBusy\n");
 	return false;
 }
-STDCALL BOOL grSstQueryHardware(GrHwConfiguration *hwconfig)
+REALIGN STDCALL BOOL grSstQueryHardware(GrHwConfiguration *hwconfig)
 {
 	return true;
 }
-STDCALL void grSstSelect(int which_sst)
+REALIGN STDCALL void grSstSelect(int which_sst)
 {
 // 	printf("grSstSelect: %d\n", which_sst);
 }
-STDCALL uint32_t grSstStatus(void)
+REALIGN STDCALL uint32_t grSstStatus(void)
 {
 // 	printf("grSstStatus\n");
 	return 0x0FFFF03F;
 }
-STDCALL void grSstWinClose(void)
+REALIGN STDCALL void grSstWinClose(void)
 {
 // 	printf("grSstWinClose\n");
 }
-STDCALL BOOL grSstWinOpen(uint32_t hWnd, GrScreenResolution_t screen_resolution, GrScreenRefresh_t refresh_rate, GrColorFormat_t color_format, GrOriginLocation_t origin_location, int nColBuffers, int nAuxBuffers)
+REALIGN STDCALL BOOL grSstWinOpen(uint32_t hWnd, GrScreenResolution_t screen_resolution, GrScreenRefresh_t refresh_rate, GrColorFormat_t color_format, GrOriginLocation_t origin_location, int nColBuffers, int nAuxBuffers)
 {
 	glCtx = SDL_GL_CreateContext(sdlWin);
 
@@ -464,7 +464,7 @@ STDCALL BOOL grSstWinOpen(uint32_t hWnd, GrScreenResolution_t screen_resolution,
 
 	return true;
 }
-STDCALL uint32_t grTexCalcMemRequired(GrLOD_t lodmin, GrLOD_t lodmax, GrAspectRatio_t aspect, GrTextureFormat_t fmt)
+REALIGN STDCALL uint32_t grTexCalcMemRequired(GrLOD_t lodmin, GrLOD_t lodmax, GrAspectRatio_t aspect, GrTextureFormat_t fmt)
 {
 	uint32_t size = 256 >> lodmax;
 	size *= size;
@@ -480,18 +480,18 @@ STDCALL uint32_t grTexCalcMemRequired(GrLOD_t lodmin, GrLOD_t lodmax, GrAspectRa
 	}
 	return size;
 }
-STDCALL void grTexClampMode(GrChipID_t tmu, GrTextureClampMode_t s_clampmode, GrTextureClampMode_t t_clampmode)
+REALIGN STDCALL void grTexClampMode(GrChipID_t tmu, GrTextureClampMode_t s_clampmode, GrTextureClampMode_t t_clampmode)
 {
 }
-STDCALL void grTexCombine(GrChipID_t tmu, GrCombineFunction_t rgb_function, GrCombineFactor_t rgb_factor, GrCombineFunction_t alpha_function, GrCombineFactor_t alpha_factor, BOOL rgb_invert, BOOL alpha_invert)
+REALIGN STDCALL void grTexCombine(GrChipID_t tmu, GrCombineFunction_t rgb_function, GrCombineFactor_t rgb_factor, GrCombineFunction_t alpha_function, GrCombineFactor_t alpha_factor, BOOL rgb_invert, BOOL alpha_invert)
 {
 // 	printf("grTexCombine\n");
 }
-STDCALL void grTexCombineFunction(GrChipID_t tmu, GrTextureCombineFnc_t fnc)
+REALIGN STDCALL void grTexCombineFunction(GrChipID_t tmu, GrTextureCombineFnc_t fnc)
 {
 // 	printf("grTexCombineFunction\n");
 }
-STDCALL void grTexDownloadMipMap(GrChipID_t tmu, uint32_t startAddress, uint32_t evenOdd, GrTexInfo *info)
+REALIGN STDCALL void grTexDownloadMipMap(GrChipID_t tmu, uint32_t startAddress, uint32_t evenOdd, GrTexInfo *info)
 {
 	uint8_t *data = (uint8_t *)info->data;
 	uint32_t size = 256 >> info->largeLod;
@@ -532,29 +532,29 @@ STDCALL void grTexDownloadMipMap(GrChipID_t tmu, uint32_t startAddress, uint32_t
 	}
 // 	printf("grTexDownloadMipMap: 0x%.8X %d\n", startAddress, maxTexIdx);
 }
-STDCALL void grTexDownloadTable(GrChipID_t tmu, GrTexTable_t type, void *data)
+REALIGN STDCALL void grTexDownloadTable(GrChipID_t tmu, GrTexTable_t type, void *data)
 {
 	if (type == GR_TEXTABLE_PALETTE)
 		palette = (uint32_t *)data;
 }
-STDCALL void grTexFilterMode(GrChipID_t tmu, GrTextureFilterMode_t minfilter_mode, GrTextureFilterMode_t magfilter_mode)
+REALIGN STDCALL void grTexFilterMode(GrChipID_t tmu, GrTextureFilterMode_t minfilter_mode, GrTextureFilterMode_t magfilter_mode)
 {
 	/* Always linear */
 // 	printf("grTexFilterMode: %d\n", minfilter_mode);
 }
-STDCALL uint32_t grTexMaxAddress(GrChipID_t tmu)
+REALIGN STDCALL uint32_t grTexMaxAddress(GrChipID_t tmu)
 {
 	return TextureMem;
 }
-STDCALL uint32_t grTexMinAddress(GrChipID_t tmu)
+REALIGN STDCALL uint32_t grTexMinAddress(GrChipID_t tmu)
 {
 	return 0;
 }
-STDCALL void grTexMipMapMode(GrChipID_t tmu, GrMipMapMode_t mode, BOOL lodBlend)
+REALIGN STDCALL void grTexMipMapMode(GrChipID_t tmu, GrMipMapMode_t mode, BOOL lodBlend)
 {
 	/* mode = 0 */
 }
-STDCALL void grTexSource(GrChipID_t tmu, uint32_t startAddress, uint32_t evenOdd, GrTexInfo *info)
+REALIGN STDCALL void grTexSource(GrChipID_t tmu, uint32_t startAddress, uint32_t evenOdd, GrTexInfo *info)
 {
 	uint8_t *data = textureMem + startAddress;
 	uint32_t size = 256 >> info->largeLod;
@@ -570,7 +570,7 @@ STDCALL void grTexSource(GrChipID_t tmu, uint32_t startAddress, uint32_t evenOdd
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size, size, GL_BGRA, GL_UNSIGNED_BYTE, tmpTexture);
 	}
 }
-STDCALL void guFogGenerateExp(GrFog_t fogtable[GR_FOG_TABLE_SIZE], float density)
+REALIGN STDCALL void guFogGenerateExp(GrFog_t fogtable[GR_FOG_TABLE_SIZE], float density)
 {
 	/* Copied from OpenGLIDE */
 

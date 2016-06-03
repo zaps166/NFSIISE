@@ -67,22 +67,22 @@ static void getSamplesNoPlay()
 
 /**/
 
-uint32_t iSNDdllversion_(void)
+REALIGN uint32_t iSNDdllversion_(void)
 {
 	return 0x60002;
 }
 
-STDCALL uint32_t iSNDdirectsetfunctions(void (REGPARM *arg1)(), void (*arg2)(), void (*arg3)(), void (*arg4)(), void (*arg5)())
+REALIGN STDCALL uint32_t iSNDdirectsetfunctions(void (REGPARM *arg1)(), void (*arg2)(), void (*arg3)(), void (*arg4)(), void (*arg5)())
 {
 	getSamples = arg1;
 	fadeInOut  = arg4;
 	return 0;
 }
-REGPARM uint32_t iSNDdirectcaps_(void *hWnd)
+REALIGN REGPARM uint32_t iSNDdirectcaps_(void *hWnd)
 {
 	return 0x23E0F; //?
 }
-REGPARM uint32_t iSNDdirectstart_(uint32_t arg1, void *hWnd)
+REALIGN REGPARM uint32_t iSNDdirectstart_(uint32_t arg1, void *hWnd)
 {
 	SDL_AudioSpec audioSpecIn =
 	{
@@ -111,7 +111,7 @@ REGPARM uint32_t iSNDdirectstart_(uint32_t arg1, void *hWnd)
 	canGetSamples = true;
 	return 0;
 }
-void iSNDdirectserve_(void)
+REALIGN void iSNDdirectserve_(void)
 {
 	if (canGetSamples)
 	{
@@ -125,7 +125,7 @@ void iSNDdirectserve_(void)
 			getSamplesNoPlay();
 	}
 }
-uint32_t iSNDdirectstop_(void)
+REALIGN uint32_t iSNDdirectstop_(void)
 {
 	canGetSamples = false;
 	if (audioDevice)

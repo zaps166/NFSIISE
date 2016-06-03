@@ -3,19 +3,19 @@
 extern uint16_t PORT1, PORT2;
 extern uint32_t broadcast;
 
-STDCALL uint32_t inet_addr_wrap(const char *cp)
+REALIGN STDCALL uint32_t inet_addr_wrap(const char *cp)
 {
 	return inet_addr(cp);
 }
-STDCALL int listen_wrap(int fd, int n)
+REALIGN STDCALL int listen_wrap(int fd, int n)
 {
 	return listen(fd, n);
 }
-STDCALL char *inet_ntoa_wrap(struct in_addr in)
+REALIGN STDCALL char *inet_ntoa_wrap(struct in_addr in)
 {
 	return inet_ntoa(in);
 }
-STDCALL struct win_hostent *gethostbyname_wrap(const char *name)
+REALIGN STDCALL struct win_hostent *gethostbyname_wrap(const char *name)
 {
 #ifdef WIN32
 	return gethostbyname(name);
@@ -34,20 +34,20 @@ STDCALL struct win_hostent *gethostbyname_wrap(const char *name)
 	return NULL;
 #endif
 }
-STDCALL int gethostname_wrap(char *name, int namelen)
+REALIGN STDCALL int gethostname_wrap(char *name, int namelen)
 {
 	return gethostname(name, namelen);
 }
-STDCALL int connect_wrap(int sock, const struct sockaddr *name, int namelen)
+REALIGN STDCALL int connect_wrap(int sock, const struct sockaddr *name, int namelen)
 {
 	((struct sockaddr_in *)name)->sin_port = htons(PORT1);
 	return connect(sock, name, namelen);
 }
-STDCALL int accept_wrap(int sock, struct sockaddr *addr, socklen_t *addrlen)
+REALIGN STDCALL int accept_wrap(int sock, struct sockaddr *addr, socklen_t *addrlen)
 {
 	return accept(sock, addr, addrlen);
 }
-STDCALL int WSAFDIsSet_wrap(int fd, struct win_fd_set *w_fds)
+REALIGN STDCALL int WSAFDIsSet_wrap(int fd, struct win_fd_set *w_fds)
 {
 #ifdef WIN32
 	return __WSAFDIsSet(fd, w_fds);
@@ -59,7 +59,7 @@ STDCALL int WSAFDIsSet_wrap(int fd, struct win_fd_set *w_fds)
 	return 0;
 #endif
 }
-STDCALL int select_wrap(int nfds, struct win_fd_set *readfds, struct win_fd_set *writefds, struct win_fd_set *exceptfds, struct timeval *timeout)
+REALIGN STDCALL int select_wrap(int nfds, struct win_fd_set *readfds, struct win_fd_set *writefds, struct win_fd_set *exceptfds, struct timeval *timeout)
 {
 #ifdef WIN32
 	return select(nfds, readfds, writefds, exceptfds, timeout);
@@ -85,15 +85,15 @@ STDCALL int select_wrap(int nfds, struct win_fd_set *readfds, struct win_fd_set 
 	return (readfds->fd_count = fd_count);
 #endif
 }
-STDCALL int send_wrap(int sock, const char *buf, socklen_t len, int flags)
+REALIGN STDCALL int send_wrap(int sock, const char *buf, socklen_t len, int flags)
 {
 	return send(sock, buf, len, flags);
 }
-STDCALL int recv_wrap(int sock, char *buf, socklen_t len, int flags)
+REALIGN STDCALL int recv_wrap(int sock, char *buf, socklen_t len, int flags)
 {
 	return recv(sock, buf, len, flags);
 }
-STDCALL int getsockname_wrap(int sock, struct sockaddr *name, socklen_t *namelen)
+REALIGN STDCALL int getsockname_wrap(int sock, struct sockaddr *name, socklen_t *namelen)
 {
 	if (*namelen == sizeof(struct sockaddr_ipx))
 	{
@@ -102,7 +102,7 @@ STDCALL int getsockname_wrap(int sock, struct sockaddr *name, socklen_t *namelen
 	}
 	return getsockname(sock, name, namelen);
 }
-STDCALL int bind_wrap(int sock, const struct sockaddr *name, int namelen)
+REALIGN STDCALL int bind_wrap(int sock, const struct sockaddr *name, int namelen)
 {
 	struct sockaddr_in name_in;
 	name_in.sin_family = AF_INET;
@@ -113,11 +113,11 @@ STDCALL int bind_wrap(int sock, const struct sockaddr *name, int namelen)
 		name_in.sin_port = ((struct sockaddr_in *)name)->sin_port ? htons(PORT1) : 0;
 	return bind(sock, (struct sockaddr *)&name_in, sizeof name_in);
 }
-STDCALL uint16_t htons_wrap(uint16_t hostshort)
+REALIGN STDCALL uint16_t htons_wrap(uint16_t hostshort)
 {
 	return htons(hostshort);
 }
-STDCALL int ioctlsocket_wrap(int sock, int32_t cmd, uint32_t *argp)
+REALIGN STDCALL int ioctlsocket_wrap(int sock, int32_t cmd, uint32_t *argp)
 {
 #ifndef WIN32
 	switch (cmd)
@@ -134,7 +134,7 @@ STDCALL int ioctlsocket_wrap(int sock, int32_t cmd, uint32_t *argp)
 	return ioctlsocket(sock, cmd, (u_long *)argp);
 #endif
 }
-STDCALL int setsockopt_wrap(int sock, int level, int optname, const char *optval, socklen_t optlen)
+REALIGN STDCALL int setsockopt_wrap(int sock, int level, int optname, const char *optval, socklen_t optlen)
 {
 	switch (optname)
 	{
@@ -161,7 +161,7 @@ STDCALL int setsockopt_wrap(int sock, int level, int optname, const char *optval
 	}
 	return setsockopt(sock, level, optname, optval, optlen);
 }
-STDCALL int WSAGetLastError_wrap(void)
+REALIGN STDCALL int WSAGetLastError_wrap(void)
 {
 #ifdef WIN32
 	return WSAGetLastError();
@@ -183,7 +183,7 @@ STDCALL int WSAGetLastError_wrap(void)
 	return 0;
 #endif
 }
-STDCALL int closesocket_wrap(int sock)
+REALIGN STDCALL int closesocket_wrap(int sock)
 {
 #ifdef WIN32
 	return closesocket(sock);
@@ -191,7 +191,7 @@ STDCALL int closesocket_wrap(int sock)
 	return close(sock);
 #endif
 }
-STDCALL int socket_wrap(int af, int type, int protocol)
+REALIGN STDCALL int socket_wrap(int af, int type, int protocol)
 {
 	BOOL isTCP = true;
 	if (af == 0x6 /* AF_IPX */)
@@ -212,7 +212,7 @@ STDCALL int socket_wrap(int af, int type, int protocol)
 	}
 	return s;
 }
-STDCALL int WSACleanup_wrap(void)
+REALIGN STDCALL int WSACleanup_wrap(void)
 {
 #ifdef WIN32
 	return WSACleanup();
@@ -220,7 +220,7 @@ STDCALL int WSACleanup_wrap(void)
 	return 0;
 #endif
 }
-STDCALL int WSAStartup_wrap(uint16_t wVersionRequested, void *WSAData)
+REALIGN STDCALL int WSAStartup_wrap(uint16_t wVersionRequested, void *WSAData)
 {
 #ifdef WIN32
 	return WSAStartup(wVersionRequested, WSAData);
@@ -228,7 +228,7 @@ STDCALL int WSAStartup_wrap(uint16_t wVersionRequested, void *WSAData)
 	return 0;
 #endif
 }
-STDCALL int sendto_wrap(int sock, const char *buf, socklen_t len, int flags, const struct sockaddr_ipx *to, socklen_t tolen)
+REALIGN STDCALL int sendto_wrap(int sock, const char *buf, socklen_t len, int flags, const struct sockaddr_ipx *to, socklen_t tolen)
 {
 	struct sockaddr_in to_in;
 	char *data = (char *)malloc(len += 2);
@@ -256,7 +256,7 @@ STDCALL int sendto_wrap(int sock, const char *buf, socklen_t len, int flags, con
 	free(data);
 	return bsent;
 }
-STDCALL int recvfrom_wrap(int sock, char *buf, socklen_t len, int flags, struct sockaddr_ipx *from, socklen_t *fromlen)
+REALIGN STDCALL int recvfrom_wrap(int sock, char *buf, socklen_t len, int flags, struct sockaddr_ipx *from, socklen_t *fromlen)
 {
 	struct sockaddr_in from_in;
 	socklen_t fromlen_in = sizeof from_in;

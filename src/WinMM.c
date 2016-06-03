@@ -7,7 +7,7 @@
 	typedef void TIMECAPS;
 #endif
 
-STDCALL uint32_t timeBeginPeriod_wrap(uint32_t period)
+REALIGN STDCALL uint32_t timeBeginPeriod_wrap(uint32_t period)
 {
 #ifdef WIN32
 	return timeBeginPeriod(period);
@@ -15,7 +15,7 @@ STDCALL uint32_t timeBeginPeriod_wrap(uint32_t period)
 	return 0;
 #endif
 }
-STDCALL uint32_t timeEndPeriod_wrap(uint32_t period)
+REALIGN STDCALL uint32_t timeEndPeriod_wrap(uint32_t period)
 {
 #ifdef WIN32
 	return timeEndPeriod(period);
@@ -23,7 +23,7 @@ STDCALL uint32_t timeEndPeriod_wrap(uint32_t period)
 	return 0;
 #endif
 }
-STDCALL uint32_t timeGetDevCaps_wrap(TIMECAPS *tc, uint32_t cbtc)
+REALIGN STDCALL uint32_t timeGetDevCaps_wrap(TIMECAPS *tc, uint32_t cbtc)
 {
 #ifdef WIN32
 	return timeGetDevCaps(tc, cbtc);

@@ -6,7 +6,7 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol! The gam
 ## Compile:
 
 * To compile the game you must have a 32-bit:
- * GCC (or Clang) compiler,
+ * GCC or Clang compiler (set by "$CC" environment variable),
  * YASM assembler,
  * OpenGL devel,
  * SDL2 devel.
@@ -50,7 +50,5 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol! The gam
 
 ## Additional information:
 
-* The game doesn't work on OS X due to:
-	* window and event loop aren't in main thread - this doesn't work in Cocoa - the game runs, but it can't get any mouse, keyboard and WM events,
-	* different stack alignment (OS X needs 16 bytes, the game has 4 bytes) - this is very easy to fix.
+* The game doesn't work on OS X, because window and event loop aren't in main thread - this doesn't work in Cocoa - the game runs, but it can't get any mouse, keyboard and WM events,
 * The game is not tested under *BSD systems. Probably it can run after a few code changes.

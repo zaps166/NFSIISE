@@ -17,7 +17,7 @@ typedef struct
 	StfEntry laps[3][10];
 } Stf;
 
-REGPARM FILE *fopen_wrap(const char *fileName, const char *p)
+REALIGN REGPARM FILE *fopen_wrap(const char *fileName, const char *p)
 {
 	char *tmpFileName = convertFilePath(fileName, true);
 	FILE *f = fopen(tmpFileName, p);
@@ -35,7 +35,7 @@ static void readEntry(FILE *f, StfEntry *stfEntry)
 	fscanf(f, "%hi\n%d\n%d\n", &stfEntry->car, &stfEntry->time, &stfEntry->mode);
 }
 
-REGPARM void fetchTrackRecords(uint32_t trackNo, BOOL clear)
+REALIGN REGPARM void fetchTrackRecords(uint32_t trackNo, BOOL clear)
 {
 	char buffer[MAX_PATH];
 	Stf stf;

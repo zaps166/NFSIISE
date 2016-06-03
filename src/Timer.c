@@ -41,11 +41,11 @@ static uint32_t timerCallback(uint32_t interval, void *param)
 	return delay;
 }
 
-void startTimer()
+REALIGN void startTimer()
 {
 	timerID = SDL_AddTimer(1, timerCallback, NULL);
 }
-void stopTimer()
+REALIGN void stopTimer()
 {
 	SDL_RemoveTimer(timerID);
 }
