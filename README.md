@@ -51,3 +51,5 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol! The gam
 
 * The game doesn't work on OS X, because window and event loop aren't in main thread - this doesn't work in Cocoa - the game runs, but it can't get any mouse, keyboard and WM events,
 * The game is not tested under *BSD systems. Probably it can run after a few code changes.
+* Cockpit view is unavailable (original 3D-accelerated version doesn't have this).
+* If the game crashes it might not restore the gamma properly. In this case run: `xgamma -gamma 1.0`.
