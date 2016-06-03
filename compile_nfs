@@ -29,6 +29,15 @@ if [[ $1 == "win32" ]]; then
 	i686-w64-mingw32-ld --enable-stdcall-fixup -o "../Need For Speed II SE/nfs2se.exe" *.o --stack=0x7D00,0x7D00 --heap=0x2000,0x1000 -lws2_32 -lwinmm -lkernel32 -lmingwex -lmsvcrt -lopengl32 -lSDL2 -subsystem=$WIN_SUBSYSTEM $STRIP -e _start &&
 	rm -f *.o &&
 	echo "OK!"
+elif [[ $1 == "osx" ]]; then
+	#Compile for OS X
+	echo -n " OS X... "
+	clang -Wall -m32 $C_FLAGS $CPU_FLAGS -DSTACK_REALIGN -c *.c &&
+	yasm -f macho NFS2SE.asm -o NFS2SE.o --prefix=_ &&
+	yasm -f macho EAcsnd.asm -o EAcsnd.asm.o --prefix=_ &&
+	ld -o "../Need For Speed II SE/nfs2se" *.o -lc -lSDL2 -framework OpenGL -e _start &&
+	rm -f *.o &&
+	echo "OK!"
 else
 	#Compile for Linux
 

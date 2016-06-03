@@ -293,9 +293,13 @@ void WrapperInit(void)
 	uint32_t i;
 	event_mutex = SDL_CreateMutex();
 	event_cond = SDL_CreateCond();
-	for (i = SIGHUP; i <= SIGSTKFLT; ++i)
-		if (i != SIGKILL && i != SIGTRAP)
-			signal(i, signal_handler);
+	#ifndef __APPLE__
+		for (i = SIGHUP; i <= SIGSTKFLT; ++i)
+			if (i != SIGKILL && i != SIGTRAP)
+				signal(i, signal_handler);
+	#else
+		signal(SIGINT, signal_handler);
+	#endif
 	atexit(exit_func);
 #endif
 	if (!f)
@@ -414,17 +418,19 @@ void WrapperInit(void)
 #endif
 
 	if (useOnlyOneCPU)
-#ifdef WIN32
-		SetProcessAffinityMask(GetCurrentProcess(), 1);
-#else
 	{
+#if defined WIN32
+		SetProcessAffinityMask(GetCurrentProcess(), 1);
+#elif defined __APPLE__
+		#warning "TODO: thread affinity"
+#else
 		cpu_set_t set;
 		CPU_ZERO(&set);
 		CPU_SET(0, &set);
 		if (sched_setaffinity(0, sizeof set, &set))
 			perror("sched_setaffinity");
-	}
 #endif
+	}
 }
 
 extern WindowProc wndProc;
