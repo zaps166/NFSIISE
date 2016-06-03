@@ -5,6 +5,8 @@
 	#include <windows.h>
 #endif
 
+static const char title[] = "Need For Speed II: Special Edition - v" NFSIISE_VERSION;
+
 #if defined(SDL_VIDEO_DRIVER_X11) && defined(SDL_VIDEO_DRIVER_X11_DYNAMIC_XVIDMODE)
 	#include <SDL2/SDL_loadso.h>
 	#include <SDL2/SDL_syswm.h>
@@ -182,6 +184,36 @@ static inline void mkdir_wrap(const char *path, uint32_t mode)
 #else
 	mkdir(path, mode);
 #endif
+}
+
+static void checkGameDirs()
+{
+	static const char errorMessage[] = "Can't find \"gamedata\" and/or \"fedata\" directories in current working directory!"
+#ifndef WIN32
+		"\nBe sure that all files and directories have small letters!"
+#endif
+	;
+	BOOL showErrorMessage = true;
+#ifdef WIN32
+	DWORD dwAttrib1 = GetFileAttributes("gamedata");
+	DWORD dwAttrib2 = GetFileAttributes("fedata");
+	if
+	(
+		dwAttrib1 != INVALID_FILE_ATTRIBUTES &&
+		dwAttrib2 != INVALID_FILE_ATTRIBUTES &&
+		(dwAttrib1 & FILE_ATTRIBUTE_DIRECTORY) &&
+		(dwAttrib2 & FILE_ATTRIBUTE_DIRECTORY)
+	) showErrorMessage = false;
+#else
+	struct stat st;
+	if (!stat("gamedata", &st) && S_ISDIR(st.st_mode) && !stat("fedata", &st) && S_ISDIR(st.st_mode))
+		showErrorMessage = false;
+#endif
+	if (showErrorMessage)
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, errorMessage, NULL);
+		exit(-1);
+	}
 }
 
 #ifndef WIN32
@@ -431,13 +463,14 @@ void WrapperInit(void)
 			perror("sched_setaffinity");
 #endif
 	}
+
+	checkGameDirs();
 }
 
 extern WindowProc wndProc;
 
 REALIGN STDCALL SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 {
-	static const char title[] = "The Need For Speed 2 - v" NFSIISE_VERSION;
 	static const uint32_t palette[8] = {0xFF000000, 0xFF000080, 0xFF0000FF, 0xFFC0C0C0, 0xFF00FFFF, 0xFFFFFFFF, 0x00000000, 0xFF008080};
 	static const uint8_t compressed_icon[372] =
 	{
