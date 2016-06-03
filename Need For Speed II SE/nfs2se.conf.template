@@ -14,6 +14,7 @@
 #	-1 - Don't change
 #	 0 - VSync disabled
 #	 1 - VSync enabled (default)
+#	>1 - VSync enabled, limit the framerate
 #MSAA (Multisample antialiasing):
 #	0 - Don't change (default)
 #	1 - Disable MSAA
