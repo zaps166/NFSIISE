@@ -21,7 +21,7 @@ extern uint32_t windowsForceFeedbackDevice;
 extern uint32_t mousePositionX, mousePositionY;
 
 #define CONVERT(x) (((x)*0x7FFF)/10000)
-#define CONVERT_LENGTH(x) (((x) == SDL_HAPTIC_INFINITY) ? SDL_HAPTIC_INFINITY : ((x) / 1000))
+#define CONVERT_LENGTH(x) (((x) == (SDL_HAPTIC_INFINITY)) ? (SDL_HAPTIC_INFINITY) : ((x) / 1000))
 
 static inline void setEnvelope(uint16_t *attack_length, uint16_t *attack_level, uint16_t *fade_length, uint16_t *fade_level, DIENVELOPE *envelope)
 {
@@ -66,7 +66,7 @@ static void setEffect(DirectInputEffect *dinputEffect, const DIEFFECT *di_eff)
 			{
 				periodic->magnitude = CONVERT(di_periodic->magnitude);
 				periodic->offset = CONVERT(di_periodic->offset);
-				periodic->period = CONVERT_LENGTH(di_periodic->period);
+				periodic->period = (uint16_t)CONVERT_LENGTH(di_periodic->period);
 				periodic->phase = di_periodic->phase;
 			}
 			periodic->length = CONVERT_LENGTH(di_eff->duration);
@@ -111,7 +111,7 @@ static void setEffect(DirectInputEffect *dinputEffect, const DIEFFECT *di_eff)
 				constant->direction.type = SDL_HAPTIC_CARTESIAN;
 				constant->direction.dir[0] = (force == 0) ? 0 : (force < 0 ? -1 : 1);
 				constant->attack_level = SDL_abs(force / 3052);
-				constant->attack_length = CONVERT_LENGTH(di_eff->duration);
+				constant->attack_length = (uint16_t)CONVERT_LENGTH(di_eff->duration);
 
 // 				printf("Spring as Constant: coeffP: %d, coeffN: %d, offset: %d, xAxis: %d, force: %d, attack: %d\n", di_condition->lPositiveCoefficient, di_condition->lNegativeCoefficient, di_condition->lOffset, axis, force, force / 3052);
 			}
