@@ -45,6 +45,20 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol! The gam
 * Modem connection (it will never work again, this feature was removed from assembly code),
 * Force Feedback might not work on Windows due to bugs in SDL2. You can try to enable it in "nfs2se.conf" file (WindowsForceFeedbackDevice).
 
+## Function keys in-game
+
+* F1  - toggle rain
+* F2  - car detail
+* F3  - view distance
+* F4  - toggle horizon
+* F5  - toggle HUD (player 1)
+* F6  - toggle HUD (player 2)
+* F7  - toggle mirror
+* F8  - toggle music
+* F9  - toggle sound effects
+* F10 - brightness
+* F11 - reset car
+
 ## Patches:
 
 * This directory contains patch for SDL 2.0.3 (SDL 2.0.4 has already this bugfix). It allows to use all axes in DualShock3 gamepad! You must also modify "nfs2se.conf" file (Joystick0Axes, Joystick0Buttons).
