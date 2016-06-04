@@ -1,7 +1,6 @@
 #include "DInput.h"
 
 #include <SDL2/SDL_mouse.h>
-#include <SDL2/SDL_timer.h>
 
 #define MOUSE        0x6F1D2B60
 #define JOYSTICK     0x6F1D2B70
