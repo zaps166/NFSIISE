@@ -3,7 +3,7 @@ NFSIISE
 
 ![Screenshot](http://zaps166.sourceforge.net/gh-imgs/NFSIISE-screenshot.png)
 
-Need For Speed II SE - Linux port with 3D acceleration and TCP protocol! The game also can run under Windows.
+Cross-platform port of the Need For Speed™ II SE game with 3D acceleration and TCP protocol!
 
 ## Compile:
 
@@ -18,7 +18,7 @@ Need For Speed II SE - Linux port with 3D acceleration and TCP protocol! The gam
 
 ## Run:
 
-* Copy "fedata" and "gamedata" directories from the Need For Speed II SE original CD-ROM (or from CD image from the Internet) into "Need For Speed II SE" directory.
+* Copy "fedata" and "gamedata" directories from the Need For Speed™ II SE original CD-ROM into "Need For Speed II SE" directory.
 * You can delete unnecessary files, e.g. "fedata/pc/text/text.*", because TCP version uses new files in root directory.
 * All files and directories copied from CD-ROM must have *small letters* on Linux!!!
 * If you want to change the language, edit "install.win" file and change the first line. Leave "4nn" as is and modify only language name. Possible languages are:
