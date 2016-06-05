@@ -21,6 +21,7 @@ Cross-platform port of the Need For Speed™ II SE game with 3D acceleration and
 * Copy "fedata" and "gamedata" directories from the Need For Speed™ II SE original CD-ROM into "Need For Speed II SE" directory.
 * You can delete unnecessary files, e.g. "fedata/pc/text/text.*", because TCP version uses new files in root directory.
 * All files and directories copied from CD-ROM must have *small letters* on Linux!!!
+ * Please use the "Need For Speed II SE/convert_to_lowercase" script if you have UPPERCASE names.
 * If you want to change the language, edit "install.win" file and change the first line. Leave "4nn" as is and modify only language name. Possible languages are:
  * english,
  * french,

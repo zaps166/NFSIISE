@@ -1,0 +1,28 @@
+#!/bin/bash
+
+if [ -z $1 ]; then
+	echo "Usage: $0 DIR1 [DIR2]"
+	echo "Rename all files and directories from UPPERCASE to lowercase"
+	echo
+	echo "Example: $0 FEDATA GAMEDATA"
+	exit
+fi
+
+for arg in $@; do
+	if [ -e $arg ]; then
+		paths=$(find $arg -depth) || continue
+		for path in $paths; do
+			directory=$(dirname $path) || continue
+			oldFileName=$(basename $path) || continue
+			newFileName=$(echo $oldFileName | tr [:upper:] [:lower:]) || continue
+			echo -n "Rename '$directory/$oldFileName'->'$directory/$newFileName' "
+			if [ ! -z $directory ] && [ ! -z $oldFileName ] && [ ! -z $newFileName ]; then
+				mv "$directory/$oldFileName" "$directory/$newFileName" && echo
+			else
+				echo "error"
+			fi
+		done
+	else
+		echo "'$arg' doesn't exist!"
+	fi
+done
