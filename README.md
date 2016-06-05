@@ -43,7 +43,7 @@ Cross-platform port of the Need For Speed™ II SE game with 3D acceleration and
 
 ## What does not work:
 
-* Modem connection (it will never work again, this feature was removed from assembly code),
+* Modem connection (it will never work again, this feature has been removed from assembly code),
 * Force Feedback might not work on Windows due to bugs in SDL2. You can try to enable it in "nfs2se.conf" file (WindowsForceFeedbackDevice).
 
 ## Function keys in-game
@@ -66,7 +66,7 @@ Cross-platform port of the Need For Speed™ II SE game with 3D acceleration and
 
 ## Additional information:
 
-* The game doesn't work on OS X, because window and event loop aren't in main thread - this doesn't work in Cocoa - the game runs, but it can't get any mouse, keyboard and WM events,
+* Mac OS X - look at 'wip_osx' branch,
 * The game is not tested under *BSD systems. Probably it can run after a few code changes.
-* Cockpit view is unavailable (original 3D-accelerated version doesn't have this).
+* Cockpit view and night driving are unavailable (original 3D-accelerated version doesn't have this).
 * If the game crashes it might not restore the gamma properly. In this case run: `xgamma -gamma 1.0`.
