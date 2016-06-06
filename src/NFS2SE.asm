@@ -29,6 +29,7 @@ global mousePositionY
 
 extern SDL_NumJoysticks_wrap
 extern SDL_GetTicks_wrap
+extern SDL_Delay_wrap
 
 extern iSNDdllversion_
 extern iSNDdirectsetfunctions_
@@ -146,7 +147,6 @@ extern SetEndOfFile_wrap
 extern SetEvent_wrap
 extern SetFilePointer_wrap
 extern SetThreadPriority_wrap
-extern SleepEx_wrap
 extern TerminateThread_wrap
 extern UnmapViewOfFile_wrap
 extern WaitForMultipleObjects_wrap
@@ -181175,9 +181175,9 @@ loc_489B19:
 	call sub_489CE0
 	push edi ; hThread
 	call ResumeThread_wrap
-	push 1 ; bAlertable
-	push 0 ; dwMilliseconds
-	call SleepEx_wrap
+	push 0 ; ms
+	call SDL_Delay_wrap
+	add esp, 4
 
 loc_489B4A:
 	test edi, edi
@@ -181226,9 +181226,9 @@ loc_489B90:
 sub_489B9C: ;SUBROUTINE
 	push ecx
 	push edx
-	push 1 ; bAlertable
-	push eax ; dwMilliseconds
-	call SleepEx_wrap
+	push eax ; ms
+	call SDL_Delay_wrap
+	add esp, 4
 	pop edx
 	pop ecx
 	ret

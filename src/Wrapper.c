@@ -572,13 +572,17 @@ REALIGN STDCALL SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 #include <stdarg.h>
 #include <time.h>
 
-REALIGN SDLCALL int32_t SDL_NumJoysticks_wrap(void)
+REALIGN int32_t SDL_NumJoysticks_wrap(void)
 {
 	return SDL_NumJoysticks();
 }
-REALIGN SDLCALL uint32_t SDL_GetTicks_wrap(void)
+REALIGN uint32_t SDL_GetTicks_wrap(void)
 {
 	return SDL_GetTicks();
+}
+REALIGN void SDL_Delay_wrap(uint32_t ms)
+{
+	SDL_Delay(ms);
 }
 
 REALIGN int32_t vsprintf_wrap(char *s, const char *fmt, va_list arg)

@@ -194,10 +194,6 @@ REALIGN STDCALL void GetSystemInfo_wrap(SYSTEM_INFO *lpSystemInfo)
 {
 	return GetSystemInfo(lpSystemInfo);
 }
-REALIGN STDCALL uint32_t SleepEx_wrap(uint32_t dwMilliseconds, BOOL bAlertable)
-{
-	return SleepEx(dwMilliseconds, bAlertable);
-}
 REALIGN STDCALL uint32_t GetCurrentDirectoryA_wrap(uint32_t bufferLength, char *buffer)
 {
 	return GetCurrentDirectoryA(bufferLength, buffer);
@@ -662,11 +658,6 @@ REALIGN STDCALL void GetSystemInfo_wrap(SYSTEM_INFO *systemInfo)
 {
 	memset(systemInfo, 0, sizeof(SYSTEM_INFO));
 	systemInfo->pageSize = getpagesize();
-}
-REALIGN STDCALL uint32_t SleepEx_wrap(uint32_t milliseconds, BOOL alertable)
-{
-	SDL_Delay(milliseconds);
-	return 0;
 }
 
 REALIGN STDCALL uint32_t GetCurrentDirectoryA_wrap(uint32_t bufferLength, char *buffer)
