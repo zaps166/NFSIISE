@@ -169881,12 +169881,12 @@ loc_480C80:
 	push sub_481BE0
 	push 466h
 	call sub_482270
+
 loc_480EDC:
 	mov eax, 1
-	mov ecx, 0FFFFFFFFh
 	mov byte [byte_563D5D], bl
 	mov dword [dword_563D74], eax
-	mov eax, [esp+3Ch]
+	mov ecx, 0FFFFFFFFh
 	xor edx, edx
 	lea eax, [esp+28h]
 	mov ebx, 1
@@ -170042,58 +170042,12 @@ loc_48125C:
 ;sub_481080 endp
 
 sub_481290: ;SUBROUTINE
-	push ebx
 	push ecx
 	push edx
 	push esi
-	push edi
-	push ebp
-	sub esp, 10h
-	mov ebx, eax
-	mov ah, [eax+45Dh]
-	mov esi, dword [dword_4DAB34]
-	test ah, ah
-	jnz loc_4813CF
-	mov dl, byte [dword_4DAB88]
-	or esi, 0CA0000h
-	test dl, 20h
-	jz loc_481409
-	or esi, 50000h
-
-loc_4812CA:
-	cmp dword [ebx+454h], 0
-	jz loc_481414
-	mov eax, [ebx+468h]
-	mov [esp+4], eax
-	mov eax, [ebx+464h]
-	mov [esp], eax
-
-loc_4812EA:
-	mov eax, [esp+4]
-	mov ebp, [ebx+18h]
-	add eax, ebp
-	mov [esp+0Ch], eax
-	mov eax, [esp]
-	mov edx, [ebx+14h]
-;	push 0 ; bMenu
-;	add eax, edx
-;	push esi ; dwStyle
-;	mov [esp+10h], eax
-;	lea eax, [esp+8]
-;	push eax ; lpRect
-;	call AdjustWindowRect_wrap
-	mov eax, [esp]
-	mov [ebx+464h], eax
-	mov eax, [esp+4]
-	mov [ebx+468h], eax
-	mov edi, [esp+8]
-	mov ecx, [esp]
-	mov edx, [esp+0Ch]
-	sub edi, ecx
-	sub edx, eax
-	mov ecx, 40000h
-
-loc_481339:
+	;byte [eax+45Dh] determined whether use "AdjustWindowRect" (if 0) or not
+	mov dword [eax+464h], 0 ; Probably originally it was X of the window
+	mov dword [eax+468h], 0 ; Probably originally it was Y of the window
 	push sub_481590
 	call WrapperCreateWindow
 	mov esi, eax
@@ -170103,29 +170057,10 @@ loc_481339:
 ;	push 1
 ;	call sub_497318 ;This cannot be called in this thread
 	mov eax, esi
-	add esp, 10h
-	pop ebp
-	pop edi
 	pop esi
 	pop edx
 	pop ecx
-	pop ebx
 	ret
-
-loc_4813CF:
-	mov dword [ebx+464h], 0
-	mov dword [ebx+468h], 0
-	jmp loc_481339
-
-loc_481409:
-	or esi, 800000h
-	jmp loc_4812CA
-
-loc_481414:
-	mov ecx, 0FFFFE000h
-	mov [esp], ecx
-	mov [esp+4], ecx
-	jmp loc_4812EA
 ;sub_481290 endp
 
 sub_481590: ;SUBROUTINE
@@ -237065,8 +237000,7 @@ dword_4DAB08: dd 0
 dword_4DAB10: dd 0
 dword_4DAB14: dd 0
 dword_4DAB18: dd 0
-	times 2 dd 0 ;?
-dword_4DAB34: dd 10000000h
+	times 3 dd 0 ;?
 dword_4DAB38: dd 0
 dword_4DAB40: dd 0
 	times 5 dd 0
