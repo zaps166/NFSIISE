@@ -7,13 +7,13 @@ Cross-platform port of the Need For Speed™ II SE game with 3D acceleration and
 
 ## Compile:
 
-* To compile the game you must have a 32-bit:
+* To compile the game you must have a **32-bit**:
  * GCC or Clang compiler (set by "$CC" environment variable),
  * YASM assembler,
  * OpenGL devel,
  * SDL2 devel.
 * Edit the "compile_nfs" script, modify what do you want. Compile the game by executing the script - it will automaticly generate executable file inside "Need For Speed II SE" directory:
- * `./compile_nfs` - native compilation for Unix-like systems,
+ * `./compile_nfs` - native compilation for Unix-like systems (Linux, OS X, ...),
  * `./compile_nfs win32` - cross compilation for Windows.
 
 ## Run:
@@ -66,7 +66,6 @@ Cross-platform port of the Need For Speed™ II SE game with 3D acceleration and
 
 ## Additional information:
 
-* Mac OS X - look at 'wip_osx' branch,
 * Compilation on *BSD systems probably needs changes in compilation script (not tested).
 * Cockpit view and night driving are unavailable (original 3D-accelerated version doesn't have this).
 * If the game crashes it might not restore the gamma properly. In this case run: `xgamma -gamma 1.0`.

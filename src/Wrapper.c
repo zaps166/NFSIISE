@@ -267,10 +267,20 @@ BOOL linearSoundInterpolation = false, useGlBleginGlEnd = false, keepAspectRatio
 uint32_t fullScreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP, broadcast = 0xFFFFFFFF;
 uint16_t PORT1 = 1030, PORT2 = 1029;
 
+static void initializeSDL2()
+{
+	if (SDL_Init(SDL_INIT_EVERYTHING & ~SDL_INIT_GAMECONTROLLER) < 0)
+		fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
+}
+
+#ifdef SWAP_WINDOW_AND_GL_THREAD
+REALIGN
+#endif
 void WrapperInit(void)
 {
-	if (SDL_Init((SDL_INIT_EVERYTHING | SDL_INIT_NOPARACHUTE) & ~SDL_INIT_GAMECONTROLLER) < 0)
-		fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
+#ifndef SWAP_WINDOW_AND_GL_THREAD
+	initializeSDL2();
+#endif
 
 	BOOL useOnlyOneCPU = true;
 	uint32_t msaa = 0;
@@ -487,6 +497,14 @@ void WrapperInit(void)
 
 	checkGameDirs();
 }
+
+#ifdef SWAP_WINDOW_AND_GL_THREAD
+REALIGN STDCALL void WrapperStartInThread(SDL_ThreadFunction mainCodeInSeparateThread)
+{
+	initializeSDL2();
+	SDL_DetachThread(SDL_CreateThread(mainCodeInSeparateThread, NULL, NULL));
+}
+#endif
 
 extern WindowProc wndProc;
 

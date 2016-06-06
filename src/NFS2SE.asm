@@ -85,6 +85,7 @@ extern grTexMipMapMode
 extern grTexSource
 extern guFogGenerateExp
 
+extern WrapperStartInThread
 extern WrapperCreateWindow
 extern fetchTrackRecords
 extern WrapperAtExit
@@ -169886,6 +169887,9 @@ loc_480EDC:
 	mov eax, 1
 	mov byte [byte_563D5D], bl
 	mov dword [dword_563D74], eax
+%ifdef SWAP_WINDOW_AND_GL_THREAD
+	mov byte [canRunWindowThread], al
+%else
 	mov ecx, 0FFFFFFFFh
 	xor edx, edx
 	lea eax, [esp+28h]
@@ -169895,6 +169899,7 @@ loc_480EDC:
 	call sub_489AE0
 	test eax, eax
 	jz loc_480F63
+%endif
 	xor edx, edx
 
 loc_480F1C:
@@ -218363,9 +218368,29 @@ loc_4B2D47:
 	ret 4
 ;sub_4B2D3C endp
 
-;	Attributes: library function bp-based frame
-
 start: ;SUBROUTINE
+%ifdef SWAP_WINDOW_AND_GL_THREAD
+	push doStart
+	call WrapperStartInThread
+
+theLoop:
+	cmp byte [canRunWindowThread], 0
+	jnz runWindowThread
+	push 1 ; ms
+	call SDL_Delay_wrap
+	add esp, 4
+	jmp theLoop
+
+runWindowThread:
+	call sub_481080 ;Call the window thread function, but do it in main thread
+	mov byte [canRunWindowThread], 0
+	jmp theLoop
+%else
+	; Directly go to the "doStart" function
+%endif
+;start endp
+
+doStart: ;SUBROUTINE
 	call WrapperInit
 	sub esp, 8
 	mov eax, dword [dword_4E0950]
@@ -218381,7 +218406,7 @@ start: ;SUBROUTINE
 	mov [ecx+0F0h], eax
 	mov dword [lpTlsValue], ecx
 	jmp sub_4BB81E
-;start endp
+;doStart endp
 
 sub_4B2FD0: ;SUBROUTINE
 	push edx
@@ -238639,6 +238664,9 @@ dword_4E2AEC: dd 2000h
 	dd 2AA1h, 2D41h, 3249h, 3B21h, 4B42h, 6D41h, 0D650h, 73FCh
 	dd 539Fh, 58C5h, 62A3h, 73FCh, 939Fh, 0D650h, 1A463h, 0
 timerIsRunning: dd 0
+%ifdef SWAP_WINDOW_AND_GL_THREAD
+canRunWindowThread: db 0
+%endif
 
 section .bss
 
