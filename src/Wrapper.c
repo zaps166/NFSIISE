@@ -49,11 +49,7 @@ REALIGN STDCALL void WrapperAtExit(ProcedureType proc)
 
 uint32_t watchdogTimer(uint32_t interval, void *param)
 {
-#ifndef WIN32
 	exit(0);
-#else
-	ExitProcess(0);
-#endif
 }
 
 SDL_Window *sdlWin = NULL;
@@ -109,6 +105,7 @@ void SetBrightness(float val)
 }
 
 static char *settingsDir = NULL;
+
 #ifndef WIN32
 char *serialPort[4] = {NULL};
 SDL_mutex *event_mutex;
@@ -241,7 +238,7 @@ static void checkGameDirs()
 static void signal_handler(int sig)
 {
 	static char errStr[40];
-	if (sig == SIGINT)
+	if (sig == SIGINT || sig == SIGTERM)
 	{
 		exit(0);
 		return;
@@ -343,13 +340,19 @@ void WrapperInit(void)
 	uint32_t i;
 	event_mutex = SDL_CreateMutex();
 	event_cond = SDL_CreateCond();
-	#ifndef __APPLE__
-		for (i = SIGHUP; i <= SIGSTKFLT; ++i)
-			if (i != SIGKILL && i != SIGTRAP)
-				signal(i, signal_handler);
-	#else
-		signal(SIGINT, signal_handler);
-	#endif
+
+	signal(SIGINT, signal_handler);
+	signal(SIGILL, signal_handler);
+	signal(SIGABRT, signal_handler);
+	signal(SIGBUS, signal_handler);
+	signal(SIGFPE, signal_handler);
+	signal(SIGUSR1, signal_handler);
+	signal(SIGSEGV, signal_handler);
+	signal(SIGUSR2, signal_handler);
+	signal(SIGPIPE, signal_handler);
+	signal(SIGALRM, signal_handler);
+	signal(SIGTERM, signal_handler);
+
 	atexit(exit_func);
 #endif
 	if (!f)
@@ -471,7 +474,7 @@ void WrapperInit(void)
 	{
 #if defined WIN32
 		SetProcessAffinityMask(GetCurrentProcess(), 1);
-#elif defined __APPLE__
+#elif !defined linux
 		#warning "TODO: thread affinity"
 #else
 		cpu_set_t set;

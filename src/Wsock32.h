@@ -23,6 +23,7 @@
 
 #ifndef WIN32
 	#include <netinet/tcp.h>
+	#include <netinet/in.h>
 	#include <sys/socket.h>
 	#include <arpa/inet.h>
 	#include <sys/ioctl.h>

@@ -8,11 +8,11 @@ if [[ $1 == "debug" ]]; then
 	echo -n " debug"
 	WIN_SUBSYSTEM='console'
 	DEBUG_ASM='-g dwarf2'
-	C_FLAGS='-g'
+	C_FLAGS="-Wall -m32 -g $CPU_FLAGS"
 else
 	echo -n " release"
 	WIN_SUBSYSTEM='windows'
-	C_FLAGS='-O2'
+	C_FLAGS="-Wall -m32 -O2 $CPU_FLAGS"
 	STRIP='-s'
 fi
 
@@ -20,43 +20,49 @@ cd src || exit 1
 
 echo -n " for"
 if [[ $1 == "win32" ]]; then
-	#Cross-compile for Window$
-	echo -n " Window$... "
+	echo -n " Windows... "
 	i686-w64-mingw32-windres Windows/nfs2se.rc icon.o &&
-	i686-w64-mingw32-gcc -Wall $C_FLAGS $CPU_FLAGS -c *.c &&
+	i686-w64-mingw32-gcc $C_FLAGS -c *.c &&
 	yasm -f win32 NFS2SE.asm -o NFS2SE.o $DEBUG_ASM --prefix=_ &&
 	yasm -f win32 EAcsnd.asm -o EAcsnd.asm.o $DEBUG_ASM --prefix=_ &&
 	i686-w64-mingw32-ld --enable-stdcall-fixup -o "../Need For Speed II SE/nfs2se.exe" *.o --stack=0x7D00,0x7D00 --heap=0x2000,0x1000 -lws2_32 -lwinmm -lkernel32 -lmingwex -lmsvcrt -lopengl32 -lSDL2 -subsystem=$WIN_SUBSYSTEM $STRIP -e _start &&
 	rm -f *.o &&
 	echo "OK!"
-elif [[ $1 == "osx" ]]; then
-	#Compile for OS X
-	echo -n " OS X... "
-	clang -Wall -m32 $C_FLAGS $CPU_FLAGS -DSTACK_REALIGN -c *.c &&
-	yasm -f macho NFS2SE.asm -o NFS2SE.o --prefix=_ &&
-	yasm -f macho EAcsnd.asm -o EAcsnd.asm.o --prefix=_ &&
-	ld -o "../Need For Speed II SE/nfs2se" *.o -lc -lSDL2 -framework OpenGL -e _start &&
-	rm -f *.o &&
-	echo "OK!"
 else
-	#Compile for Linux
-
-	if [ -z $CC ]; then
-		CC=gcc
+	OS=$(uname)
+	if [ $OS == "Linux" ]; then
+		if [ -z $CC ]; then
+			CC=gcc
+		fi
+		echo -n " $OS ($CC)... "
+		#32bit libraries for Linux
+		if [ -z $LIB32_DIR ]; then
+			LIB32_DIR=/usr/lib
+			if [[ -d /usr/lib32 ]]; then
+				LIB32_DIR=/usr/lib32
+			fi
+		fi
+		$CC $C_FLAGS -DSTACK_REALIGN -c *.c &&
+		yasm -f elf32 NFS2SE.asm -o NFS2SE.o $DEBUG_ASM &&
+		yasm -f elf32 EAcsnd.asm -o EAcsnd.asm.o $DEBUG_ASM &&
+		ld -m elf_i386 -dynamic-linker /lib/ld-linux.so.2 -o "../Need For Speed II SE/nfs2se" *.o -L$LIB32_DIR -lc -lSDL2 -lGL $STRIP -rpath=\$ORIGIN -e start &&
+		rm -f *.o &&
+		echo "OK!"
+	elif [ $OS == "Darwin" ]; then
+		echo -n " OS X... "
+		clang $C_FLAGS -DSTACK_REALIGN -c *.c &&
+		yasm -f macho NFS2SE.asm -o NFS2SE.o --prefix=_ &&
+		yasm -f macho EAcsnd.asm -o EAcsnd.asm.o --prefix=_ &&
+		ld -o "../Need For Speed II SE/nfs2se" *.o -lc -lSDL2 -framework OpenGL -e _start &&
+		rm -f *.o &&
+		echo "OK!"
+	elif [ $OS == "FreeBSD" ]; then
+		echo -n " $OS... "
+		clang $C_FLAGS -DSTACK_REALIGN -c -I/usr/local/include *.c &&
+		yasm -f elf32 NFS2SE.asm -o NFS2SE.o $DEBUG_ASM &&
+		yasm -f elf32 EAcsnd.asm -o EAcsnd.asm.o $DEBUG_ASM &&
+		ld -m elf_i386_fbsd -dynamic-linker /libexec/ld-elf32.so.1 -o "../Need For Speed II SE/nfs2se" *.o -L/usr/local/lib32/compat -lc -lSDL2 -lGL $STRIP -rpath=\$ORIGIN -e start &&
+		rm -f *.o &&
+		echo "OK!"
 	fi
-
-	echo -n " Linux ($CC)... "
-
-	#32bit libraries for Linux
-	LIB32_DIR=/usr/lib
-	if [[ -d /usr/lib32 ]]; then
-		LIB32_DIR=/usr/lib32
-	fi
-
-	$CC -Wall -m32 $C_FLAGS $CPU_FLAGS -DSTACK_REALIGN -c *.c &&
-	yasm -f elf32 NFS2SE.asm -o NFS2SE.o $DEBUG_ASM &&
-	yasm -f elf32 EAcsnd.asm -o EAcsnd.asm.o $DEBUG_ASM &&
-	ld -m elf_i386 -dynamic-linker /lib/ld-linux.so.2 -o "../Need For Speed II SE/nfs2se" *.o -L$LIB32_DIR -lc -lSDL2 -lGL $STRIP -rpath=\$ORIGIN -e start &&
-	rm -f *.o &&
-	echo "OK!"
 fi

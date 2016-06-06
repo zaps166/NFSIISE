@@ -13,14 +13,14 @@ Cross-platform port of the Need For Speed™ II SE game with 3D acceleration and
  * OpenGL devel,
  * SDL2 devel.
 * Edit the "compile_nfs" script, modify what do you want. Compile the game by executing the script - it will automaticly generate executable file inside "Need For Speed II SE" directory:
- * `./compile_nfs` - compilation for Linux,
+ * `./compile_nfs` - native compilation for Unix-like systems,
  * `./compile_nfs win32` - cross compilation for Windows.
 
 ## Run:
 
 * Copy "fedata" and "gamedata" directories from the Need For Speed™ II SE original CD-ROM into "Need For Speed II SE" directory.
 * You can delete unnecessary files, e.g. "fedata/pc/text/text.*", because TCP version uses new files in root directory.
-* All files and directories copied from CD-ROM must have *small letters* on Linux!!!
+* All files and directories copied from CD-ROM **must** have *small letters* on Unix-like systems!!!
  * Please use the "Need For Speed II SE/convert_to_lowercase" script if you have UPPERCASE names.
 * If you want to change the language, edit "install.win" file and change the first line. Leave "4nn" as is and modify only language name. Possible languages are:
  * english,
@@ -48,17 +48,17 @@ Cross-platform port of the Need For Speed™ II SE game with 3D acceleration and
 
 ## Function keys in-game
 
-* F1  - toggle rain
-* F2  - car detail
-* F3  - view distance
-* F4  - toggle horizon
-* F5  - toggle HUD (player 1)
-* F6  - toggle HUD (player 2)
-* F7  - toggle mirror
-* F8  - toggle music
-* F9  - toggle sound effects
-* F10 - brightness
-* F11 - reset car
+* F1  - toggle rain,
+* F2  - car detail,
+* F3  - view distance,
+* F4  - toggle horizon,
+* F5  - toggle HUD (player 1),
+* F6  - toggle HUD (player 2),
+* F7  - toggle mirror,
+* F8  - toggle music,
+* F9  - toggle sound effects,
+* F10 - brightness,
+* F11 - reset car.
 
 ## Patches:
 
@@ -67,6 +67,6 @@ Cross-platform port of the Need For Speed™ II SE game with 3D acceleration and
 ## Additional information:
 
 * Mac OS X - look at 'wip_osx' branch,
-* The game is not tested under *BSD systems. Probably it can run after a few code changes.
+* Compilation on *BSD systems probably needs changes in compilation script (not tested).
 * Cockpit view and night driving are unavailable (original 3D-accelerated version doesn't have this).
 * If the game crashes it might not restore the gamma properly. In this case run: `xgamma -gamma 1.0`.
