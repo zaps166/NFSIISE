@@ -453,7 +453,7 @@ REALIGN STDCALL BOOL grSstWinOpen(uint32_t hWnd, GrScreenResolution_t screen_res
 	{
 		glBindTexture(GL_TEXTURE_2D, i);
 		setTextureFiltering();
-		glTexImage2D(GL_TEXTURE_2D, 0, 4, 64 >> i, 64 >> i, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 64 >> i, 64 >> i, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
 	}
 	maxTexIdx = 5;
 
@@ -539,13 +539,13 @@ REALIGN STDCALL void grTexDownloadMipMap(GrChipID_t tmu, uint32_t startAddress, 
 	switch (info->format)
 	{
 		case GR_TEXFMT_RGB_565:
-			glTexImage2D(GL_TEXTURE_2D, 0, 4, size, size, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, data);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, size, size, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, data);
 			break;
 		case GR_TEXFMT_ARGB_1555:
-			glTexImage2D(GL_TEXTURE_2D, 0, 4, size, size, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, data);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, data);
 			break;
 		case GR_TEXFMT_ARGB_4444:
-			glTexImage2D(GL_TEXTURE_2D, 0, 4, size, size, 0, GL_BGRA, GL_UNSIGNED_SHORT_4_4_4_4_REV, data);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_BGRA, GL_UNSIGNED_SHORT_4_4_4_4_REV, data);
 			break;
 	}
 // 	printf("grTexDownloadMipMap: 0x%.8X %d\n", startAddress, maxTexIdx);
