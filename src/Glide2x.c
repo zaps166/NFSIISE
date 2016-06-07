@@ -341,14 +341,14 @@ REALIGN STDCALL void grFogTable(const GrFog_t ft[GR_FOG_TABLE_SIZE])
 {
 	/* Copied from OpenGLIDE */
 
-	static uint32_t intStartEnd[GR_FOG_TABLE_SIZE + 1] =
+	static const uint32_t intStartEnd[GR_FOG_TABLE_SIZE + 1] =
 	{
 		1, 1, 1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 8, 9, 11, 13, 16, 19, 22, 26, 32, 38, 45, 53,
 		64, 76, 90, 107, 128, 152, 181, 215, 256, 304, 362, 430, 512, 608, 724, 861,
 		1024, 1217, 1448, 1722, 2048, 2435, 2896, 3444, 4096, 4870, 5792, 6888, 8192,
 		9741, 11585, 13777, 16384, 19483, 23170, 27554, 32768, 38967, 46340, 55108, 65536
 	};
-	static uint32_t intEndMinusStart[GR_FOG_TABLE_SIZE] =
+	static const uint32_t intEndMinusStart[GR_FOG_TABLE_SIZE] =
 	{
 		0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 2, 1, 2, 2, 3, 3, 3, 4, 6, 6, 7, 8, 11, 12, 14,
 		17, 21, 24, 29, 34, 41, 48, 58, 68, 82, 96, 116, 137, 163, 193, 231, 274, 326,
@@ -592,7 +592,7 @@ REALIGN STDCALL void guFogGenerateExp(GrFog_t fogtable[GR_FOG_TABLE_SIZE], float
 {
 	/* Copied from OpenGLIDE */
 
-	static float tableIndexToW[GR_FOG_TABLE_SIZE] =
+	static const float tableIndexToW[GR_FOG_TABLE_SIZE] =
 	{
 		1.000000f,     1.142857f,     1.333333f,     1.600000f,
 		2.000000f,     2.285714f,     2.666667f,     3.200000f,
