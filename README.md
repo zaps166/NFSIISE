@@ -19,6 +19,7 @@ Cross-platform port of the Need For Speed™ II SE game with 3D acceleration and
 ## Run:
 
 * Copy "fedata" and "gamedata" directories from the Need For Speed™ II SE original CD-ROM into "Need For Speed II SE" directory.
+* This game **needs** data from Need For Speed 2 **Special Edition**, otherwise you'll see a 'MOVIE FILE NOT FOUND' message!
 * You can delete unnecessary files, e.g. "fedata/pc/text/text.*", because TCP version uses new files in root directory.
 * All files and directories copied from CD-ROM **must** have *small letters* on Unix-like systems!!!
  * Please use the "Need For Speed II SE/convert_to_lowercase" script if you have UPPERCASE names.
