@@ -3,15 +3,15 @@ NFSIISE
 
 ![Screenshot](http://zaps166.sourceforge.net/gh-imgs/NFSIISE-screenshot.png)
 
-Cross-platform port of the Need For Speed™ II SE game with 3D acceleration and TCP protocol!
+Cross-platform wrapper for the Need For Speed™ II SE game with 3D acceleration and TCP protocol!
 
 ## Compile:
 
 * To compile the game you must have a **32-bit**:
  * GCC or Clang compiler (set by `$CC` environment variable),
- * YASM assembler,
  * OpenGL devel,
  * SDL2 devel.
+* You need the Internet connection and CURL to download needed file for compilation.
 * Edit the `compile_nfs` script, modify what do you want. Compile the game by executing the script - it will automaticly generate executable file inside `Need For Speed II SE` directory:
  * `./compile_nfs` - native compilation for Unix-like systems (Linux, OS X, ...),
  * `./compile_nfs win32` - cross compilation for Windows.
