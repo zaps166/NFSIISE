@@ -1,7 +1,7 @@
 NFSIISE
 =======
 
-![Screenshot](http://zaps166.sourceforge.net/gh-imgs/NFSIISE-screenshot.png)
+![Screenshot](https://raw.githubusercontent.com/zaps166/GitHubCommonContents/master/Screenshots/NFSIISE.png)
 
 Cross-platform wrapper for the Need For Speed™ II SE game with 3D acceleration and TCP protocol!
 
