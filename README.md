@@ -5,10 +5,19 @@ NFSIISE
 
 Cross-platform wrapper for the Need For Speed™ II SE game with 3D acceleration and TCP protocol!
 
+## GIT clone:
+
+Don't forget to update submodule:
+```sh
+$ git submodule init
+$ git submodule update
+```
+
 ## Compile:
 
 * To compile the game you must have a **32-bit**:
  * GCC or Clang compiler (set by `$CC` environment variable),
+ * Yasm assembler (can be 64-bit),
  * OpenGL devel,
  * SDL2 devel.
 * You need the Internet connection and CURL to download needed file for compilation.

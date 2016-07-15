@@ -17,18 +17,14 @@ else
 fi
 
 cd src || exit 1
-mkdir -p game-obj || exit 1
-
-URL="http://zaps166.sourceforge.net/downloads/nfs2se-obj"
 
 echo -n " for"
 if [[ $1 == "win32" ]]; then
 	echo -n " Windows... "
-	curl "$URL/NFS2SE.Win32.o" > game-obj/NFS2SE.Win32.o 2> /dev/null &&
 	i686-w64-mingw32-windres Windows/nfs2se.rc icon.o &&
 	i686-w64-mingw32-gcc $C_FLAGS -c *.c &&
-# 	yasm -f win32 NFS2SE.asm -o game-obj/NFS2SE.Win32.o $DEBUG_ASM --prefix=_ &&
-	i686-w64-mingw32-ld --enable-stdcall-fixup -o "../Need For Speed II SE/nfs2se.exe" *.o game-obj/NFS2SE.Win32.o --stack=0x7D00,0x7D00 --heap=0x2000,0x1000 -lws2_32 -lwinmm -lkernel32 -lmingwex -lmsvcrt -lopengl32 -lSDL2 -subsystem=$WIN_SUBSYSTEM $STRIP -e _start &&
+	yasm -f win32 Asm/NFS2SE.asm -o NFS2SE.Win32.o $DEBUG_ASM --prefix=_ &&
+	i686-w64-mingw32-ld --enable-stdcall-fixup -o "../Need For Speed II SE/nfs2se.exe" *.o --stack=0x7D00,0x7D00 --heap=0x2000,0x1000 -lws2_32 -lwinmm -lkernel32 -lmingwex -lmsvcrt -lopengl32 -lSDL2 -subsystem=$WIN_SUBSYSTEM $STRIP -e _start &&
 	rm -f *.o &&
 	echo "OK!"
 else
@@ -45,26 +41,24 @@ else
 				LIB32_DIR=/usr/lib32
 			fi
 		fi
-		curl "$URL/NFS2SE.Linux.o" > game-obj/NFS2SE.Linux.o 2> /dev/null &&
 		$CC $C_FLAGS -DSTACK_REALIGN -c *.c &&
-# 		yasm -f elf32 NFS2SE.asm -o game-obj/NFS2SE.Linux.o $DEBUG_ASM &&
-		ld -m elf_i386 -dynamic-linker /lib/ld-linux.so.2 -o "../Need For Speed II SE/nfs2se" *.o game-obj/NFS2SE.Linux.o -L$LIB32_DIR -lc -lSDL2 -lGL $STRIP -rpath=\$ORIGIN -e start &&
+		yasm -f elf32 Asm/NFS2SE.asm -o NFS2SE.Linux.o $DEBUG_ASM &&
+		ld -m elf_i386 -dynamic-linker /lib/ld-linux.so.2 -o "../Need For Speed II SE/nfs2se" *.o -L$LIB32_DIR -lc -lSDL2 -lGL $STRIP -rpath=\$ORIGIN -e start &&
 		rm -f *.o &&
 		echo "OK!"
 	elif [ $OS == "Darwin" ]; then
 		echo -n " OS X... "
-		curl "$URL/NFS2SE.OSX.o" > game-obj/NFS2SE.OSX.o 2> /dev/null &&
 		clang $C_FLAGS -DSTACK_REALIGN -DSWAP_WINDOW_AND_GL_THREAD -c *.c &&
-# 		yasm -f macho NFS2SE.asm -o game-obj/NFS2SE.OSX.o --prefix=_ -DSWAP_WINDOW_AND_GL_THREAD &&
-		ld -o "../Need For Speed II SE/nfs2se" *.o game-obj/NFS2SE.OSX.o -lc -lSDL2 -framework OpenGL -macosx_version_min 10.6 -e _start &&
+		yasm -f macho Asm/NFS2SE.asm -o NFS2SE.OSX.o --prefix=_ -DSWAP_WINDOW_AND_GL_THREAD &&
+		ld -o "../Need For Speed II SE/nfs2se" *.o -lc -lSDL2 -framework OpenGL -macosx_version_min 10.6 -e _start &&
 		rm -f *.o &&
 		echo "OK!"
 	elif [ $OS == "FreeBSD" ]; then
+		#NOT TESTED!!!
 		echo -n " $OS... "
-		curl "$URL/NFS2SE.Linux.o" > game-obj/NFS2SE.Linux.o 2> /dev/null &&
 		clang $C_FLAGS -DSTACK_REALIGN -c -I/usr/local/include *.c &&
-# 		yasm -f elf32 NFS2SE.asm -o game-obj/NFS2SE.Linux.o $DEBUG_ASM &&
-		ld -m elf_i386_fbsd -dynamic-linker /libexec/ld-elf32.so.1 -o "../Need For Speed II SE/nfs2se" *.o game-obj/NFS2SE.Linux.o -L/usr/local/lib32/compat -lc -lSDL2 -lGL $STRIP -rpath=\$ORIGIN -e start &&
+		yasm -f elf32 Asm/NFS2SE.asm -o NFS2SE.Linux.o $DEBUG_ASM &&
+		ld -m elf_i386_fbsd -dynamic-linker /libexec/ld-elf32.so.1 -o "../Need For Speed II SE/nfs2se" *.o -L/usr/local/lib32/compat -lc -lSDL2 -lGL $STRIP -rpath=\$ORIGIN -e start &&
 		rm -f *.o &&
 		echo "OK!"
 	fi

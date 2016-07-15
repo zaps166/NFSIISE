@@ -1,0 +1,3 @@
+[submodule "src/Asm"]
+	path = src/Asm
+	url = https://github.com/zaps166/NFSIISE-ASM
