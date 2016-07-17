@@ -7,7 +7,7 @@ if [[ $1 == "debug" ]]; then
 	shift
 	echo -n " debug"
 	WIN_SUBSYSTEM='console'
-# 	DEBUG_ASM='-g dwarf2'
+	DEBUG_ASM='-g dwarf2'
 	C_FLAGS="-Wall -m32 -g $CPU_FLAGS"
 else
 	echo -n " release"
