@@ -318,7 +318,7 @@ void WrapperInit(void)
 		/* Creating ~/.nfs2se directory and subdirectories */
 		strcpy(buffer, homeDir);
 #ifdef __APPLE__
-		strcat(buffer, "/Libary/Application Support/nfs2se/");
+		strcat(buffer, "/Library/Application Support/nfs2se/");
 #else
 		strcat(buffer, "/.nfs2se/");
 #endif
