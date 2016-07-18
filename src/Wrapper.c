@@ -29,7 +29,7 @@
 	#include <windows.h>
 #endif
 
-static char title[128] = "Need For Speed II SE (wrapper v1.0.2, game v";
+static const char title[] = "Need For Speed II SE";
 
 #if defined(SDL_VIDEO_DRIVER_X11) && defined(SDL_VIDEO_DRIVER_X11_DYNAMIC_XVIDMODE)
 	#include <SDL2/SDL_loadso.h>
@@ -276,8 +276,9 @@ uint16_t PORT1 = 1030, PORT2 = 1029;
 static void initializeSDL2()
 {
 	extern const char binaryGameVersion;
-	strcat(title, &binaryGameVersion);
-	strcat(title, ")");
+	printf("%s\n  Wrapper v%s\n  Game    v%s\n", title, WRAPPER_VERSION, &binaryGameVersion);
+	fflush(stdout);
+
 	if (SDL_Init(SDL_INIT_EVERYTHING & ~SDL_INIT_GAMECONTROLLER) < 0)
 		fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
 }
