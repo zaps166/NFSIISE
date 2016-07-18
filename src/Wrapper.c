@@ -273,6 +273,8 @@ BOOL linearSoundInterpolation = false, useGlBleginGlEnd = false, keepAspectRatio
 uint32_t fullScreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP, broadcast = 0xFFFFFFFF;
 uint16_t PORT1 = 1030, PORT2 = 1029;
 
+int32_t touchpadJoyIdx = -1;
+
 static void initializeSDL2()
 {
 	extern const char binaryGameVersion;
@@ -281,6 +283,17 @@ static void initializeSDL2()
 
 	if (SDL_Init(SDL_INIT_EVERYTHING & ~SDL_INIT_GAMECONTROLLER) < 0)
 		fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
+
+	const int n = SDL_NumJoysticks();
+	for (int i = 0; i < n; ++i)
+	{
+		const char *name = SDL_JoystickNameForIndex(i);
+		if (name && strstr(name, "SynPS/2"))
+		{
+			touchpadJoyIdx = i;
+			break;
+		}
+	}
 }
 
 #ifdef SWAP_WINDOW_AND_GL_THREAD
@@ -599,15 +612,16 @@ REALIGN STDCALL SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 	return sdlWin;
 }
 
+REALIGN int32_t SDL_NumJoysticks_wrap(void)
+{
+	return SDL_NumJoysticks() - (touchpadJoyIdx >= 0);
+}
+
 /* Wrapper for functions called from Assembly code for stack realignment */
 
 #include <stdarg.h>
 #include <time.h>
 
-REALIGN int32_t SDL_NumJoysticks_wrap(void)
-{
-	return SDL_NumJoysticks();
-}
 REALIGN uint32_t SDL_GetTicks_wrap(void)
 {
 	return SDL_GetTicks();
