@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 CPU_FLAGS='-mno-sse2 -mno-sse -mno-mmx'
 
