@@ -521,8 +521,6 @@ void WrapperInit(void)
 			perror("sched_setaffinity");
 #endif
 	}
-
-	checkGameDirs();
 }
 
 #ifdef SWAP_WINDOW_AND_GL_THREAD
@@ -574,6 +572,8 @@ REALIGN STDCALL SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 	};
 
 	uint32_t *icon, i, j;
+
+	checkGameDirs();
 
 	sdlWin = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, winWidth, winHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (startInFullScreen ? fullScreenFlag : 0));
 	if (!sdlWin)
