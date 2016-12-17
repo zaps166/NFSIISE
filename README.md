@@ -41,6 +41,8 @@ $ git submodule update
  * swedish.
 * Run the game.
 * The game settings files are located in `~/.nfs2se` (`%AppData%\.nfs2se` on Windows). At the first run the `nfs2se.conf.template` will be copied there. You can modify the file if you want to configure the game. On Windows you can use `open_config.bat` to open the config file in notepad.
+* On Ubuntu 16.04 you can quick start by installing these dependencies:
+    `sudo apt install libgl1-mesa-glx:i386 libxinerama1:i386 libxrandr2:i386`
 
 ## What works:
 
