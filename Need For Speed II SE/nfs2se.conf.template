@@ -41,6 +41,8 @@
 #	Specify which buttons will be used in game for first joystick. Value less than 0 - disabled. NFS2SE supports 15 buttons
 #Joystick1Buttons:
 #	Specify which buttons will be used in game for second joystick. Value less than 0 - disabled. NFS2SE supports 15 buttons
+#Joystick0EscButton:
+#	Specify which button will be used as Escape key
 #UseSpringForceFeedbackEffect:
 #	0 - Don't use Spring Force Feedback Effect (default)
 #	1 - Use Spring Force Feedback Effect (experimental)
@@ -73,6 +75,7 @@
 #Joystick1Axes=0,12,13,14:0,1,1,1
 #Joystick0Buttons=0,15,16,3,4,5,6,7,-1,-1,-1,11,12,13,14
 #Joystick1Buttons=0,15,16,3,4,5,6,7,-1,-1,-1,11,12,13,14
+#Joystick0EscButton=-1
 #UseSpringForceFeedbackEffect=0
 #WindowsForceFeedbackDevice=-1
 #LinearSoundInterpolation=1

@@ -24,7 +24,7 @@
 
 #include "DInput.h"
 
-#include <SDL2/SDL_mouse.h>
+#include <SDL2/SDL_events.h>
 
 #define MOUSE        0x6F1D2B60
 #define JOYSTICK     0x6F1D2B70
@@ -37,6 +37,7 @@ extern int32_t winWidth, winHeight;
 
 extern int32_t joystickAxes[2][8], joystickButtons[2][15];
 extern int32_t joystickAxisValueShift[2];
+extern int32_t joystick0EscButton;
 
 extern BOOL useSpringForceFeedbackEffect;
 extern uint32_t windowsForceFeedbackDevice;
@@ -301,8 +302,42 @@ static REALIGN STDCALL uint32_t GetDeviceState(DirectInputDevice **this, uint32_
 		if (numAxes > 4)
 			numAxes = 4;
 
+		const BOOL simulateEsc = (joyIdx == 0 && joystick0EscButton >= 0 && joystick0EscButton < numButtons);
+
+		if (simulateEsc)
+		{
+			/* Simulate ESC key on Joystick */
+
+			const uint8_t escJoy = SDL_JoystickGetButton(joy, joystick0EscButton);
+			static BOOL escJoyPressed = false;
+
+			SDL_Event event;
+			memset(&event, 0, sizeof event);
+			event.key.keysym.sym = SDLK_ESCAPE;
+			event.key.keysym.scancode = 41;
+
+			if (escJoy && !escJoyPressed)
+			{
+				event.type = SDL_KEYDOWN;
+				SDL_PushEvent(&event);
+				escJoyPressed = true;
+			}
+			else if (!escJoy && escJoyPressed)
+			{
+				event.type = SDL_KEYUP;
+				SDL_PushEvent(&event);
+				escJoyPressed = false;
+			}
+		}
+
 		for (i = 0; i < numButtons; ++i)
-			joyState->buttons[i] = SDL_JoystickGetButton(joy, joystickButtons[joyIdx][i]) << 7;
+		{
+			const int32_t joystickButton = joystickButtons[joyIdx][i];
+			if (simulateEsc && joystickButton == joystick0EscButton)
+				continue; //Skip button which is used as Escape key
+			joyState->buttons[i] = SDL_JoystickGetButton(joy, joystickButton) << 7;
+		}
+
 		for (i = 0; i < numAxes; ++i)
 		{
 			int32_t *axis = &joyState->axes[i < 3 ? i : 5];
