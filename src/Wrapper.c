@@ -284,8 +284,9 @@ static void initializeSDL2()
 	if (SDL_Init(SDL_INIT_EVERYTHING & ~SDL_INIT_GAMECONTROLLER) < 0)
 		fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
 
+	int i;
 	const int n = SDL_NumJoysticks();
-	for (int i = 0; i < n; ++i)
+	for (i = 0; i < n; ++i)
 	{
 		const char *name = SDL_JoystickNameForIndex(i);
 		if (name && strstr(name, "SynPS/2"))
