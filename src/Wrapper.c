@@ -135,7 +135,7 @@ void exit_func(void)
 	i = 250;
 	while (sdlWin && i--)
 		SDL_Delay(10);
-#ifndef WIN32
+#if !defined(WIN32) && 0 // Disabled, because currently causes deadlock on Linux
 	SDL_DestroyCond(event_cond);
 	event_cond = NULL;
 	SDL_DestroyMutex(event_mutex);
