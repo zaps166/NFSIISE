@@ -283,7 +283,14 @@ int32_t touchpadJoyIdx = -1;
 static void initializeSDL2()
 {
 	extern const char binaryGameVersion;
-	printf("%s\n  Wrapper v%s\n  Game    v%s\n", title, WRAPPER_VERSION, &binaryGameVersion);
+	printf("%s\n  Wrapper v%s\n  Game    v%s\n  OpenGL  ", title, WRAPPER_VERSION, &binaryGameVersion);
+#if defined(OPENGL1X)
+	puts("1");
+#elif defined(GLES2)
+	puts("ES 2");
+#else
+	puts("2");
+#endif
 	fflush(stdout);
 
 	if (SDL_Init(SDL_INIT_EVERYTHING & ~SDL_INIT_GAMECONTROLLER) < 0)
