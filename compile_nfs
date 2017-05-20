@@ -23,7 +23,7 @@ echo -n " for"
 if [[ $1 == "win32" ]]; then
 	echo -n " Windows... "
 	i686-w64-mingw32-windres Windows/nfs2se.rc icon.o &&
-	i686-w64-mingw32-gcc $C_FLAGS -c *.c &&
+	i686-w64-mingw32-gcc $C_FLAGS -DOPENGL1X -c *.c &&
 	yasm -f win32 Asm/NFS2SE.asm -o NFS2SE.Win32.o $DEBUG_ASM --prefix=_ &&
 	i686-w64-mingw32-ld --enable-stdcall-fixup -o "../Need For Speed II SE/nfs2se.exe" *.o --stack=0x7D00,0x7D00 --heap=0x2000,0x1000 -lws2_32 -lwinmm -lkernel32 -lmingwex -lmsvcrt -lopengl32 -lSDL2 -subsystem=$WIN_SUBSYSTEM $STRIP -e _start &&
 	rm -f *.o &&
@@ -42,7 +42,7 @@ else
 				LIB32_DIR=/usr/lib32
 			fi
 		fi
-		$CC $C_FLAGS -DSTACK_REALIGN -c *.c &&
+		$CC $C_FLAGS -DSTACK_REALIGN -DOPENGL1X -c *.c &&
 		yasm -f elf32 Asm/NFS2SE.asm -o NFS2SE.Linux.o $DEBUG_ASM &&
 		ld -m elf_i386 -dynamic-linker /lib/ld-linux.so.2 -o "../Need For Speed II SE/nfs2se" *.o -L$LIB32_DIR -lc -lSDL2 -lGL $STRIP -rpath=\$ORIGIN -e start &&
 		rm -f *.o &&

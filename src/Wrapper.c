@@ -31,7 +31,7 @@
 
 static const char title[] = "Need For Speed II SE";
 
-#if defined(SDL_VIDEO_DRIVER_X11) && defined(SDL_VIDEO_DRIVER_X11_DYNAMIC_XVIDMODE)
+#if defined(OPENGL1X) && defined(SDL_VIDEO_DRIVER_X11) && defined(SDL_VIDEO_DRIVER_X11_DYNAMIC_XVIDMODE)
 	#include <SDL2/SDL_loadso.h>
 	#include <SDL2/SDL_syswm.h>
 	typedef struct {float red, green, blue;} XF86VidModeGamma;
@@ -60,6 +60,7 @@ uint32_t watchdogTimer(uint32_t interval, void *param)
 
 SDL_Window *sdlWin = NULL;
 
+#ifdef OPENGL1X
 void SetBrightness(float val)
 {
 	/* This function exists because SDL2 uses function for brightness which is not supported by opensource X11 drivers */
@@ -109,6 +110,7 @@ void SetBrightness(float val)
 	if (val >= -1.0f)
 		SDL_SetWindowBrightness(sdlWin, val < 0.0f ? 1.0f : val);
 }
+#endif
 
 static char *settingsDir = NULL;
 
@@ -253,7 +255,9 @@ static void signal_handler(int sig)
 		return;
 	snprintf(errStr, sizeof errStr, "Application closed with a signal: %d", sig);
 	fprintf(stderr, "%s\n", errStr);
+#ifdef OPENGL1X
 	SetBrightness(-1.0f);
+#endif
 	SDL_SetWindowFullscreen(sdlWin, SDL_FALSE);
 	SDL_ShowSimpleMessageBox(0, "Probably crash!", errStr, NULL);
 	raise(SIGKILL);
@@ -500,6 +504,13 @@ void WrapperInit(void)
 	}
 	if (msaa)
 	{
+#ifndef OPENGL1X
+#ifdef GLES2
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+#endif
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#endif
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, msaa == 1 ? 0 : 1);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, msaa);
 	}

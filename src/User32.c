@@ -53,14 +53,18 @@ int32_t windowResized = 0;
 WindowProc wndProc;
 
 static SDL_TimerID timerID;
-void SetBrightness(float val);
+#ifdef OPENGL1X
+	void SetBrightness(float val);
+#endif
 uint32_t watchdogTimer(uint32_t interval, void *param);
 
 REALIGN STDCALL uint32_t DefWindowProcA_wrap(void *hWnd, uint32_t uMsg, uint32_t wParam, uint32_t lParam)
 {
 	if (uMsg == WM_DESTROY)
 	{
+#ifdef OPENGL1X
 		SetBrightness(-2.0f);
+#endif
 		SDL_DestroyWindow(sdlWin);
 		sdlWin = NULL;
 	}
