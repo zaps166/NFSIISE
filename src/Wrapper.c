@@ -515,7 +515,7 @@ void WrapperInit(void)
 	{
 #if defined WIN32
 		SetProcessAffinityMask(GetCurrentProcess(), 1);
-#elif !defined linux
+#elif !defined(linux) || defined(__ANDROID__)
 		#warning "TODO: thread affinity"
 #else
 		cpu_set_t set;
