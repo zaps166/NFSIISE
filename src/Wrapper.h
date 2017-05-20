@@ -39,8 +39,13 @@
 	#define REALIGN
 #endif
 
-#define STDCALL __attribute__((stdcall))
-#define REGPARM __attribute__((regparm(2))) //First two arguments are compatible with Watcom fastcall
+#if defined(__i386) || defined(__i386__) || defined(_M_IX86)
+	#define STDCALL __attribute__((stdcall))
+	#define REGPARM __attribute__((regparm(2))) //First two arguments are compatible with Watcom fastcall
+#else
+	#define STDCALL
+	#define REGPARM
+#endif
 
 #define MAX_PATH 260
 #define NUM_BUFFERS_TO_CLEAR 7 //This should be enough
