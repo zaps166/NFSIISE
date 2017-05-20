@@ -303,6 +303,10 @@ REALIGN
 #endif
 void WrapperInit(void)
 {
+#ifdef CWD_PATH
+	chdir(CWD_PATH);
+#endif
+
 #ifndef SWAP_WINDOW_AND_GL_THREAD
 	initializeSDL2();
 #endif
