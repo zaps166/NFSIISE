@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 CPU_FLAGS='-mno-sse2 -mno-sse -mno-mmx'
+COMMON_FLAGS='-Wall -m32 -std=gnu89'
 
 echo -n "Building"
 if [[ $1 == "debug" ]]; then
@@ -8,11 +9,11 @@ if [[ $1 == "debug" ]]; then
 	echo -n " debug"
 	WIN_SUBSYSTEM='console'
 	DEBUG_ASM='-g dwarf2'
-	C_FLAGS="-Wall -m32 -g $CPU_FLAGS"
+	C_FLAGS="$COMMON_FLAGS -g $CPU_FLAGS"
 else
 	echo -n " release"
 	WIN_SUBSYSTEM='windows'
-	C_FLAGS="-Wall -m32 -O2 $CPU_FLAGS"
+	C_FLAGS="$COMMON_FLAGS -O2 $CPU_FLAGS"
 	STRIP='-s'
 fi
 
