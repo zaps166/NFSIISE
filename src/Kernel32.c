@@ -31,6 +31,7 @@
 #else
 	#define ERROR_IO_PENDING 0x3E5
 	#define WAIT_TIMEOUT 0x102
+	#include <sys/ioctl.h>
 	#include <sys/stat.h>
 	#include <termios.h>
 	#include <unistd.h>
@@ -532,7 +533,7 @@ REALIGN STDCALL BOOL WriteFile_wrap(File *file, const void *buffer, uint32_t num
 	ret = numberOfBytesToWrite == *numberOfBytesWritten;
 	if (hasEvent && ret)
 	{
-		tcdrain(file->fd);
+		ioctl(file->fd, TCSBRK, 1);
 		SetEvent_wrap(overlapped->hEvent);
 	}
 	return ret;
