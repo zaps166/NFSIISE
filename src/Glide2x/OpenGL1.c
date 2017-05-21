@@ -67,7 +67,7 @@ static TextureCoord textureCoord[MaxTriangles];
 static Vertices vertices[MaxTriangles];
 
 static uint8_t *lfb, textureMem[TextureMem], fogTable[0x10000];
-static uint32_t *palette;
+static uint32_t *palette, tmpTexture[0x400];
 static uint32_t trianglesCount, maxTexIdx;
 
 static PFNGLFOGCOORDFPROC p_glFogCoordf;
@@ -590,7 +590,6 @@ REALIGN STDCALL void grTexSource(GrChipID_t tmu, uint32_t startAddress, uint32_t
 	{
 		uint32_t size = 256 >> info->largeLod;
 		int32_t sqrSize = size * size, i;
-		uint32_t tmpTexture[0x400];
 		glBindTexture(GL_TEXTURE_2D, info->largeLod - 2);
 		for (i = 0; i < sqrSize; ++i)
 			tmpTexture[i] = palette[data[i]];

@@ -53,6 +53,11 @@
 	static PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
 #endif
 
+#ifdef WIN32
+	#undef near
+	#undef far
+#endif
+
 /* Matrix 4x4 */
 
 static float g_matrix[16];
@@ -183,7 +188,7 @@ static TextureCoord textureCoord[MaxTriangles];
 static Vertices vertices[MaxTriangles];
 
 static uint8_t *lfb, textureMem[TextureMem], fogTable[0x10000];
-static uint32_t *palette;
+static uint32_t *palette, tmpTexture[256 * 256 /* 0x400 for grTexSource */];
 static uint32_t trianglesCount, maxTexIdx;
 
 static SDL_GLContext glCtx;
@@ -769,7 +774,7 @@ REALIGN STDCALL void grTexDownloadMipMap(GrChipID_t tmu, uint32_t startAddress, 
 		setTextureFiltering();
 
 	const uint32_t loopSize = size * size * 4;
-	uint8_t tmpTexture[256 * 256 * 4];
+	uint8_t *tmpTexture8 = (uint8_t *)tmpTexture;
 	int i, j;
 	switch (info->format)
 	{
@@ -777,10 +782,10 @@ REALIGN STDCALL void grTexDownloadMipMap(GrChipID_t tmu, uint32_t startAddress, 
 		{
 			for (i = 0, j = 0; i < loopSize; i += 4, ++j)
 			{
-				tmpTexture[i + 0] = (data[j] << 3) & 0xF8;
-				tmpTexture[i + 1] = (data[j] >> 3) & 0xFC;
-				tmpTexture[i + 2] = (data[j] >> 8) & 0xF8;
-				tmpTexture[i + 3] = 0xFF;
+				tmpTexture8[i + 0] = (data[j] << 3) & 0xF8;
+				tmpTexture8[i + 1] = (data[j] >> 3) & 0xFC;
+				tmpTexture8[i + 2] = (data[j] >> 8) & 0xF8;
+				tmpTexture8[i + 3] = 0xFF;
 			}
 			break;
 		}
@@ -788,10 +793,10 @@ REALIGN STDCALL void grTexDownloadMipMap(GrChipID_t tmu, uint32_t startAddress, 
 		{
 			for (i = 0, j = 0; i < loopSize; i += 4, ++j)
 			{
-				tmpTexture[i + 0] = (data[j] << 3) & 0xF8;
-				tmpTexture[i + 1] = (data[j] >> 2) & 0xF8;
-				tmpTexture[i + 2] = (data[j] >> 7) & 0xF8;
-				tmpTexture[i + 3] = (data[j] >> 15) * 255;
+				tmpTexture8[i + 0] = (data[j] << 3) & 0xF8;
+				tmpTexture8[i + 1] = (data[j] >> 2) & 0xF8;
+				tmpTexture8[i + 2] = (data[j] >> 7) & 0xF8;
+				tmpTexture8[i + 3] = (data[j] >> 15) * 255;
 			}
 			break;
 		}
@@ -799,10 +804,10 @@ REALIGN STDCALL void grTexDownloadMipMap(GrChipID_t tmu, uint32_t startAddress, 
 		{
 			for (i = 0, j = 0; i < loopSize; i += 4, ++j)
 			{
-				tmpTexture[i + 0] = (data[j] << 4) & 0xF0;
-				tmpTexture[i + 1] = (data[j] >> 0) & 0xF0;
-				tmpTexture[i + 2] = (data[j] >> 4) & 0xF0;
-				tmpTexture[i + 3] = (data[j] >> 8) & 0xF0;
+				tmpTexture8[i + 0] = (data[j] << 4) & 0xF0;
+				tmpTexture8[i + 1] = (data[j] >> 0) & 0xF0;
+				tmpTexture8[i + 2] = (data[j] >> 4) & 0xF0;
+				tmpTexture8[i + 3] = (data[j] >> 8) & 0xF0;
 			}
 			break;
 		}
@@ -843,7 +848,6 @@ REALIGN STDCALL void grTexSource(GrChipID_t tmu, uint32_t startAddress, uint32_t
 	{
 		uint32_t size = 256 >> info->largeLod;
 		int32_t sqrSize = size * size, i;
-		uint32_t tmpTexture[0x400];
 		glBindTexture(GL_TEXTURE_2D, info->largeLod - 2);
 		for (i = 0; i < sqrSize; ++i)
 			tmpTexture[i] = palette[data[i]];
