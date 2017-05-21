@@ -13,6 +13,12 @@ $ git submodule init
 $ git submodule update
 ```
 
+## OpenGL
+
+* By default OpenGL 1 is used (except Android - it always uses GLES2).
+* To use OpenGL 2, add `gl2` argument to compilation script.
+* To use OpenGL|ES 2, add `gles2` argument to compilation script.
+
 ## Compile for x86:
 
 * To compile the game you must have:
@@ -38,7 +44,7 @@ apt-get install libsdl2-dev:i386 gcc-multilib yasm
 * It can be less stable than assembly code due to possible translation bugs.
 
 ### Requirements:
-* SDL2 (32-bit) and GLES2 (32-bit),
+* SDL2 (32-bit) and OpenGL (32-bit),
 * target must be 32-bit little-endian,
 * GCC 4.9 or higher (currenlty Clang is not supported).
 
