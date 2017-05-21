@@ -89,6 +89,20 @@ cd src || exit 1
 if [[ $1 == "cpp" ]]; then
 	shift
 	compile_cpp $@
+elif [[ $1 == "android" ]]; then
+	VERSION=`grep WRAPPER_VERSION Version | cut -c26-30 | grep "\."`
+	echo "Wrapper version: $VERSION"
+	cd Android || exit 1
+	sed "s/@VERSION@/$VERSION/" AndroidManifest.xml.in > AndroidManifest.xml
+	$ANDROID_NDK_ROOT/ndk-build || exit 1
+	$ANDROID_HOME/tools/android update project -p . -t android-12 --subprojects || exit 1
+	ant debug || exit 1
+	shift
+	if [[ $1 == "install" ]]; then
+		adb install -r bin/NFSIISE-debug.apk || exit 1
+		sleep 0.25
+		adb shell am start -n org.zaps166.NFSIISE/org.zaps166.NFSIISE.NFSIISE
+	fi
 else
 	compile_x86 $@
 fi

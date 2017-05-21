@@ -5,5 +5,15 @@ Need For Speed II SE/*.dll
 Need For Speed II SE/*.exe
 Need For Speed II SE/*.so
 Need For Speed II SE/*.o
-src/NFS2SE.asm
-src/game-obj/
+src/Android/jni/SDL/include
+src/Android/jni/SDL/src
+src/Android/libs
+src/Android/bin
+src/Android/gen
+src/Android/obj
+src/Android/src/org/libsdl
+src/Android/AndroidManifest.xml
+src/Android/build.xml
+src/Android/local.properties
+src/Android/proguard-project.txt
+src/Android/project.properties
