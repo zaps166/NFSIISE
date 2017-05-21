@@ -4,7 +4,7 @@ Need For Speed II SE/nfs2se
 Need For Speed II SE/*.dll
 Need For Speed II SE/*.exe
 Need For Speed II SE/*.so
-Need For Speed II SE/*.o
+src/*.o
 src/Android/jni/SDL/include
 src/Android/jni/SDL/src
 src/Android/libs

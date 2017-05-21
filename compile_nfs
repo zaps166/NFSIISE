@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
 
+BUILD="x86"
+BUILD_TYPE="release"
+BUILD_WINDOWS="no"
+OPENGL_DEFINE="-DOPENGL1X"
+ANDROID_INSTALL="no"
+
 function compile_x86
 {
 	CPU_FLAGS='-mno-sse2 -mno-sse -mno-mmx'
 	COMMON_FLAGS='-Wall -m32 -std=gnu89'
 
 	echo -n "Building"
-	if [[ $1 == "debug" ]]; then
+	if [[ $BUILD_TYPE == "debug" ]]; then
 		shift
 		echo -n " debug"
 		WIN_SUBSYSTEM='console'
@@ -19,11 +25,13 @@ function compile_x86
 		STRIP='-s'
 	fi
 
+	rm -f *.o
+
 	echo -n " for"
-	if [[ $1 == "win32" ]]; then
+	if [[ $BUILD_WINDOWS == "yes" ]]; then
 		echo -n " Windows... "
 		i686-w64-mingw32-windres Windows/nfs2se.rc icon.o &&
-		i686-w64-mingw32-gcc $C_FLAGS -DOPENGL1X -c *.c &&
+		i686-w64-mingw32-gcc $C_FLAGS $OPENGL_DEFINE -c *.c &&
 		yasm -f win32 Asm/NFS2SE.asm -o NFS2SE.Win32.o $DEBUG_ASM --prefix=_ &&
 		i686-w64-mingw32-ld --enable-stdcall-fixup -o "../Need For Speed II SE/nfs2se.exe" *.o --stack=0x7D00,0x7D00 --heap=0x2000,0x1000 -lws2_32 -lwinmm -lkernel32 -lmingwex -lmsvcrt -lopengl32 -lSDL2 -subsystem=$WIN_SUBSYSTEM $STRIP -e _start &&
 		rm -f *.o &&
@@ -42,14 +50,14 @@ function compile_x86
 					LIB32_DIR=/usr/lib32
 				fi
 			fi
-			$CC $C_FLAGS -DSTACK_REALIGN -DOPENGL1X -c *.c &&
+			$CC $C_FLAGS -DSTACK_REALIGN $OPENGL_DEFINE -c *.c &&
 			yasm -f elf32 Asm/NFS2SE.asm -o NFS2SE.Linux.o $DEBUG_ASM &&
 			ld -m elf_i386 -dynamic-linker /lib/ld-linux.so.2 -o "../Need For Speed II SE/nfs2se" *.o -L$LIB32_DIR -lc -lSDL2 -lGL $STRIP -rpath=\$ORIGIN -e start &&
 			rm -f *.o &&
 			echo "OK!"
 		elif [ $OS == "Darwin" ]; then
 			echo -n " OS X... "
-			clang $C_FLAGS -DSTACK_REALIGN -DSWAP_WINDOW_AND_GL_THREAD -c *.c &&
+			clang $C_FLAGS $OPENGL_DEFINE -DSTACK_REALIGN -DSWAP_WINDOW_AND_GL_THREAD -c *.c &&
 			yasm -f macho Asm/NFS2SE.asm -o NFS2SE.OSX.o --prefix=_ -DSWAP_WINDOW_AND_GL_THREAD &&
 			ld -o "../Need For Speed II SE/nfs2se" *.o -lc -lSDL2 -framework OpenGL -macosx_version_min 10.6 -e _start &&
 			rm -f *.o &&
@@ -57,7 +65,7 @@ function compile_x86
 		elif [ $OS == "FreeBSD" ]; then
 			#NOT TESTED!!!
 			echo -n " $OS... "
-			clang $C_FLAGS -DSTACK_REALIGN -c -I/usr/local/include *.c &&
+			clang $C_FLAGS $OPENGL_DEFINE -DSTACK_REALIGN -c -I/usr/local/include *.c &&
 			yasm -f elf32 Asm/NFS2SE.asm -o NFS2SE.Linux.o $DEBUG_ASM &&
 			ld -m elf_i386_fbsd -dynamic-linker /libexec/ld-elf32.so.1 -o "../Need For Speed II SE/nfs2se" *.o -L/usr/local/lib32/compat -lc -lSDL2 -lGL $STRIP -rpath=\$ORIGIN -e start &&
 			rm -f *.o &&
@@ -74,7 +82,7 @@ function compile_cpp
 
 	echo "Compiling C++ translation. It can take a long time and consume a lot of memory!"
 
-	if [[ $1 == "debug" ]]; then
+	if [[ $BUILD_TYPE == "debug" ]]; then
 		FLAGS="-O0 -g"
 		echo "Compiling debug..."
 	else
@@ -82,14 +90,50 @@ function compile_cpp
 		echo "Compiling release..."
 	fi
 
-	time gcc -o "../Need For Speed II SE/nfs2se" -std=c++14 $CPU_FLAGS $FLAGS -DGLES2 -DNFS_CPP -w *.c Cpp/NFS2SE.cpp -lSDL2 -lGL -lm -fpermissive -fno-rtti -fno-exceptions
+	time gcc -o "../Need For Speed II SE/nfs2se" -std=c++14 $CPU_FLAGS $FLAGS $OPENGL_DEFINE -DNFS_CPP -w *.c Cpp/NFS2SE.cpp -lSDL2 -lGL -lm -fpermissive -fno-rtti -fno-exceptions
 }
 
+while (( $# > 0 ))
+do
+	key=$1
+	case $key in
+		cpp|android)
+			BUILD=$key
+		;;
+		debug)
+			BUILD_TYPE="debug"
+		;;
+		win32)
+			BUILD_WINDOWS="yes"
+		;;
+		gl2)
+			OPENGL_DEFINE=""
+		;;
+		gles2)
+			OPENGL_DEFINE="-DGLES2"
+		;;
+		install)
+			ANDROID_INSTALL="yes"
+		;;
+	esac
+	shift
+done
+
+if [[ $BUILD != "android" ]]; then
+	if [[ $OPENGL_DEFINE == "-DOPENGL1X" ]]; then
+		echo "Building OpenGL 1"
+	elif [[ $OPENGL_DEFINE == "-DGLES2" ]]; then
+		echo "Building OpenGL|ES 2"
+	else
+		echo "Building OpenGL 2"
+	fi
+fi
+
 cd src || exit 1
-if [[ $1 == "cpp" ]]; then
+if [[ $BUILD == "cpp" ]]; then
 	shift
 	compile_cpp $@
-elif [[ $1 == "android" ]]; then
+elif [[ $BUILD == "android" ]]; then
 	VERSION=`grep WRAPPER_VERSION Version | cut -c26-30 | grep "\."`
 	echo "Wrapper version: $VERSION"
 	cd Android || exit 1
@@ -98,7 +142,7 @@ elif [[ $1 == "android" ]]; then
 	$ANDROID_HOME/tools/android update project -p . -t android-12 --subprojects || exit 1
 	ant debug || exit 1
 	shift
-	if [[ $1 == "install" ]]; then
+	if [[ $ANDROID_INSTALL == "yes" ]]; then
 		adb install -r bin/NFSIISE-debug.apk || exit 1
 		sleep 0.25
 		adb shell am start -n org.zaps166.NFSIISE/org.zaps166.NFSIISE.NFSIISE
