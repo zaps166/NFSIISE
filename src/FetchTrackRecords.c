@@ -26,7 +26,12 @@
 
 #include <string.h>
 
-REGPARM void sub_41B250(uint32_t arg1, void *arg2);
+REGPARM void sub_41B250(MAYBE_THIS uint32_t arg1, void *arg2);
+
+#ifdef NFS_CPP
+	#define sub_41B250(a, b) \
+		sub_41B250(this, a, b)
+#endif
 
 typedef struct
 {
@@ -59,7 +64,7 @@ static void readEntry(FILE *f, StfEntry *stfEntry)
 	fscanf(f, "%hi\n%d\n%d\n", &stfEntry->car, &stfEntry->time, &stfEntry->mode);
 }
 
-REALIGN REGPARM void fetchTrackRecords(uint32_t trackNo, BOOL clear)
+REALIGN REGPARM void fetchTrackRecords(MAYBE_THIS uint32_t trackNo, BOOL clear)
 {
 	char buffer[MAX_PATH];
 	Stf stf;

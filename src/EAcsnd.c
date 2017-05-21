@@ -27,7 +27,20 @@
 extern BOOL linearSoundInterpolation;
 
 static void (REGPARM *getSamples)(void *samples, uint32_t num_samples_per_chn);
-static void (*fadeInOut)(void);
+
+#ifdef NFS_CPP
+	void wrap_regparm2(void *this, void *func, int32_t arg0, int32_t arg1);
+	extern void *audio_game_thread;
+
+	#define getSamplesFunc(a,b) \
+		wrap_regparm2(audio_game_thread, getSamples, a, b)
+#else
+	#define getSamplesFunc(a,b) \
+		getSamples(a, b)
+#endif
+
+typedef void (*FadeInOut)(MAYBE_THIS_SINGLE);
+static FadeInOut fadeInOut;
 
 #include <SDL2/SDL_audio.h>
 
@@ -44,13 +57,13 @@ static void audioCallback(void *userdata, uint8_t *stream, int32_t len)
 	{
 		int32_t i;
 		for (i = 0; i < len; i += 256 * CHN_CNT * sizeof(int16_t))
-			getSamples(stream + i, 256);
+			getSamplesFunc(stream + i, 256);
 	}
 	else
 	{
 		while (buffer_pos < len)
 		{
-			getSamples(buffer + buffer_pos, 256);
+			getSamplesFunc(buffer + buffer_pos, 256);
 			buffer_pos += 256 * CHN_CNT * sizeof(int16_t);
 		}
 		memcpy(stream, buffer, len);
@@ -65,7 +78,7 @@ static void audioCallbackInterp(void *userdata, uint8_t *stream, int32_t len)
 	while (buffer_pos < len)
 	{
 		buffer_16b = (int16_t *)(buffer + buffer_pos);
-		getSamples(samples, 256);
+		getSamplesFunc(samples, 256);
 		for (i = 0; i < (256 - 1) * CHN_CNT; i += CHN_CNT)
 		{
 			for (c = 0; c < CHN_CNT; ++c)
@@ -90,7 +103,7 @@ REALIGN uint32_t iSNDdllversion_(void)
 	return 0x60002;
 }
 
-REALIGN STDCALL uint32_t iSNDdirectsetfunctions_wrap(void (REGPARM *arg1)(), void (*arg2)(), void (*arg3)(), void (*arg4)(), void (*arg5)())
+REALIGN STDCALL uint32_t iSNDdirectsetfunctions_wrap(void (REGPARM *arg1)(), void (*arg2)(), void (*arg3)(), FadeInOut arg4, void (*arg5)())
 {
 	getSamples = arg1;
 	fadeInOut  = arg4;
@@ -131,7 +144,7 @@ REALIGN REGPARM uint32_t iSNDdirectstart_(uint32_t arg1, void *hWnd)
 	canGetSamples = true;
 	return 0;
 }
-REALIGN void iSNDdirectserve_(void)
+REALIGN void iSNDdirectserve_(MAYBE_THIS_SINGLE)
 {
 	if (canGetSamples)
 	{
@@ -140,9 +153,13 @@ REALIGN void iSNDdirectserve_(void)
 			SDL_PauseAudioDevice(audioDevice, 0);
 			unPaused = true;
 		}
+#ifdef NFS_CPP
+		fadeInOut(this);
+#else
 		fadeInOut();
+#endif
 		if (!audioDevice)
-			getSamples(buffer, 256);
+			getSamplesFunc(buffer, 256);
 	}
 }
 REALIGN uint32_t iSNDdirectstop_(void)

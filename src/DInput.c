@@ -24,6 +24,43 @@
 
 #include "DInput.h"
 
+#ifdef NFS_CPP
+	void Release_wrap(void *);
+	void CreateDevice_wrap(void *);
+	void EnumDevices_wrap(void *);
+	void QueryInterface_wrap(void *);
+
+	void GetCapabilities_wrap(void *);
+	void SetProperty_wrap(void *);
+	void Acquire_wrap(void *);
+	void Unacquire_wrap(void *);
+	void GetDeviceState_wrap(void *);
+	void GetDeviceData_wrap(void *);
+	void SetDataFormat_wrap(void *);
+	void SetEventNotification_wrap(void *);
+	void SetCooperativeLevel_wrap(void *);
+	void GetObjectInfo_wrap(void *);
+	void CreateEffect_wrap(void *);
+	void SendForceFeedbackCommand_wrap(void *);
+	void Poll_wrap(void *);
+
+	void SetParameters_wrap(void *);
+	void Start_wrap(void *);
+	void Stop_wrap(void *);
+	void Download_wrap(void *);
+	void Unload_wrap(void *);
+
+	int32_t wrap_stdcall2_ret(void *this, void *func, int32_t arg0, int32_t arg1);
+
+	static void *dinput_game_thread;
+
+	#define WRAP_NAME(name) name##_wrap
+	#define MAYBE_STATIC
+#else
+	#define WRAP_NAME(name) name
+	#define MAYBE_STATIC static
+#endif
+
 #include <SDL2/SDL_events.h>
 
 #define MOUSE        0x6F1D2B60
@@ -42,7 +79,13 @@ extern int32_t joystick0EscButton;
 extern BOOL useSpringForceFeedbackEffect;
 extern uint32_t windowsForceFeedbackDevice;
 
-extern uint32_t mousePositionX, mousePositionY;
+#ifdef NFS_CPP
+	extern uint32_t *mousePositionX, *mousePositionY;
+	#define mousePositionX (*mousePositionX)
+	#define mousePositionY (*mousePositionY)
+#else
+	extern uint32_t mousePositionX, mousePositionY;
+#endif
 
 extern int32_t touchpadJoyIdx;
 
@@ -145,7 +188,7 @@ static void setEffect(DirectInputEffect *dinputEffect, const DIEFFECT *di_eff)
 	}
 }
 
-static REALIGN STDCALL uint32_t QueryInterface(void **this, const IID *const riid, void **object)
+MAYBE_STATIC REALIGN STDCALL uint32_t QueryInterface(void **this, const IID *const riid, void **object)
 {
 	/* Joystick only */
 	++((DirectInputObject *)(*this - sizeof(DirectInputObject)))->ref;
@@ -153,7 +196,7 @@ static REALIGN STDCALL uint32_t QueryInterface(void **this, const IID *const rii
 // 	printf("QueryInterface: 0x%X %p\n", (*riid)[0], *this);
 	return 0;
 }
-static REALIGN STDCALL uint32_t Release(void **this)
+MAYBE_STATIC REALIGN STDCALL uint32_t Release(void **this)
 {
 	DirectInputObject *dinputObj = (DirectInputObject *)(*this - sizeof(DirectInputObject));
 	if (!--dinputObj->ref)
@@ -179,7 +222,7 @@ static REALIGN STDCALL uint32_t Release(void **this)
 	return 0;
 }
 
-static REALIGN STDCALL uint32_t SetParameters(DirectInputEffect **this, const DIEFFECT *eff, uint32_t flags)
+MAYBE_STATIC REALIGN STDCALL uint32_t SetParameters(DirectInputEffect **this, const DIEFFECT *eff, uint32_t flags)
 {
 // 	printf("SetParameters: %X %X\n", flags, (*this)->real_type);
 	if ((*this)->haptic)
@@ -193,32 +236,32 @@ static REALIGN STDCALL uint32_t SetParameters(DirectInputEffect **this, const DI
 	}
 	return 0;
 }
-static REALIGN STDCALL uint32_t Start(DirectInputEffect **this, uint32_t iterations, uint32_t flags)
+MAYBE_STATIC REALIGN STDCALL uint32_t Start(DirectInputEffect **this, uint32_t iterations, uint32_t flags)
 {
 // 	printf("Start: %X\n", (*this)->real_type);
 	if ((*this)->real_type == SDL_HAPTIC_SINE)
 		SDL_HapticRunEffect((*this)->haptic, (*this)->effect_idx, iterations);
 	return 0;
 }
-static REALIGN STDCALL uint32_t Stop(DirectInputEffect **this)
+MAYBE_STATIC REALIGN STDCALL uint32_t Stop(DirectInputEffect **this)
 {
 // 	printf("Stop: %X\n", (*this)->real_type);
 	SDL_HapticStopEffect((*this)->haptic, (*this)->effect_idx);
 	return 0;
 }
-static REALIGN STDCALL uint32_t Download(DirectInputEffect **this)
+MAYBE_STATIC REALIGN STDCALL uint32_t Download(DirectInputEffect **this)
 {
 // 	printf("Download: %X\n", (*this)->real_type);
 	return 0;
 }
-static REALIGN STDCALL uint32_t Unload(DirectInputEffect **this)
+MAYBE_STATIC REALIGN STDCALL uint32_t Unload(DirectInputEffect **this)
 {
 // 	printf("Unload: %X\n", (*this)->real_type);
 	SDL_HapticStopEffect((*this)->haptic, (*this)->effect_idx);
 	return 0;
 }
 
-static REALIGN STDCALL uint32_t GetCapabilities(DirectInputDevice **this, DIDEVCAPS *devCaps)
+MAYBE_STATIC REALIGN STDCALL uint32_t GetCapabilities(DirectInputDevice **this, DIDEVCAPS *devCaps)
 {
 	/* Joystick only */
 	if ((*this)->guid.a == JOYSTICK)
@@ -232,23 +275,23 @@ static REALIGN STDCALL uint32_t GetCapabilities(DirectInputDevice **this, DIDEVC
 	}
 	return 0;
 }
-static REALIGN STDCALL uint32_t SetProperty(DirectInputDevice **this, const GUID *const rguidProp, const DIPROPHEADER *pdiph)
+MAYBE_STATIC REALIGN STDCALL uint32_t SetProperty(DirectInputDevice **this, const GUID *const rguidProp, const DIPROPHEADER *pdiph)
 {
 	if ((uint32_t)rguidProp == 7 /*DIPROP_FFGAIN*/)
 		SDL_HapticSetGain((*this)->haptic, ((const DIPROPDWORD *)pdiph)->dwData / 100);
 	return 0;
 }
-static REALIGN STDCALL uint32_t Acquire(DirectInputDevice **this)
+MAYBE_STATIC REALIGN STDCALL uint32_t Acquire(DirectInputDevice **this)
 {
 // 	printf("Acquire: %p %X\n", *this);
 	return 0;
 }
-static REALIGN STDCALL uint32_t Unacquire(DirectInputDevice **this)
+MAYBE_STATIC REALIGN STDCALL uint32_t Unacquire(DirectInputDevice **this)
 {
 // 	printf("Unacquire: %u\n", (*this)->ref);
 	return 0;
 }
-static REALIGN STDCALL uint32_t GetDeviceState(DirectInputDevice **this, uint32_t cbData, void *data)
+MAYBE_STATIC REALIGN STDCALL uint32_t GetDeviceState(DirectInputDevice **this, uint32_t cbData, void *data)
 {
 	/* Joystick only */
 	if (data && cbData == sizeof(DIJOYSTATE) && (*this)->guid.a == JOYSTICK)
@@ -364,7 +407,7 @@ static REALIGN STDCALL uint32_t GetDeviceState(DirectInputDevice **this, uint32_
 	}
 	return 0;
 }
-static REALIGN STDCALL uint32_t GetDeviceData(DirectInputDevice **this, uint32_t cbObjectData, DIDEVICEOBJECTDATA *rgdod, uint32_t *pdwInOut, uint32_t dwFlags)
+MAYBE_STATIC REALIGN STDCALL uint32_t GetDeviceData(DirectInputDevice **this, uint32_t cbObjectData, DIDEVICEOBJECTDATA *rgdod, uint32_t *pdwInOut, uint32_t dwFlags)
 {
 	/* Mouse only. This implementation forces the absolute position of the mouse cursor. */
 	if (rgdod && pdwInOut && (*this)->guid.a == MOUSE && *pdwInOut >= 3)
@@ -406,7 +449,7 @@ static REALIGN STDCALL uint32_t GetDeviceData(DirectInputDevice **this, uint32_t
 	}
 	return 0;
 }
-static REALIGN STDCALL uint32_t SetDataFormat(DirectInputDevice **this, const DIDATAFORMAT *df)
+MAYBE_STATIC REALIGN STDCALL uint32_t SetDataFormat(DirectInputDevice **this, const DIDATAFORMAT *df)
 {
 	/* NFSIISE uses standard data format:
 	 * 	Mouse    - c_dfDIMouse
@@ -414,17 +457,17 @@ static REALIGN STDCALL uint32_t SetDataFormat(DirectInputDevice **this, const DI
 	*/
 	return 0;
 }
-static REALIGN STDCALL uint32_t SetEventNotification(DirectInputDevice **this, void *hEvent)
+MAYBE_STATIC REALIGN STDCALL uint32_t SetEventNotification(DirectInputDevice **this, void *hEvent)
 {
 // 	printf("SetEventNotification: %p 0x%p\n", *this, hEvent);
 	return 0;
 }
-static REALIGN STDCALL uint32_t SetCooperativeLevel(DirectInputDevice **this, void *hwnd, uint32_t dwFlags)
+MAYBE_STATIC REALIGN STDCALL uint32_t SetCooperativeLevel(DirectInputDevice **this, void *hwnd, uint32_t dwFlags)
 {
 // 	printf("SetCooperativeLevel: %p %p 0x%X\n", *this, hwnd, dwFlags);
 	return 0;
 }
-static REALIGN STDCALL uint32_t CreateEffect(DirectInputDevice **this, const GUID *const rguid, const DIEFFECT *eff, DirectInputEffect ***deff, void *punkOuter)
+MAYBE_STATIC REALIGN STDCALL uint32_t CreateEffect(DirectInputDevice **this, const GUID *const rguid, const DIEFFECT *eff, DirectInputEffect ***deff, void *punkOuter)
 {
 	/* Joystick only */
 	DirectInputEffect *dinputEff = (DirectInputEffect *)calloc(1, sizeof(DirectInputObject) + sizeof(DirectInputEffect));
@@ -432,11 +475,11 @@ static REALIGN STDCALL uint32_t CreateEffect(DirectInputDevice **this, const GUI
 	dinputEff = (void *)dinputEff + sizeof(DirectInputObject);
 	dinputEff->xAxis = &(*this)->xAxis;
 
-	dinputEff->SetParameters = SetParameters;
-	dinputEff->Start = Start;
-	dinputEff->Stop = Stop;
-	dinputEff->Download = Download;
-	dinputEff->Unload = Unload;
+	dinputEff->SetParameters = WRAP_NAME(SetParameters);
+	dinputEff->Start = WRAP_NAME(Start);
+	dinputEff->Stop = WRAP_NAME(Stop);
+	dinputEff->Download = WRAP_NAME(Download);
+	dinputEff->Unload = WRAP_NAME(Unload);
 
 	memcpy(&dinputEff->guid, rguid, sizeof(GUID));
 
@@ -476,14 +519,14 @@ static REALIGN STDCALL uint32_t CreateEffect(DirectInputDevice **this, const GUI
 
 	return 0;
 }
-static REALIGN STDCALL uint32_t GetObjectInfo(DirectInputDevice **this, DIDEVICEOBJECTINSTANCEA *pdidoi, uint32_t dwObj, uint32_t dwHow)
+MAYBE_STATIC REALIGN STDCALL uint32_t GetObjectInfo(DirectInputDevice **this, DIDEVICEOBJECTINSTANCEA *pdidoi, uint32_t dwObj, uint32_t dwHow)
 {
 	/* Joystick only */
 	memset(pdidoi, 0, sizeof(DIDEVICEOBJECTINSTANCEA));
 // 	printf("GetObjectInfo: %p %d %d\n", *this, dwObj, dwHow);
 	return 0;
 }
-static REALIGN STDCALL uint32_t SendForceFeedbackCommand(DirectInputDevice **this, uint32_t flags)
+MAYBE_STATIC REALIGN STDCALL uint32_t SendForceFeedbackCommand(DirectInputDevice **this, uint32_t flags)
 {
 	/* Joystick only */
 // 	printf("SendForceFeedbackCommand: %X\n", flags);
@@ -503,36 +546,36 @@ static REALIGN STDCALL uint32_t SendForceFeedbackCommand(DirectInputDevice **thi
 	}
 	return 0;
 }
-static REALIGN STDCALL uint32_t Poll(DirectInputDevice **this)
+MAYBE_STATIC REALIGN STDCALL uint32_t Poll(DirectInputDevice **this)
 {
 	/* Joystick only */
 	SDL_JoystickUpdate();
 	return 0;
 }
 
-static REALIGN STDCALL uint32_t CreateDevice(void **this, const GUID *const rguid, DirectInputDevice ***directInputDevice, void *unkOuter)
+MAYBE_STATIC REALIGN STDCALL uint32_t CreateDevice(void **this, const GUID *const rguid, DirectInputDevice ***directInputDevice, void *unkOuter)
 {
 	DirectInputDevice *dinputDev = (DirectInputDevice *)calloc(1, sizeof(DirectInputObject) + sizeof(DirectInputDevice));
 	((DirectInputObject *)dinputDev)->ref = 1;
 	((DirectInputObject *)dinputDev)->is_device = 1;
 	dinputDev = (void *)dinputDev + sizeof(DirectInputObject);
 
-	dinputDev->QueryInterface = QueryInterface;
-	dinputDev->Release = Release;
+	dinputDev->QueryInterface = WRAP_NAME(QueryInterface);
+	dinputDev->Release = WRAP_NAME(Release);
 
-	dinputDev->GetCapabilities = GetCapabilities;
-	dinputDev->SetProperty = SetProperty;
-	dinputDev->Acquire = Acquire;
-	dinputDev->Unacquire = Unacquire;
-	dinputDev->GetDeviceState = GetDeviceState;
-	dinputDev->GetDeviceData = GetDeviceData;
-	dinputDev->SetDataFormat = SetDataFormat;
-	dinputDev->SetEventNotification = SetEventNotification;
-	dinputDev->SetCooperativeLevel = SetCooperativeLevel;
-	dinputDev->GetObjectInfo = GetObjectInfo;
-	dinputDev->CreateEffect = CreateEffect;
-	dinputDev->SendForceFeedbackCommand = SendForceFeedbackCommand;
-	dinputDev->Poll = Poll;
+	dinputDev->GetCapabilities = WRAP_NAME(GetCapabilities);
+	dinputDev->SetProperty = WRAP_NAME(SetProperty);
+	dinputDev->Acquire = WRAP_NAME(Acquire);
+	dinputDev->Unacquire = WRAP_NAME(Unacquire);
+	dinputDev->GetDeviceState = WRAP_NAME(GetDeviceState);
+	dinputDev->GetDeviceData = WRAP_NAME(GetDeviceData);
+	dinputDev->SetDataFormat = WRAP_NAME(SetDataFormat);
+	dinputDev->SetEventNotification = WRAP_NAME(SetEventNotification);
+	dinputDev->SetCooperativeLevel = WRAP_NAME(SetCooperativeLevel);
+	dinputDev->GetObjectInfo = WRAP_NAME(GetObjectInfo);
+	dinputDev->CreateEffect = WRAP_NAME(CreateEffect);
+	dinputDev->SendForceFeedbackCommand = WRAP_NAME(SendForceFeedbackCommand);
+	dinputDev->Poll = WRAP_NAME(Poll);
 
 	memcpy(&dinputDev->guid, rguid, sizeof(GUID));
 
@@ -562,7 +605,7 @@ static REALIGN STDCALL uint32_t CreateDevice(void **this, const GUID *const rgui
 	free((void *)dinputDev - sizeof(DirectInputObject));
 	return -1;
 }
-static REALIGN STDCALL uint32_t EnumDevices(void **this, uint32_t devType, DIENUMDEVICESCALLBACKA callback, void *ref, uint32_t dwFlags)
+MAYBE_STATIC REALIGN STDCALL uint32_t EnumDevices(void **this, uint32_t devType, DIENUMDEVICESCALLBACKA callback, void *ref, uint32_t dwFlags)
 {
 	if (devType == 4 /* DIDEVTYPE_JOYSTICK */)
 	{
@@ -575,25 +618,35 @@ static REALIGN STDCALL uint32_t EnumDevices(void **this, uint32_t devType, DIENU
 				continue;
 			deviceInstance.guidInstance.a = JOYSTICK;
 			deviceInstance.guidInstance.b = i;
+#ifdef NFS_CPP
+			if (!wrap_stdcall2_ret(dinput_game_thread, callback, &deviceInstance, ref))
+#else
 			if (!callback(&deviceInstance, ref))
+#endif
+			{
 				break;
+			}
 		}
 	}
 	return 0;
 }
 
-REALIGN STDCALL uint32_t DirectInputCreateA_wrap(void *hInstance, uint32_t version, DirectInput ***directInputA, void *unkOuter)
+REALIGN STDCALL uint32_t DirectInputCreateA_wrap(MAYBE_THIS void *hInstance, uint32_t version, DirectInput ***directInputA, void *unkOuter)
 {
 	DirectInput *dinput = (DirectInput *)calloc(1, sizeof(DirectInputObject) + sizeof(DirectInput));
 	((DirectInputObject *)dinput)->ref = 1;
 	dinput = (void *)dinput + sizeof(DirectInputObject);
 
-	dinput->Release = Release;
-	dinput->CreateDevice = CreateDevice;
-	dinput->EnumDevices = EnumDevices;
+	dinput->Release = WRAP_NAME(Release);
+	dinput->CreateDevice = WRAP_NAME(CreateDevice);
+	dinput->EnumDevices = WRAP_NAME(EnumDevices);
 
 	*directInputA = malloc(sizeof(void *));
 	**directInputA = dinput;
+
+#ifdef NFS_CPP
+	dinput_game_thread = this;
+#endif
 
 	return 0;
 }

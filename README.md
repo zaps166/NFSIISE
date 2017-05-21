@@ -7,13 +7,13 @@ Cross-platform wrapper for the Need For Speed™ II SE game with 3D acceleration
 
 ## GIT clone:
 
-Don't forget to update submodule:
+Don't forget to update submodules:
 ```sh
 $ git submodule init
 $ git submodule update
 ```
 
-## Compile:
+## Compile for x86:
 
 * To compile the game you must have:
  * GCC or Clang compiler which can generate **32-bit** code for x86 (set by `$CC` environment variable),
@@ -29,6 +29,22 @@ apt-get install libsdl2-dev:i386 gcc-multilib yasm
 * Edit the `compile_nfs` script, modify what do you want. Compile the game by executing the script - it will automaticly generate executable file inside `Need For Speed II SE` directory:
  * `./compile_nfs` - native compilation for Unix-like systems (Linux, OS X, ...),
  * `./compile_nfs win32` - cross compilation for Windows.
+
+## Compile for non-x86 CPUs:
+
+### Information:
+* This game can run on ARM devices, also on Android. Only **32-bit little-endian** CPUs are supported.
+* The performance is lower than original assembly code.
+* It can be less stable than assembly code due to possible translation bugs.
+
+### Requirements:
+* SDL2 (32-bit) and GLES2 (32-bit),
+* target must be 32-bit little-endian,
+* GCC 4.9 or higher (currenlty Clang is not supported).
+
+### Compilation:
+
+* run `./compile_nfs cpp`
 
 ## Run:
 
@@ -82,8 +98,7 @@ apt-get install libsdl2-dev:i386 gcc-multilib yasm
 * Arch Linux package is available in AUR as `nfs2se-git`.
 * Compilation on *BSD systems probably needs changes in compilation script (not tested).
 * Cockpit view and night driving are unavailable (original 3D-accelerated version doesn't have this).
-* If the game crashes it might not restore the gamma properly. In this case run: `xgamma -gamma 1.0`.
-* If you have non-x86 CPU, use [this](https://github.com/zaps166/NFSIISE-CPP) repository.
+* OpenGL 1.x only: if the game crashes it might not restore the gamma properly. In this case run: `xgamma -gamma 1.0`.
 
 ## Patches:
 

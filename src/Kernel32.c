@@ -243,7 +243,11 @@ static int threadFunction(void *data)
 	Thread *thread = (Thread *)data;
 	SDL_SemWait(thread->sem);
 	SDL_DestroySemaphore(thread->sem);
+#ifdef NFS_CPP
+	thread->function(thread->arg);
+#else
 	thread->threadParameter(); //In this game thread parameter is a function address
+#endif
 	return 0;
 }
 
@@ -253,7 +257,12 @@ REALIGN STDCALL void *CreateThread_wrap(void *threadAttributes, uint32_t stackSi
 {
 	Thread *thread = (Thread *)malloc(sizeof(Thread));
 	thread->handleType = HandleThread;
+#ifdef NFS_CPP
+	thread->function = startAddress;
+	thread->arg = parameter;
+#else
 	thread->threadParameter = parameter;
+#endif
 	thread->sem = SDL_CreateSemaphore(!(creationFlags & 0x4 /* Start paused thread */));
 	SDL_Thread *sdl_thread = SDL_CreateThread(threadFunction, NULL, thread);
 	if (threadId)

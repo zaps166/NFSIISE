@@ -40,7 +40,7 @@ static const char title[] = "Need For Speed II SE";
 	#define USE_X11_GAMMA
 #endif
 
-typedef void (*ProcedureType)(void);
+typedef void (*ProcedureType)(MAYBE_THIS_SINGLE);
 static ProcedureType atExitProcedures[10];
 static uint32_t atExitProcedureCount;
 REALIGN STDCALL void WrapperAtExit(ProcedureType proc)
@@ -127,7 +127,12 @@ void exit_func(void)
 	for (i = 0; i < atExitProcedureCount; ++i)
 	{
 		timerID = SDL_AddTimer(2500, watchdogTimer, NULL);
+#ifdef NFS_CPP
+		extern void *main_game_thread;
+		atExitProcedures[i](main_game_thread);
+#else
 		atExitProcedures[i]();
+#endif
 		SDL_RemoveTimer(timerID);
 	}
 #ifndef WIN32
@@ -282,7 +287,12 @@ int32_t touchpadJoyIdx = -1;
 
 static void initializeSDL2()
 {
+#ifdef NFS_CPP
+	extern const char *binaryGameVersion;
+	#define binaryGameVersion (*binaryGameVersion)
+#else
 	extern const char binaryGameVersion;
+#endif
 	printf("%s\n  Wrapper v%s\n  Game    v%s\n  OpenGL  ", title, WRAPPER_VERSION, &binaryGameVersion);
 #if defined(OPENGL1X)
 	puts("1");
@@ -642,6 +652,15 @@ REALIGN int32_t SDL_NumJoysticks_wrap(void)
 {
 	return SDL_NumJoysticks() - (touchpadJoyIdx >= 0);
 }
+
+#ifdef NFS_CPP
+int main(int argc, char *argv[])
+{
+	void nfs2seEntrypoint();
+	nfs2seEntrypoint();
+	return 0;
+}
+#endif
 
 /* Wrapper for functions called from Assembly code for stack realignment */
 

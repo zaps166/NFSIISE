@@ -30,8 +30,20 @@ static SDL_TimerID timerID;
 
 typedef void Event;
 STDCALL BOOL SetEvent_wrap(Event *event);
-extern Event *dword_4DDA70, *dword_5637CC, *dword_5637D8;
-extern uint32_t dword_4DB1B0, dword_5637A0;
+
+#ifdef NFS_CPP
+	extern Event **dword_4DDA70, **dword_5637CC, **dword_5637D8;
+	extern uint32_t *dword_4DB1B0, *dword_5637A0;
+
+	#define dword_4DDA70 (*dword_4DDA70)
+	#define dword_5637CC (*dword_5637CC)
+	#define dword_5637D8 (*dword_5637D8)
+	#define dword_4DB1B0 (*dword_4DB1B0)
+	#define dword_5637A0 (*dword_5637A0)
+#else
+	extern Event *dword_4DDA70, *dword_5637CC, *dword_5637D8;
+	extern uint32_t dword_4DB1B0, dword_5637A0;
+#endif
 
 static uint32_t timerCallback(uint32_t interval, void *param)
 {

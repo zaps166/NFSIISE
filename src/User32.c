@@ -52,6 +52,13 @@ int32_t windowResized = 0;
 
 WindowProc wndProc;
 
+#ifdef NFS_CPP
+	void wrap_stdcall4(void *this, void *func, void *arg0, int32_t arg1, int32_t arg2, int32_t arg3);
+
+	#define wndProc(a,b,c,d) \
+		wrap_stdcall4(this, wndProc, a, b, c, d);
+#endif
+
 static SDL_TimerID timerID;
 #ifdef OPENGL1X
 	void SetBrightness(float val);
@@ -302,7 +309,7 @@ REALIGN STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterM
 	} while (!br);
 	return -1;
 }
-REALIGN STDCALL uint32_t DispatchMessageA_wrap(const MSG *msg)
+REALIGN STDCALL uint32_t DispatchMessageA_wrap(MAYBE_THIS const MSG *msg)
 {
 	wndProc(sdlWin, msg->uMsg, msg->wParam, msg->lParam);
 	return 0;

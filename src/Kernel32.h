@@ -131,7 +131,12 @@
 	typedef struct
 	{
 		HandleType handleType;
+#ifdef NFS_CPP
+		int (*function)(void *);
+		void *arg;
+#else
 		int (*threadParameter)();
+#endif
 		SDL_sem *sem;
 	} Thread;
 	typedef struct
