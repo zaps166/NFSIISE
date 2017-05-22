@@ -39,7 +39,7 @@ typedef struct
 	int16_t car;
 	int32_t time;
 	int32_t mode;
-} __attribute__((packed)) StfEntry;
+} StfEntry;
 typedef struct
 {
 	StfEntry bestLap;
