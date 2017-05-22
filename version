@@ -1,0 +1,2 @@
+#!/bin/sh
+grep WRAPPER_VERSION "$(dirname "$0")"/src/Version | cut -c26-30 | grep "\."

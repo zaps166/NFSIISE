@@ -177,7 +177,7 @@ if [[ $BUILD == "cpp" ]]; then
 	fi
 	compile_cpp $@
 elif [[ $BUILD == "android" ]]; then
-	VERSION=`grep WRAPPER_VERSION Version | cut -c26-30 | grep "\."`
+	VERSION=`../version`
 	echo "Wrapper version: $VERSION"
 	cd Android || exit 1
 	sed "s/@VERSION@/$VERSION/" AndroidManifest.xml.in > AndroidManifest.xml
