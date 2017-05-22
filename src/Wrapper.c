@@ -250,7 +250,7 @@ static void checkGameDirs()
 
 static void signal_handler(int sig)
 {
-	static char errStr[40];
+	static char errStr[64];
 	if (sig == SIGINT || sig == SIGTERM)
 	{
 		exit(0);
@@ -258,11 +258,20 @@ static void signal_handler(int sig)
 	}
 	if (sig == SIGPIPE)
 		return;
-	snprintf(errStr, sizeof errStr, "Application closed with a signal: %d", sig);
-	fprintf(stderr, "%s\n", errStr);
 #ifdef OPENGL1X
 	SetBrightness(-1.0f);
-#endif
+#else
+	extern BOOL shaderError;
+	if (sig == SIGABRT && shaderError)
+	{
+		snprintf(errStr, sizeof errStr, "Error loading shaders, see console output!");
+	}
+	else
+#endif // OPENGL1X
+	{
+		snprintf(errStr, sizeof errStr, "Application closed with a signal: %d", sig);
+	}
+	fprintf(stderr, "%s\n", errStr);
 	SDL_SetWindowFullscreen(sdlWin, SDL_FALSE);
 	SDL_ShowSimpleMessageBox(0, "Probably crash!", errStr, NULL);
 	raise(SIGKILL);

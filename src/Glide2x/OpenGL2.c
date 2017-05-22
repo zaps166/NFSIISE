@@ -53,6 +53,10 @@
 	static PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
 #endif
 
+#include <signal.h>
+
+BOOL shaderError = false;
+
 #ifdef WIN32
 	#undef near
 	#undef far
@@ -701,8 +705,8 @@ REALIGN STDCALL BOOL grSstWinOpen(uint32_t hWnd, GrScreenResolution_t screen_res
 
 	if (!loadShaders())
 	{
-		fprintf(stderr, "Error loading shaders!\n");
-		return false;
+		shaderError = true;
+		raise(SIGABRT);
 	}
 
 	glEnableVertexAttribArray(g_aPositionLoc);
