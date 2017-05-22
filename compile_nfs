@@ -6,6 +6,7 @@ BUILD_WINDOWS="no"
 OPENGL_DEFINE="-DOPENGL1X"
 OPENGL_LIBS="-lGL"
 ANDROID_INSTALL="no"
+ANDROID_RUN="no"
 BUILD_CPP="yes"
 REMOVE_CPP_OBJ="yes"
 CPP_LTO="-flto"
@@ -125,6 +126,11 @@ do
 		;;
 		install)
 			ANDROID_INSTALL="yes"
+			ANDROID_RUN="no"
+		;;
+		install-run)
+			ANDROID_INSTALL="yes"
+			ANDROID_RUN="yes"
 		;;
 		dont-build-cpp)
 			BUILD_CPP="no"
@@ -180,8 +186,10 @@ elif [[ $BUILD == "android" ]]; then
 	ant debug || exit 1
 	if [[ $ANDROID_INSTALL == "yes" ]]; then
 		adb install -r bin/NFSIISE-debug.apk || exit 1
-		sleep 0.25
-		adb shell am start -n org.zaps166.NFSIISE/org.zaps166.NFSIISE.NFSIISE
+		if [[ $ANDROID_RUN == "yes" ]]; then
+			sleep 0.25
+			adb shell am start -n org.zaps166.NFSIISE/org.zaps166.NFSIISE.NFSIISE
+		fi
 	fi
 else
 	compile_x86 $@
