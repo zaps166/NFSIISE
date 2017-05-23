@@ -47,8 +47,7 @@ extern int32_t winWidth, winHeight;
 extern uint32_t fullScreenFlag;
 extern SDL_Window *sdlWin;
 
-BOOL windowCleared = false;
-int32_t windowResized = 0;
+BOOL windowResized = false;
 
 WindowProc wndProc;
 
@@ -119,8 +118,7 @@ REALIGN STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterM
 						case SDL_WINDOWEVENT_RESIZED:
 							winWidth  = event.window.data1;
 							winHeight = event.window.data2;
-							windowResized = NUM_BUFFERS_TO_CLEAR;
-							windowCleared = false;
+							windowResized = true;
 							br = false;
 							break;
 						case SDL_WINDOWEVENT_MINIMIZED:

@@ -632,6 +632,8 @@ REALIGN STDCALL SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 		exit(0);
 	}
 
+	SDL_GetWindowSize(sdlWin, &winWidth, &winHeight);
+
 	icon = (uint32_t *)malloc(32 * 32 * 4);
 	for (i = 0, j = 0; i < sizeof compressed_icon; ++i)
 	{

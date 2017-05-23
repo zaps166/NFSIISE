@@ -58,7 +58,6 @@
 #endif
 
 #define MAX_PATH 260
-#define NUM_BUFFERS_TO_CLEAR 7 //This should be enough
 
 #define BOOL int32_t
 #define false 0

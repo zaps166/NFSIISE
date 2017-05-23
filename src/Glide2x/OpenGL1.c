@@ -71,10 +71,12 @@ static uint32_t *palette, tmpTexture[0x400];
 static uint32_t trianglesCount, maxTexIdx;
 
 static PFNGLFOGCOORDFPROC p_glFogCoordf;
+
+static int32_t xOffset, yOffset, visibleWidth, visibleHeight;
 static SDL_GLContext glCtx;
 
-extern BOOL useGlBleginGlEnd, keepAspectRatio, windowCleared;
-extern int32_t vSync, winWidth, winHeight, windowResized;
+extern BOOL useGlBleginGlEnd, keepAspectRatio, windowResized;
+extern int32_t vSync, winWidth, winHeight;
 extern SDL_Window *sdlWin;
 
 static void setTextureFiltering()
@@ -141,8 +143,6 @@ REALIGN STDCALL void grClipWindow(uint32_t minX, uint32_t minY, uint32_t maxX, u
 {
 	float widthRatio  = winWidth  / 640.0f;
 	float heightRatio = winHeight / 480.0f;
-	int32_t xOffset = 0;
-	int32_t yOffset = 0;
 
 	if (keepAspectRatio)
 	{
@@ -153,6 +153,9 @@ REALIGN STDCALL void grClipWindow(uint32_t minX, uint32_t minY, uint32_t maxX, u
 
 		xOffset = winWidth  / 2 - widthRatio  * 320;
 		yOffset = winHeight / 2 - heightRatio * 240;
+
+		visibleWidth  = 640 * widthRatio  + 0.5f;
+		visibleHeight = 480 * heightRatio + 0.5f;
 	}
 
 	int32_t scaledMinX = minX * widthRatio;
@@ -182,20 +185,6 @@ REALIGN STDCALL void grBufferClear(GrColor_t color, GrAlpha_t alpha, uint16_t de
 
 	drawTriangles();
 
-	if (!windowCleared && windowResized > 0)
-	{
-		if (keepAspectRatio)
-		{
-			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-			glDisable(GL_SCISSOR_TEST);
-			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-			glEnable(GL_SCISSOR_TEST);
-		}
-		if (windowResized == NUM_BUFFERS_TO_CLEAR) //Change viewport, ortho and scissor only once
-			grClipWindow(0, 0, 640, 480);
-		windowCleared = true;
-	}
-
 	glClearColor(r, g, b, a);
 	glClearDepth(depth / 65535.0f);
 
@@ -215,15 +204,43 @@ REALIGN STDCALL void grBufferSwap(int swap_interval)
 {
 // 	printf("grBufferSwap: [%d]\n", trianglesCount);
 	drawTriangles();
-	SDL_GL_SwapWindow(sdlWin);
-	if (windowCleared && windowResized > 0)
+
+	if (windowResized)
 	{
-		if (keepAspectRatio)
-			--windowResized;
-		else
-			windowResized = 0;
-		windowCleared = false;
+		grClipWindow(0, 0, 640, 480);
+		windowResized = false;
 	}
+
+	if (keepAspectRatio && (xOffset > 0 || yOffset > 0))
+	{
+		GLint scissorBox[4] = {0, 0, winWidth, winHeight};
+		glGetIntegerv(GL_SCISSOR_BOX, scissorBox);
+
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+		if (xOffset > 0)
+		{
+			glScissor(0, 0, xOffset, winHeight);
+			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+			glScissor(xOffset + visibleWidth, 0, winWidth - visibleWidth - xOffset, winHeight);
+			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+		}
+		if (yOffset > 0)
+		{
+			// Y starts from bottom
+
+			glScissor(0, 0, winWidth, winHeight - visibleHeight - yOffset);
+			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+			glScissor(0, yOffset + visibleHeight, winWidth, yOffset);
+			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+		}
+
+		glScissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
+	}
+
+	SDL_GL_SwapWindow(sdlWin);
 }
 REALIGN STDCALL void grColorCombine(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, BOOL invert)
 {
