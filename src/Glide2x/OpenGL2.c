@@ -130,7 +130,7 @@ const char g_fShaderSrc[] =
 	"varying vec4 vColor;"
 	"varying float vFog;"
 
-	"uniform sampler2D textureSampler;"
+	"uniform sampler2D uTextureSampler;"
 	"uniform int uTextureEnabled;"
 	"uniform int uFogEnabled;"
 	"uniform vec4 uFogColor;"
@@ -142,7 +142,7 @@ const char g_fShaderSrc[] =
 		"vec4 ret = vColor;"
 		"if (uTextureEnabled == 1)"
 		"{"
-			"vec4 texture = texture2D(textureSampler, (vTexCoord.st / 256.0) / vTexCoord.q);"
+			"vec4 texture = texture2D(uTextureSampler, (vTexCoord.st / 256.0) / vTexCoord.q);"
 			"if (texture.a <= 0.0625)" // Alpha testing
 				"discard;"
 			"ret *= vec4(texture.b, texture.g, texture.r, texture.a);"
@@ -289,6 +289,8 @@ static inline BOOL loadShaders()
 	g_uGammaLoc = glGetUniformLocation(g_shaderProgram, "uGamma");
 
 	glUseProgram(g_shaderProgram);
+
+	glUniform1i(glGetUniformLocation(g_shaderProgram, "uTextureSampler"), 0);
 
 	return true;
 }
