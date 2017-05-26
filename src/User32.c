@@ -46,6 +46,7 @@ static const uint8_t sdl_to_windows_scancode_table[100] =
 extern int32_t winWidth, winHeight;
 extern uint32_t fullScreenFlag;
 extern SDL_Window *sdlWin;
+extern double dpr;
 
 BOOL windowResized = false;
 
@@ -116,8 +117,8 @@ REALIGN STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterM
 					switch (event.window.event)
 					{
 						case SDL_WINDOWEVENT_RESIZED:
-							winWidth  = event.window.data1;
-							winHeight = event.window.data2;
+							winWidth  = event.window.data1 * dpr;
+							winHeight = event.window.data2 * dpr;
 							windowResized = true;
 							br = false;
 							break;

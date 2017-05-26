@@ -678,6 +678,7 @@ REALIGN STDCALL void grSstWinClose(void)
 REALIGN STDCALL BOOL grSstWinOpen(uint32_t hWnd, GrScreenResolution_t screen_resolution, GrScreenRefresh_t refresh_rate, GrColorFormat_t color_format, GrOriginLocation_t origin_location, int nColBuffers, int nAuxBuffers)
 {
 	glCtx = SDL_GL_CreateContext(sdlWin);
+	handleDpr();
 
 #ifndef GLES2
 	glGetShaderiv = SDL_GL_GetProcAddress("glGetShaderiv");

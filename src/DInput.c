@@ -71,6 +71,7 @@
 
 extern SDL_Window *sdlWin;
 extern int32_t winWidth, winHeight;
+extern double dpr;
 
 extern int32_t joystickAxes[2][8], joystickButtons[2][15];
 extern int32_t joystickAxisValueShift[2];
@@ -423,7 +424,7 @@ MAYBE_STATIC REALIGN STDCALL uint32_t GetDeviceData(DirectInputDevice **this, ui
 		if (mousePositionX != lastX || mousePositionY != lastY)
 		{
 			/* Move the mouse cursor if game changes cursor position */
-			SDL_WarpMouseInWindow(NULL, (mousePositionX * winWidth / 640.0f) + 0.5f, (mousePositionY * winHeight / 480.0f) + 0.5f);
+			SDL_WarpMouseInWindow(NULL, (mousePositionX / dpr * winWidth / 640.0f) + 0.5f, (mousePositionY / dpr * winHeight / 480.0f) + 0.5f);
 			lastX = mousePositionX;
 			lastY = mousePositionY;
 		}
@@ -436,8 +437,8 @@ MAYBE_STATIC REALIGN STDCALL uint32_t GetDeviceData(DirectInputDevice **this, ui
 			{
 				/* Only when mouse moved */
 				SDL_GetMouseState(&x, &y);
-				lastX = (x * 640.0f / winWidth)  + 0.5f;
-				lastY = (y * 480.0f / winHeight) + 0.5f;
+				lastX = (x * dpr * 640.0f / winWidth)  + 0.5f;
+				lastY = (y * dpr * 480.0f / winHeight) + 0.5f;
 				/* Set as absolute position */
 				rgdod[0].dwData = lastX - mousePositionX;
 				rgdod[1].dwData = lastY - mousePositionY;

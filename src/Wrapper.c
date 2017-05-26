@@ -59,6 +59,7 @@ uint32_t watchdogTimer(uint32_t interval, void *param)
 }
 
 SDL_Window *sdlWin = NULL;
+double dpr = 1.0;
 
 #ifdef OPENGL1X
 void SetBrightness(float val)
@@ -620,7 +621,8 @@ REALIGN STDCALL SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 
 	checkGameDirs();
 
-	sdlWin = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, winWidth, winHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (startInFullScreen ? fullScreenFlag : 0));
+	const int windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (startInFullScreen ? fullScreenFlag : 0) | SDL_WINDOW_ALLOW_HIGHDPI;
+	sdlWin = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, winWidth, winHeight, windowFlags);
 	if (!sdlWin)
 	{
 		const char *error = SDL_GetError();
