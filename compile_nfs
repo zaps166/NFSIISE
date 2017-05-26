@@ -61,8 +61,8 @@ function compile_x86
 			rm -f *.o &&
 			echo "OK!"
 		elif [ $OS == "Darwin" ]; then
-			echo -n " OS X... "
-			clang $C_FLAGS $OPENGL_DEFINE -DSTACK_REALIGN -DSWAP_WINDOW_AND_GL_THREAD -c *.c &&
+			echo -n " macOS... "
+			clang $C_FLAGS $OPENGL_DEFINE -DSTACK_REALIGN -DSWAP_WINDOW_AND_GL_THREAD -c *.c -mmacosx-version-min=10.6 &&
 			yasm -f macho Asm/NFS2SE.asm -o NFS2SE.OSX.o --prefix=_ -DSWAP_WINDOW_AND_GL_THREAD &&
 			ld -o "../Need For Speed II SE/nfs2se" *.o -lc -lSDL2 -framework OpenGL -macosx_version_min 10.6 -e _start &&
 			rm -f *.o &&
