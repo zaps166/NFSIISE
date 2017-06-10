@@ -99,6 +99,8 @@ static inline void matrixOrtho(float left, float right, float bottom, float top,
 const char g_vShaderSrc[] =
 #ifdef GLES2
 	"precision mediump float;"
+#else
+	"#version 110\n"
 #endif
 
 	"attribute vec4 aPosition;"
@@ -124,6 +126,8 @@ const char g_vShaderSrc[] =
 const char g_fShaderSrc[] =
 #ifdef GLES2
 	"precision mediump float;"
+#else
+	"#version 110\n"
 #endif
 
 	"varying vec4 vTexCoord;"
@@ -131,26 +135,22 @@ const char g_fShaderSrc[] =
 	"varying float vFog;"
 
 	"uniform sampler2D uTextureSampler;"
-	"uniform int uTextureEnabled;"
-	"uniform int uFogEnabled;"
+	"uniform float uTextureEnabled;"
+	"uniform float uFogEnabled;"
 	"uniform vec4 uFogColor;"
 	"uniform float uGamma;"
-
 
 	"void main()"
 	"{"
 		"vec4 ret = vColor;"
-		"if (uTextureEnabled == 1)"
-		"{"
-			"vec4 texture = texture2D(uTextureSampler, (vTexCoord.st / 256.0) / vTexCoord.q);"
-			"if (texture.a <= 0.0625)" // Alpha testing
-				"discard;"
-			"ret *= vec4(texture.b, texture.g, texture.r, texture.a);"
-		"}"
-		"if (uFogEnabled == 1)"
-		"{"
-			"ret = mix(uFogColor, ret, vFog);"
-		"}"
+
+		"vec4 texture = uTextureEnabled * texture2D(uTextureSampler, (vTexCoord.st / 256.0) / vTexCoord.q);"
+		"if (texture.a < 0.0625 * uTextureEnabled)" // Alpha testing
+			"discard;"
+		"ret *= (1.0 - uTextureEnabled) + vec4(texture.b, texture.g, texture.r, texture.a);"
+
+		"ret = mix(uFogColor, ret, 1.0 - (1.0 - vFog) * uFogEnabled);"
+
 		"gl_FragColor = pow(ret, vec4(1.0 / uGamma));"
 	"}"
 ;
@@ -344,9 +344,9 @@ REALIGN STDCALL void grAlphaCombine(GrCombineFunction_t function, GrCombineFacto
 {
 	drawTriangles();
 	if (other == GR_COMBINE_OTHER_TEXTURE)
-		glUniform1i(g_uTextureEnabledLoc, 1);
+		glUniform1f(g_uTextureEnabledLoc, 1.0f);
 	else
-		glUniform1i(g_uTextureEnabledLoc, 0);
+		glUniform1f(g_uTextureEnabledLoc, 0.0f);
 // 	printf("grAlphaCombine: %d\n", (other == GR_COMBINE_OTHER_TEXTURE));
 }
 REALIGN STDCALL void grAlphaTestFunction(GrCmpFnc_t function)
@@ -570,11 +570,11 @@ REALIGN STDCALL void grFogMode(GrFogMode_t mode)
 {
 	switch (mode)
 	{
-		case GR_FOG_DISABLE:
-			glUniform1i(g_uFogEnabledLoc, 0);
+		case GR_FOG_DISABLE: // Is it necessary to disable fog?
+			glUniform1f(g_uFogEnabledLoc, 0.0f);
 			break;
 		case GR_FOG_WITH_TABLE:
-			glUniform1i(g_uFogEnabledLoc, 1);
+			glUniform1f(g_uFogEnabledLoc, 1.0f);
 			break;
 	}
 // 	printf("grFogMode: %X\n", mode);
