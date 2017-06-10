@@ -273,8 +273,13 @@ static void signal_handler(int sig)
 		snprintf(errStr, sizeof errStr, "Application closed with a signal: %d", sig);
 	}
 	fprintf(stderr, "%s\n", errStr);
-	SDL_SetWindowFullscreen(sdlWin, SDL_FALSE);
-	SDL_ShowSimpleMessageBox(0, "Probably crash!", errStr, NULL);
+#ifdef __APPLE__
+	if (!shaderError) // Workaround: Game freezes in this case
+#endif
+	{
+		SDL_SetWindowFullscreen(sdlWin, SDL_FALSE);
+		SDL_ShowSimpleMessageBox(0, "Probably crash!", errStr, NULL);
+	}
 	raise(SIGKILL);
 }
 #endif
