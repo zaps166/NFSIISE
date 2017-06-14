@@ -273,7 +273,7 @@ static void signal_handler(int sig)
 		snprintf(errStr, sizeof errStr, "Application closed with a signal: %d", sig);
 	}
 	fprintf(stderr, "%s\n", errStr);
-#ifdef __APPLE__
+#if defined(__APPLE__) && !defined(OPENGL1X)
 	if (!shaderError) // Workaround: Game freezes in this case
 #endif
 	{
