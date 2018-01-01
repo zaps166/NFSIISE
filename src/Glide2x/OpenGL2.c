@@ -253,8 +253,8 @@ static inline BOOL loadShaders()
 	const GLint vShaderLen = sizeof(g_vShaderSrc) - 1;
 	const GLint fShaderLen = sizeof(g_fShaderSrc) - 1;
 
-	const GLchar *const vShaderSrc = g_vShaderSrc;
-	const GLchar *const fShaderSrc = g_fShaderSrc;
+	const GLchar *vShaderSrc = g_vShaderSrc;
+	const GLchar *fShaderSrc = g_fShaderSrc;
 
 	g_vShader = glCreateShader(GL_VERTEX_SHADER);
 	g_fShader = glCreateShader(GL_FRAGMENT_SHADER);
