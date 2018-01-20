@@ -116,6 +116,7 @@ apt-get install libsdl2-dev:i386 gcc-multilib yasm
 * Compilation on *BSD systems probably needs changes in compilation script (not tested).
 * Cockpit view and night driving are unavailable (original 3D-accelerated version doesn't have this).
 * OpenGL 1.x only: if the game crashes it might not restore the gamma properly. In this case run: `xgamma -gamma 1.0`.
+* There is Docker based build environment available on [GitHub](https://github.com/thomas-mc-work/nfsiise-build-env).
 
 ## Patches:
 
