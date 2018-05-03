@@ -29,6 +29,11 @@
 	#include <windows.h>
 #endif
 
+#ifdef NEED_DSO_HANDLE
+	//Needed for "atexit()"
+	const void *const __dso_handle __attribute__((__visibility__("hidden"))) = &__dso_handle;
+#endif
+
 static const char title[] = "Need For Speed II SE";
 
 #if defined(OPENGL1X) && defined(SDL_VIDEO_DRIVER_X11) && defined(SDL_VIDEO_DRIVER_X11_DYNAMIC_XVIDMODE)

@@ -55,7 +55,7 @@ function compile_x86
 					LIB32_DIR=/usr/lib32
 				fi
 			fi
-			$CC $C_FLAGS -DSTACK_REALIGN $OPENGL_DEFINE -c *.c &&
+			$CC $C_FLAGS -DNEED_DSO_HANDLE -DSTACK_REALIGN $OPENGL_DEFINE -c *.c &&
 			yasm -f elf32 Asm/NFS2SE.asm -o NFS2SE.Linux.o $DEBUG_ASM &&
 			ld -m elf_i386 -dynamic-linker /lib/ld-linux.so.2 -o "../Need For Speed II SE/nfs2se" *.o -L$LIB32_DIR -lc -lSDL2 $OPENGL_LIBS $STRIP -rpath=\$ORIGIN -e start &&
 			rm -f *.o &&
