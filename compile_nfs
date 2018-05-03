@@ -43,37 +43,21 @@ function compile_x86
 		rm -f *.o &&
 		echo "OK!"
 	else
-		if [ $OS == "Linux" ]; then
-			if [ -z $CC ]; then
-				CC=gcc
-			fi
-			echo -n " $OS ($CC)... "
-			#32bit libraries for Linux
-			if [ -z $LIB32_DIR ]; then
-				LIB32_DIR=/usr/lib
-				if [[ -d /usr/lib32 ]]; then
-					LIB32_DIR=/usr/lib32
-				fi
-			fi
-			$CC $C_FLAGS -DNEED_DSO_HANDLE -DSTACK_REALIGN $OPENGL_DEFINE -c *.c &&
-			yasm -f elf32 Asm/NFS2SE.asm -o NFS2SE.Linux.o $DEBUG_ASM &&
-			ld -m elf_i386 -dynamic-linker /lib/ld-linux.so.2 -o "../Need For Speed II SE/nfs2se" *.o -L$LIB32_DIR -lc -lSDL2 $OPENGL_LIBS $STRIP -rpath=\$ORIGIN -e start &&
-			rm -f *.o &&
-			echo "OK!"
-		elif [ $OS == "Darwin" ]; then
+		if [ $OS == "Darwin" ]; then
 			echo -n " macOS... "
 			clang $C_FLAGS $OPENGL_DEFINE -DSTACK_REALIGN -DSWAP_WINDOW_AND_GL_THREAD -c *.c -mmacosx-version-min=10.6 &&
 			yasm -f macho Asm/NFS2SE.asm -o NFS2SE.OSX.o --prefix=_ -DSWAP_WINDOW_AND_GL_THREAD &&
 			ld -o "../Need For Speed II SE/nfs2se" *.o -lc -lSDL2 -framework OpenGL -macosx_version_min 10.6 -e _start &&
 			rm -f *.o &&
 			echo "OK!"
-		elif [ $OS == "FreeBSD" ]; then
-			#NOT TESTED!!!
-			echo -n " $OS... "
-			clang $C_FLAGS $OPENGL_DEFINE -DSTACK_REALIGN -c -I/usr/local/include *.c &&
-			yasm -f elf32 Asm/NFS2SE.asm -o NFS2SE.Linux.o $DEBUG_ASM &&
-			ld -m elf_i386_fbsd -dynamic-linker /libexec/ld-elf32.so.1 -o "../Need For Speed II SE/nfs2se" *.o -L/usr/local/lib32/compat -lc -lSDL2 $OPENGL_LIBS $STRIP -rpath=\$ORIGIN -e start &&
-			rm -f *.o &&
+		else
+			if [ -z $CC ]; then
+				CC=gcc
+			fi
+			echo -n " $OS ($CC)... "
+			yasm -f elf32 Asm/NFS2SE.asm -o NFS2SE.Elf32.o $DEBUG_ASM &&
+			$CC -no-pie -nostartfiles $C_FLAGS -DNEED_DSO_HANDLE -DSTACK_REALIGN $OPENGL_DEFINE -o "../Need For Speed II SE/nfs2se" NFS2SE.Elf32.o *.c -lSDL2 $OPENGL_LIBS $STRIP -Wl,-rpath=\$ORIGIN -Wl,-estart &&
+			rm -f NFS2SE.Elf32.o &&
 			echo "OK!"
 		fi
 	fi
@@ -98,7 +82,7 @@ function compile_cpp
 	if [[ $BUILD_CPP == "yes" ]]; then
 		gcc -c -std=c++14 $CPU_FLAGS $FLAGS -w Cpp/NFS2SE.cpp -fpermissive -fno-rtti -fno-exceptions || exit 1
 	fi
-	gcc -o "../Need For Speed II SE/nfs2se" -std=gnu89 $CPU_FLAGS $FLAGS $OPENGL_DEFINE -DNFS_CPP -w *.c NFS2SE.o -lSDL2 $OPENGL_LIBS -lm
+	gcc -no-pie -o "../Need For Speed II SE/nfs2se" -std=gnu89 $CPU_FLAGS $FLAGS $OPENGL_DEFINE -DNFS_CPP -w *.c NFS2SE.o -lSDL2 $OPENGL_LIBS -lm
 	if [[ $REMOVE_CPP_OBJ == "yes" ]]; then
 		rm -f NFS2SE.o
 	fi
