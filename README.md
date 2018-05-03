@@ -22,10 +22,10 @@ $ git submodule update
 ## Compile for x86:
 
 * To compile the game you must have:
- * GCC or Clang compiler which can generate **32-bit** code for x86 (set by `$CC` environment variable),
- * **32-bit** OpenGL devel and drivers,
- * **32-bit** SDL2 devel.
- * Yasm assembler,
+  * GCC or Clang compiler which can generate **32-bit** code for x86 (set by `$CC` environment variable),
+  * **32-bit** OpenGL devel and drivers,
+  * **32-bit** SDL2 devel.
+  * Yasm assembler,
 * On Debian you should add 32-bit architecture and install 32-bit dependencies (run as `root`):
 ```sh
 dpkg --add-architecture i386
@@ -33,8 +33,8 @@ apt-get update
 apt-get install libsdl2-dev:i386 gcc-multilib yasm
 ```
 * Edit the `compile_nfs` script, modify what do you want. Compile the game by executing the script - it will automaticly generate executable file inside `Need For Speed II SE` directory:
- * `./compile_nfs` - native compilation for Unix-like systems (Linux, OS X, ...),
- * `./compile_nfs win32` - cross compilation for Windows.
+  * `./compile_nfs` - native compilation for Unix-like systems (Linux, OS X, ...),
+  * `./compile_nfs win32` - cross compilation for Windows.
 
 ## Compile for non-x86 CPUs:
 
@@ -58,9 +58,9 @@ apt-get install libsdl2-dev:i386 gcc-multilib yasm
 * set environment variables: `ANDROID_NDK_ROOT` and `ANDROID_HOME`,
 * create directory path: `src/Android/jni/SDL/include/SDL2`,
 * download SDL2 sources and create symlinks from SDL2 source directory:
- * `android-project/src/org/libsdl` to `src/Android/src/org`,
- * `src` to `src/Android/jni/SDL`,
- * `include/*.h` to `src/Android/jni/SDL/include/SDL2`,
+  * `android-project/src/org/libsdl` to `src/Android/src/org`,
+  * `src` to `src/Android/jni/SDL`,
+  * `include/*.h` to `src/Android/jni/SDL/include/SDL2`,
 * run `./compile_nfs android` or `./compile_nfs android install`
 
 ## Run:
@@ -69,14 +69,14 @@ apt-get install libsdl2-dev:i386 gcc-multilib yasm
 * This game **needs** data from Need For Speed 2 **Special Edition**, otherwise you'll see a 'MOVIE FILE NOT FOUND' message!
 * You can delete unnecessary files, e.g. `fedata/pc/text/text.*`, because TCP version uses new files in root directory.
 * All files and directories copied from CD-ROM **must** have *small letters* on Unix-like systems!!!
- * Please use the `Need For Speed II SE/convert_to_lowercase` script if you have UPPERCASE names.
+  * Please use the `Need For Speed II SE/convert_to_lowercase` script if you have UPPERCASE names.
 * If you want to change the language, edit `install.win` file and change the first line. Leave `4nn` as is and modify only language name. Possible languages are:
- * english,
- * french,
- * german,
- * italian,
- * spanish,
- * swedish.
+  * english,
+  * french,
+  * german,
+  * italian,
+  * spanish,
+  * swedish.
 * Run the game.
 * The game settings files are located in `~/.nfs2se` (`%AppData%\.nfs2se` on Windows). At the first run the `nfs2se.conf.template` will be copied there. You can modify the file if you want to configure the game. On Windows you can use `open_config.bat` to open the config file in notepad.
 * On Ubuntu 16.04 you can quick start by installing these dependencies:
@@ -114,7 +114,7 @@ apt-get install libsdl2-dev:i386 gcc-multilib yasm
 
 * Arch Linux package is available in AUR as `nfs2se-git`.
 * Compilation on *BSD systems probably needs changes in compilation script (not tested).
-* Cockpit view and night driving are unavailable (original 3D-accelerated version doesn't have this).
+* Cockpit view and night driving are unavailable (original 3D-accelerated version doesn't have this), see [NFSIISEN](https://github.com/zaps166/NFSIISEN) repository.
 * OpenGL 1.x only: if the game crashes it might not restore the gamma properly. In this case run: `xgamma -gamma 1.0`.
 * There is Docker based build environment available on [GitHub](https://github.com/thomas-mc-work/nfsiise-build-env).
 
