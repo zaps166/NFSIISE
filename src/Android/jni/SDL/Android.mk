@@ -30,9 +30,10 @@ LOCAL_SRC_FILES := \
 	$(wildcard $(LOCAL_PATH)/src/events/*.c) \
 	$(wildcard $(LOCAL_PATH)/src/file/*.c) \
 	$(wildcard $(LOCAL_PATH)/src/haptic/*.c) \
-	$(wildcard $(LOCAL_PATH)/src/haptic/dummy/*.c) \
+	$(wildcard $(LOCAL_PATH)/src/haptic/android/*.c) \
 	$(wildcard $(LOCAL_PATH)/src/joystick/*.c) \
 	$(wildcard $(LOCAL_PATH)/src/joystick/android/*.c) \
+	$(LOCAL_PATH)/src/joystick/steam/SDL_steamcontroller.c \
 	$(wildcard $(LOCAL_PATH)/src/loadso/dlopen/*.c) \
 	$(wildcard $(LOCAL_PATH)/src/power/*.c) \
 	$(wildcard $(LOCAL_PATH)/src/power/android/*.c) \
@@ -45,7 +46,8 @@ LOCAL_SRC_FILES := \
 	$(wildcard $(LOCAL_PATH)/src/timer/*.c) \
 	$(wildcard $(LOCAL_PATH)/src/timer/unix/*.c) \
 	$(wildcard $(LOCAL_PATH)/src/video/*.c) \
-	$(wildcard $(LOCAL_PATH)/src/video/android/*.c))
+	$(wildcard $(LOCAL_PATH)/src/video/android/*.c) \
+	$(wildcard $(LOCAL_PATH)/src/video/yuv2rgb/*.c))
 
 LOCAL_CFLAGS += -DGL_GLEXT_PROTOTYPES
 LOCAL_LDLIBS := -ldl -lGLESv1_CM -lGLESv2 -llog -landroid

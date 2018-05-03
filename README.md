@@ -54,11 +54,11 @@ apt-get install libsdl2-dev:i386 gcc-multilib yasm
 * run `./compile_nfs cpp`
 
 #### Android:
-* install NDK and SDK (API levels: 10 and 12),
+* install NDK and SDK (API levels: 14 and 16),
 * set environment variables: `ANDROID_NDK_ROOT` and `ANDROID_HOME`,
 * create directory path: `src/Android/jni/SDL/include/SDL2`,
 * download SDL2 sources and create symlinks from SDL2 source directory:
-  * `android-project/src/org/libsdl` to `src/Android/src/org`,
+  * `android-project/app/src/main/java/org` to `src/Android/src/org`,
   * `src` to `src/Android/jni/SDL`,
   * `include/*.h` to `src/Android/jni/SDL/include/SDL2`,
 * run `./compile_nfs android` or `./compile_nfs android install`

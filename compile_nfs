@@ -166,7 +166,7 @@ elif [[ $BUILD == "android" ]]; then
 	cd Android || exit 1
 	sed "s/@VERSION@/$VERSION/" AndroidManifest.xml.in > AndroidManifest.xml
 	$ANDROID_NDK_ROOT/ndk-build || exit 1
-	$ANDROID_HOME/tools/android update project -p . -t android-12 --subprojects || exit 1
+	$ANDROID_HOME/tools/android update project -p . -t android-16 --subprojects || exit 1
 	ant debug || exit 1
 	if [[ $ANDROID_INSTALL == "yes" ]]; then
 		adb install -r bin/NFSIISE-debug.apk || exit 1
