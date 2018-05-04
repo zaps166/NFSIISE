@@ -121,3 +121,4 @@ apt-get install libsdl2-dev:i386 gcc-multilib yasm
 ## Patches:
 
 * This directory contains patch for SDL 2.0.3 (SDL 2.0.4 has already this bugfix). It allows to use all axes in DualShock3 gamepad! You must also modify `nfs2se.conf` file (Joystick0Axes, Joystick0Buttons).
+  * Unfortunately only main 6 axes in DualShock 3 are accessible since Linux 4.12.
