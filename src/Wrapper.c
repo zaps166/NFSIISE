@@ -416,10 +416,12 @@ void WrapperInit(void)
 		if ((f = fopen(buffer, "r")))
 		{
 			buffer[pos] = '\0';
-			settingsDir = strdup(buffer);
+			settingsDir = buffer;
 		}
-
-		free(buffer);
+		else
+		{
+			free(buffer);
+		}
 	}
 
 #ifndef WIN32
