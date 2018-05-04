@@ -23,7 +23,6 @@
 */
 
 #include "Wrapper.h"
-#include "Version"
 #include <SDL2/SDL.h>
 #ifdef WIN32
 	#include <windows.h>
@@ -313,7 +312,7 @@ static void initializeSDL2()
 #else
 	extern const char binaryGameVersion;
 #endif
-	printf("%s\n  Wrapper v%s\n  Game    v%s\n  OpenGL  ", title, WRAPPER_VERSION, &binaryGameVersion);
+	printf("%s\n  Wrapper v%s\n  Game    v%s\n  OpenGL  ", title, "1.2.4", &binaryGameVersion);
 #if defined(OPENGL1X)
 	puts("1");
 #elif defined(GLES2)
