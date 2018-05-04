@@ -373,7 +373,7 @@ void WrapperInit(void)
 			"stats/prh",
 			"tmptrk"
 		};
-		char buffer[MAX_PATH];
+		char *buffer = malloc(strlen(homeDir) + 100);
 		uint32_t pos, i;
 
 		/* Creating ~/.nfs2se directory and subdirectories */
@@ -418,6 +418,8 @@ void WrapperInit(void)
 			buffer[pos] = '\0';
 			settingsDir = strdup(buffer);
 		}
+
+		free(buffer);
 	}
 
 #ifndef WIN32
