@@ -21,7 +21,7 @@ $ git submodule update
 
 ## Compile for x86:
 
-* To compile the game you must have:
+* To compile the game, you must have:
   * GCC or Clang compiler which can generate **32-bit** code for x86 (set by `$CC` environment variable),
   * **32-bit** OpenGL devel and drivers,
   * **32-bit** SDL2 devel.
@@ -32,7 +32,7 @@ dpkg --add-architecture i386
 apt-get update
 apt-get install libsdl2-dev:i386 gcc-multilib yasm
 ```
-* Edit the `compile_nfs` script, modify what do you want. Compile the game by executing the script - it will automaticly generate executable file inside `Need For Speed II SE` directory:
+* Edit the `compile_nfs` script, modify what do you want. Compile the game by executing the script - it will automatically generate executable file inside `Need For Speed II SE` directory:
   * `./compile_nfs` - native compilation for Unix-like systems (Linux, OS X, ...),
   * `./compile_nfs win32` - cross compilation for Windows.
 
@@ -40,13 +40,13 @@ apt-get install libsdl2-dev:i386 gcc-multilib yasm
 
 ### Information:
 * This game can run on ARM devices, also on Android. Only **32-bit little-endian** CPUs are supported.
-* The performance is lower than original assembly code.
+* The performance is lower than the original assembly code.
 * It can be less stable than assembly code due to possible translation bugs.
 
 ### Requirements:
 * SDL2 (32-bit) and OpenGL (32-bit),
 * target must be 32-bit little-endian,
-* GCC 4.9 or higher (currenlty Clang is not supported).
+* GCC 4.9 or higher (currently Clang is not supported).
 
 ### Compilation:
 
@@ -78,7 +78,7 @@ apt-get install libsdl2-dev:i386 gcc-multilib yasm
   * spanish,
   * swedish.
 * Run the game.
-* The game settings files are located in `~/.nfs2se` (`%AppData%\.nfs2se` on Windows). At the first run the `nfs2se.conf.template` will be copied there. You can modify the file if you want to configure the game. On Windows you can use `open_config.bat` to open the config file in notepad.
+* The game settings files are located in `~/.nfs2se` (`%AppData%\.nfs2se` on Windows). At the first run, the `nfs2se.conf.template` will be copied there. You can modify the file if you want to configure the game. On Windows, you can use `open_config.bat` to open the config file in notepad.
 * On Ubuntu 16.04 you can quick start by installing these dependencies:
     `sudo apt install libgl1-mesa-glx:i386 libxinerama1:i386 libxrandr2:i386`
 
@@ -121,4 +121,4 @@ apt-get install libsdl2-dev:i386 gcc-multilib yasm
 ## Patches:
 
 * This directory contains patch for SDL 2.0.3 (SDL 2.0.4 has already this bugfix). It allows to use all axes in DualShock3 gamepad! You must also modify `nfs2se.conf` file (Joystick0Axes, Joystick0Buttons).
-  * Unfortunately only main 6 axes in DualShock 3 are accessible since Linux 4.12.
+  * Unfortunately, only main 6 axes in DualShock 3 are accessible since Linux 4.12.
