@@ -1,4 +1,5 @@
 #!/bin/bash
+export LC_ALL=C
 
 if [ -z $1 ]; then
 	echo "Usage: $0 DIR1 [DIR2]"
