@@ -145,13 +145,16 @@ const char g_fShaderSrc[] =
 		"vec4 ret = vColor;"
 
 		"vec4 texture = uTextureEnabled * texture2D(uTextureSampler, (vTexCoord.st / 256.0) / vTexCoord.q);"
-		"if (texture.a < 0.0625 * uTextureEnabled)" // Alpha testing
-			"discard;"
 		"ret *= (1.0 - uTextureEnabled) + vec4(texture.b, texture.g, texture.r, texture.a);"
+
+		"if (ret.a <= 16.0 / 255.0)"
+			"discard;"
 
 		"ret = mix(uFogColor, ret, 1.0 - (1.0 - vFog) * uFogEnabled);"
 
-		"gl_FragColor = pow(ret, vec4(1.0 / uGamma));"
+		"ret.rgb = pow(ret.rgb, vec3(1.0 / uGamma));"
+
+		"gl_FragColor = ret;"
 	"}"
 ;
 
