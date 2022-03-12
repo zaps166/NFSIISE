@@ -306,6 +306,7 @@ REALIGN STDCALL void LeaveCriticalSection_wrap(CRITICAL_SECTION *criticalSection
 REALIGN STDCALL void DeleteCriticalSection_wrap(CRITICAL_SECTION *criticalSection)
 {
 	SDL_DestroyMutex(criticalSection->mutex);
+	criticalSection->mutex = NULL;
 }
 
 REALIGN STDCALL void GlobalMemoryStatus_wrap(MEMORYSTATUS *memoryStatus)
