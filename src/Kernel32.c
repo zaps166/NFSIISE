@@ -26,9 +26,9 @@
 
 #include <SDL2/SDL_timer.h>
 
-#ifdef WIN32
-	void exit_func();
-#else
+void exit_func();
+
+#ifndef WIN32
 	#define ERROR_IO_PENDING 0x3E5
 	#define WAIT_TIMEOUT 0x102
 	#include <sys/stat.h>
@@ -323,6 +323,7 @@ REALIGN STDCALL void GlobalMemoryStatus_wrap(MEMORYSTATUS *memoryStatus)
 
 REALIGN STDCALL void ExitProcess_wrap(uint32_t exitCode)
 {
+	exit_func();
 	exit(exitCode);
 }
 

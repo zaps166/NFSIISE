@@ -27,11 +27,9 @@
 #include <SDL2/SDL.h>
 #ifdef WIN32
 	#include <windows.h>
-#endif
-
-#ifdef NEED_DSO_HANDLE
-	//Needed for "atexit()"
-	const void *const __dso_handle __attribute__((__visibility__("hidden"))) = &__dso_handle;
+#else
+	#include <signal.h>
+	#include <sched.h>
 #endif
 
 static const char title[] = "Need For Speed II SE";
@@ -41,10 +39,6 @@ static ProcedureType atExitProcedures[10];
 static uint32_t atExitProcedureCount;
 REALIGN STDCALL void WrapperAtExit(ProcedureType proc)
 {
-	uint32_t i;
-	for (i = 0; i < atExitProcedureCount; ++i)
-		if (proc == atExitProcedures[i])
-			return;
 	if (atExitProcedureCount < 10)
 		atExitProcedures[atExitProcedureCount++] = proc;
 }
@@ -70,12 +64,17 @@ static char *settingsDir = NULL;
 char *serialPort[4] = {NULL};
 SDL_mutex *event_mutex;
 SDL_cond *event_cond;
-static
 #endif
 void exit_func(void)
 {
 	SDL_TimerID timerID;
 	uint32_t i;
+
+#ifndef WIN32
+	signal(SIGINT, SIG_DFL);
+	signal(SIGTERM, SIG_DFL);
+#endif
+
 	for (i = 0; i < atExitProcedureCount; ++i)
 	{
 		timerID = SDL_AddTimer(2500, watchdogTimer, NULL);
@@ -87,20 +86,29 @@ void exit_func(void)
 #endif
 		SDL_RemoveTimer(timerID);
 	}
+	atExitProcedureCount = 0;
+
 #ifndef WIN32
 	for (i = 0; i < 4; ++i)
+	{
 		free(serialPort[i]);
+		serialPort[i] = NULL;
+	}
 #endif
+
 	i = 250;
 	while (sdlWin && i--)
 		SDL_Delay(10);
+
 #if !defined(WIN32) && 0 // Disabled, because currently causes deadlock on Linux
 	SDL_DestroyCond(event_cond);
 	event_cond = NULL;
 	SDL_DestroyMutex(event_mutex);
 	event_mutex = NULL;
 #endif
+
 	free(settingsDir);
+	settingsDir = NULL;
 }
 
 #ifndef WIN32
@@ -197,38 +205,34 @@ static void checkGameDirs()
 }
 
 #ifndef WIN32
-#include <signal.h>
-#include <sched.h>
-
 static void signal_handler(int sig)
 {
-	static char errStr[64];
+	if (sig == SIGPIPE)
+		return;
+
 	if (sig == SIGINT || sig == SIGTERM)
 	{
+		exit_func();
 		exit(0);
 		return;
 	}
-	if (sig == SIGPIPE)
-		return;
+
+#ifndef OPENGL1X
 	extern BOOL shaderError;
 	if (sig == SIGABRT && shaderError)
 	{
-		snprintf(errStr, sizeof errStr, "Error loading shaders, see console output!");
+		SDL_SetWindowFullscreen(sdlWin, SDL_FALSE);
+		SDL_ShowSimpleMessageBox(0, "GLSL error", "Error loading shaders, see console output!", NULL);
 	}
 	else
 #endif // OPENGL1X
 	{
-		snprintf(errStr, sizeof errStr, "Application closed with a signal: %d", sig);
+		fprintf(stderr, "Application closed with a signal: %d\n", sig);
+		fflush(stderr);
 	}
-	fprintf(stderr, "%s\n", errStr);
-#if defined(__APPLE__) && !defined(OPENGL1X)
-	if (!shaderError) // Workaround: Game freezes in this case
-#endif
-	{
-		SDL_SetWindowFullscreen(sdlWin, SDL_FALSE);
-		SDL_ShowSimpleMessageBox(0, "Probably crash!", errStr, NULL);
-	}
-	raise(SIGKILL);
+
+	signal(sig, SIG_DFL);
+	raise(sig);
 }
 #endif
 
@@ -383,8 +387,6 @@ void WrapperInit(void)
 	signal(SIGPIPE, signal_handler);
 	signal(SIGALRM, signal_handler);
 	signal(SIGTERM, signal_handler);
-
-	atexit(exit_func);
 #endif
 	if (!f)
 		f = fopen("nfs2se.conf", "r");

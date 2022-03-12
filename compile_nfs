@@ -56,7 +56,7 @@ function compile_x86
 			fi
 			echo -n " $OS ($CC)... "
 			yasm -f elf32 Asm/NFS2SE.asm -o NFS2SE.Elf32.o $DEBUG_ASM &&
-			$CC -no-pie -nostartfiles $C_FLAGS -DNEED_DSO_HANDLE -DSTACK_REALIGN $OPENGL_DEFINE -o "../Need For Speed II SE/nfs2se" NFS2SE.Elf32.o *.c -lSDL2 $OPENGL_LIBS $STRIP -Wl,-rpath=\$ORIGIN -Wl,-estart &&
+			$CC -no-pie -nostartfiles $C_FLAGS -DSTACK_REALIGN $OPENGL_DEFINE -o "../Need For Speed II SE/nfs2se" NFS2SE.Elf32.o *.c -lSDL2 $OPENGL_LIBS $STRIP -Wl,-rpath=\$ORIGIN -Wl,-estart &&
 			rm -f NFS2SE.Elf32.o &&
 			echo "OK!"
 		fi
