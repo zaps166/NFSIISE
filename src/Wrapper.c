@@ -36,15 +36,6 @@
 
 static const char title[] = "Need For Speed II SE";
 
-#if defined(OPENGL1X) && defined(SDL_VIDEO_DRIVER_X11) && defined(SDL_VIDEO_DRIVER_X11_DYNAMIC_XVIDMODE)
-	#include <SDL2/SDL_loadso.h>
-	#include <SDL2/SDL_syswm.h>
-	typedef struct {float red, green, blue;} XF86VidModeGamma;
-	typedef BOOL (*_XF86VidModeGetGamma)(Display *, int, XF86VidModeGamma *);
-	typedef BOOL (*_XF86VidModeSetGamma)(Display *, int, XF86VidModeGamma *);
-	#define USE_X11_GAMMA
-#endif
-
 typedef void (*ProcedureType)(MAYBE_THIS_SINGLE);
 static ProcedureType atExitProcedures[10];
 static uint32_t atExitProcedureCount;
@@ -69,52 +60,7 @@ double dpr = 1.0;
 #ifdef OPENGL1X
 void SetBrightness(float val)
 {
-	/* This function exists because SDL2 uses function for brightness which is not supported by opensource X11 drivers */
-	/* val < 0.0f tries to restore the brightness, less than -1.0 doesn't affect SDL function */
-#ifdef USE_X11_GAMMA
-	static BOOL firstCall = true;
-	SDL_SysWMinfo sysInfo;
-	SDL_VERSION(&sysInfo.version);
-	if (SDL_GetWindowWMInfo(sdlWin, &sysInfo) && sysInfo.subsystem == SDL_SYSWM_X11)
-	{
-		static XF86VidModeGamma gammaToRestore = {-1.0f, -1.0f, -1.0f};
-		static _XF86VidModeGetGamma XF86VidModeGetGamma;
-		static _XF86VidModeSetGamma XF86VidModeSetGamma;
-		if (firstCall && (!XF86VidModeGetGamma || !XF86VidModeSetGamma))
-		{
-			void *Xxf86vm = SDL_LoadObject(SDL_VIDEO_DRIVER_X11_DYNAMIC_XVIDMODE);
-			if (Xxf86vm)
-			{
-				XF86VidModeGetGamma = SDL_LoadFunction(Xxf86vm, "XF86VidModeGetGamma");
-				XF86VidModeSetGamma = SDL_LoadFunction(Xxf86vm, "XF86VidModeSetGamma");
-			}
-		}
-		firstCall = false;
-		if (XF86VidModeGetGamma && XF86VidModeSetGamma)
-		{
-			int screen = SDL_GetWindowDisplayIndex(sdlWin);
-			if (screen < 0)
-				screen = 0;
-			if (gammaToRestore.red == -1.0f && gammaToRestore.green == -1.0f && gammaToRestore.blue == -1.0f)
-				XF86VidModeGetGamma(sysInfo.info.x11.display, screen, &gammaToRestore); //Get brightness at first attempt
-			if (val < 0.0f)
-			{
-				if (gammaToRestore.red >= 0.0f && gammaToRestore.green >= 0.0f && gammaToRestore.blue >= 0.0f && XF86VidModeSetGamma(sysInfo.info.x11.display, screen, &gammaToRestore)) //Restore brightness
-					return;
-				else
-					val = 1.0f;
-			}
-			if (val >= 0.0f)
-			{
-				XF86VidModeGamma gamma = {val, val, val};
-				if (XF86VidModeSetGamma(sysInfo.info.x11.display, screen, &gamma)) //Set brightness
-					return;
-			}
-		}
-	}
-#endif
-	if (val >= -1.0f)
-		SDL_SetWindowBrightness(sdlWin, val < 0.0f ? 1.0f : val);
+	SDL_SetWindowBrightness(sdlWin, val);
 }
 #endif
 
@@ -264,9 +210,6 @@ static void signal_handler(int sig)
 	}
 	if (sig == SIGPIPE)
 		return;
-#ifdef OPENGL1X
-	SetBrightness(-1.0f);
-#else
 	extern BOOL shaderError;
 	if (sig == SIGABRT && shaderError)
 	{
