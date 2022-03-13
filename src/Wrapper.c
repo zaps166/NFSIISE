@@ -336,7 +336,7 @@ void WrapperInit(void)
 			mkdir_wrap(buffer, 0755);
 		}
 
-		/* Checking for nfs2se.conf and copying it at first tme to home dir */
+		/* Checking for nfs2se.conf and copying it at first time to home dir */
 		strcpy(buffer + pos, "nfs2se.conf");
 		FILE *fSrc = fopen("nfs2se.conf.template", "r");
 		if (fSrc)
