@@ -115,6 +115,9 @@ REALIGN REGPARM uint32_t iSNDdirectcaps_(void *hWnd)
 }
 REALIGN REGPARM uint32_t iSNDdirectstart_(uint32_t arg1, void *hWnd)
 {
+	if (canGetSamples)
+		return 0;
+
 	SDL_AudioSpec audioSpecIn =
 	{
 		linearSoundInterpolation ? 44100 : 22050,
