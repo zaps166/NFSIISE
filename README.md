@@ -94,7 +94,7 @@ apt-get install libsdl2-dev:i386 gcc-multilib yasm
 ## What does not work:
 
 * Modem connection (it will never work again, this feature has been removed from assembly code),
-* Force Feedback might not work on Windows due to bugs in SDL2. You can try to enable it in `nfs2se.conf` file (WindowsForceFeedbackDevice).
+* If Force Feedback does not work, you can try to select Force Feedback device in `nfs2se.conf` file (`ForceFeedbackDevice`).
 
 ## Function keys in-game
 

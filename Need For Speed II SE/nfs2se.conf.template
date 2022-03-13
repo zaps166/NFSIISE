@@ -46,8 +46,8 @@
 #UseSpringForceFeedbackEffect:
 #	0 - Don't use Spring Force Feedback Effect (default)
 #	1 - Use Spring Force Feedback Effect (experimental)
-#WindowsForceFeedbackDevice:
-#	Specify the Force Feedback device for Windows (-1 - disabled, default)
+#ForceFeedbackDevice:
+#	Specify the Force Feedback device (-1 - auto, default)
 #LinearSoundInterpolation:
 #	0 - Original samplerate - 22050Hz (default)
 #	1 - Linear interpolated sound to 44100Hz (artificial highs)
@@ -77,7 +77,7 @@
 #Joystick1Buttons=0,15,16,3,4,5,6,7,-1,-1,-1,11,12,13,14
 #Joystick0EscButton=-1
 #UseSpringForceFeedbackEffect=0
-#WindowsForceFeedbackDevice=-1
+#ForceFeedbackDevice=-1
 #LinearSoundInterpolation=1
 #UseGlBleginGlEnd=0
 #Port1=1030

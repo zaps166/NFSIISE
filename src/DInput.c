@@ -78,7 +78,7 @@ extern int32_t joystickAxisValueShift[2];
 extern int32_t joystick0EscButton;
 
 extern BOOL useSpringForceFeedbackEffect;
-extern uint32_t windowsForceFeedbackDevice;
+extern int32_t forceFeedbackDevice;
 
 #ifdef NFS_CPP
 	extern uint32_t *mousePositionX, *mousePositionY;
@@ -187,6 +187,22 @@ static void setEffect(DirectInputEffect *dinputEffect, const DIEFFECT *di_eff)
 			}
 		} break;
 	}
+}
+
+static SDL_Haptic *openHaptic(SDL_Joystick *joy)
+{
+	SDL_Haptic *haptic = NULL;
+	if (forceFeedbackDevice > -1)
+	{
+		haptic = SDL_HapticOpen(forceFeedbackDevice);
+	}
+	else
+	{
+		haptic = SDL_HapticOpenFromJoystick(joy);
+		if (!haptic)
+			haptic = SDL_HapticOpen(0);
+	}
+	return haptic;
 }
 
 MAYBE_STATIC REALIGN STDCALL uint32_t QueryInterface(void **this, const IID *const riid, void **object)
@@ -330,7 +346,7 @@ MAYBE_STATIC REALIGN STDCALL uint32_t GetDeviceState(DirectInputDevice **this, u
 			/* Reopen haptic */
 			if ((*this)->num_effects)
 			{
-				(*this)->haptic = SDL_HapticOpenFromJoystick(joy);
+				(*this)->haptic = openHaptic(joy);
 				for (i = 0; i < (*this)->num_effects; ++i)
 				{
 					(*this)->effects[i]->haptic = (*this)->haptic;
@@ -587,14 +603,7 @@ MAYBE_STATIC REALIGN STDCALL uint32_t CreateDevice(void **this, const GUID *cons
 		if (!dinputDev->joy)
 			isOK = false;
 		else
-		{
-#ifndef WIN32
-			/* This doesn't work properly on Windows and SDL 2.0 */
-			dinputDev->haptic = SDL_HapticOpenFromJoystick(dinputDev->joy);
-#else
-			dinputDev->haptic = SDL_HapticOpen(windowsForceFeedbackDevice);
-#endif
-		}
+			dinputDev->haptic = openHaptic(dinputDev->joy);
 	}
 	if (isOK && (dinputDev->guid.a == MOUSE || dinputDev->guid.a == JOYSTICK))
 	{

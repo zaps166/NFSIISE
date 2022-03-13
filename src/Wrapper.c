@@ -243,9 +243,7 @@ int32_t winWidth = 640, winHeight = 480, joystickAxisValueShift[2] = {0}, vSync 
 int32_t joystickButtons[2][15] = {{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}};
 int32_t joystick0EscButton = -1;
 BOOL useSpringForceFeedbackEffect = false;
-#ifdef WIN32
-	uint32_t windowsForceFeedbackDevice = -1;
-#endif
+int32_t forceFeedbackDevice = -1;
 BOOL linearSoundInterpolation = false, useGlBleginGlEnd = false, keepAspectRatio = true;
 uint32_t fullScreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP, broadcast = 0xFFFFFFFF;
 uint16_t PORT1 = 1030, PORT2 = 1029;
@@ -457,10 +455,8 @@ void WrapperInit(void)
 				sscanf(line + 19, "%d", &joystick0EscButton);
 			else if (!strncasecmp("UseSpringForceFeedbackEffect=", line, 29))
 				useSpringForceFeedbackEffect = atoi(line + 29);
-#ifdef WIN32
-			else if (!strncasecmp("WindowsForceFeedbackDevice=", line, 27))
-				windowsForceFeedbackDevice = atoi(line + 27);
-#endif
+			else if (!strncasecmp("ForceFeedbackDevice=", line, 20))
+				forceFeedbackDevice = atoi(line + 27);
 			else if (!strncasecmp("LinearSoundInterpolation=", line, 25))
 				linearSoundInterpolation = !!atoi(line + 25);
 			else if (!strncasecmp("UseGlBleginGlEnd=", line, 17))
