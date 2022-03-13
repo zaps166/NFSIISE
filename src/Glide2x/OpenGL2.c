@@ -623,7 +623,7 @@ REALIGN STDCALL void grGlideInit(void)
 }
 REALIGN STDCALL void grGlideShutdown(void)
 {
-// 	SDL_GL_DeleteContext(glCtx);
+	SDL_GL_DeleteContext(glCtx);
 	palette = NULL;
 	glCtx = NULL;
 
