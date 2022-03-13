@@ -460,7 +460,7 @@ void WrapperInit(void)
 			else if (!strncasecmp("UseSpringForceFeedbackEffect=", line, 29))
 				useSpringForceFeedbackEffect = atoi(line + 29);
 			else if (!strncasecmp("ForceFeedbackDevice=", line, 20))
-				forceFeedbackDevice = atoi(line + 27);
+				forceFeedbackDevice = atoi(line + 20);
 			else if (!strncasecmp("LinearSoundInterpolation=", line, 25))
 				linearSoundInterpolation = !!atoi(line + 25);
 			else if (!strncasecmp("UseGlBleginGlEnd=", line, 17))
