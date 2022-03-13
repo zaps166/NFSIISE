@@ -28,7 +28,9 @@
 
 void exit_func();
 
-#ifndef WIN32
+#ifdef WIN32
+	extern BOOL useOnlyOneCPU;
+#else
 	#define ERROR_IO_PENDING 0x3E5
 	#define WAIT_TIMEOUT 0x102
 	#include <sys/stat.h>
@@ -48,7 +50,10 @@ void exit_func();
 
 REALIGN STDCALL void *CreateThread_wrap(void *threadAttributes, uint32_t stackSize, LPTHREAD_START_ROUTINE startAddress, void *parameter, uint32_t creationFlags, uint32_t *threadId)
 {
-	return CreateThread(threadAttributes, stackSize, startAddress, parameter, creationFlags, (DWORD *)threadId);
+	HANDLE thread = CreateThread(threadAttributes, stackSize, startAddress, parameter, creationFlags, (DWORD *)threadId);
+	if (useOnlyOneCPU)
+		SetThreadAffinityMask(thread, 1);
+	return thread;
 }
 REALIGN STDCALL uint32_t ResumeThread_wrap(HANDLE hThread)
 {

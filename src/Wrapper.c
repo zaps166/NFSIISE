@@ -61,6 +61,11 @@ void SetBrightness(float val)
 static char *settingsDir = NULL;
 
 #ifndef WIN32
+static
+#endif
+BOOL useOnlyOneCPU = true;
+
+#ifndef WIN32
 char *serialPort[4] = {NULL};
 SDL_mutex *event_mutex;
 SDL_cond *event_cond;
@@ -297,7 +302,6 @@ void WrapperInit(void)
 	initializeSDL2();
 #endif
 
-	BOOL useOnlyOneCPU = true;
 	uint32_t msaa = 0;
 	FILE *f = NULL;
 
@@ -511,7 +515,7 @@ void WrapperInit(void)
 	if (useOnlyOneCPU)
 	{
 #if defined WIN32
-		SetProcessAffinityMask(GetCurrentProcess(), 1);
+		SetThreadAffinityMask(GetCurrentThread(), 1);
 #elif !defined(linux) || defined(__ANDROID__)
 		#warning "TODO: thread affinity"
 #else
