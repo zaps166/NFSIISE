@@ -3,6 +3,7 @@
 #	Linux:   "~/.nfs2se/nfs2se.conf",
 #	Windows: "%AppData%\.nfs2se\nfs2se.conf".
 #Leave empty line at the end of the file!
+#Remove "#" from the beginning of the line to apply the configuration!
 
 #UseOnlyOneCPU:
 #	0 - The game can use more than one CPU (can be unstable)
