@@ -15,8 +15,8 @@ $ git submodule update
 
 ## OpenGL
 
-* By default OpenGL 2 is used (except Android - it always uses GLES2).
-* To use OpenGL 1, add `gl1` argument to compilation script.
+* By default OpenGL 1 is used (except Android - it always uses GLES2).
+* To use OpenGL 2, add `gl2` argument to compilation script.
 * To use OpenGL|ES 2, add `gles2` argument to compilation script.
 
 ## Compile for x86:
