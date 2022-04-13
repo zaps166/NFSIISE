@@ -47,6 +47,7 @@ apt-get install libsdl2-dev:i386 gcc-multilib yasm
 * SDL2 (32-bit) and OpenGL (32-bit),
 * target must be 32-bit little-endian,
 * GCC 4.9 or higher (currently Clang is not supported).
+* GLX (32-bit)
 
 ### Compilation:
 
