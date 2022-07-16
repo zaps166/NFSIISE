@@ -39,7 +39,7 @@ function compile_x86
 		i686-w64-mingw32-windres Windows/nfs2se.rc icon.o &&
 		i686-w64-mingw32-gcc $C_FLAGS $OPENGL_DEFINE -c *.c &&
 		yasm -f win32 Asm/NFS2SE.asm -o NFS2SE.Win32.o $DEBUG_ASM --prefix=_ &&
-		i686-w64-mingw32-ld --enable-stdcall-fixup -o "../Need For Speed II SE/nfs2se.exe" *.o --stack=0x7D00,0x7D00 --heap=0x2000,0x1000 -lws2_32 -lwinmm -lkernel32 -lmingwex -lmsvcrt -lopengl32 -lSDL2 -subsystem=$WIN_SUBSYSTEM $STRIP -e _start &&
+		i686-w64-mingw32-ld --enable-stdcall-fixup -o "../Need For Speed II SE/nfs2se.exe" *.o --stack=0x7D00,0x7D00 --heap=0x2000,0x1000 -lws2_32 -lwinmm -lmingwex -lmsvcrt -lkernel32 -lopengl32 -lSDL2 -subsystem=$WIN_SUBSYSTEM $STRIP -e _start &&
 		rm -f *.o &&
 		echo "OK!"
 	else
