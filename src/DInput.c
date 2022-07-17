@@ -77,6 +77,7 @@ extern int32_t joystickAxes[2][8], joystickButtons[2][15];
 extern int32_t joystickAxisValueShift[2];
 extern int32_t joystick0EscButton;
 
+extern BOOL useHapticPolar;
 extern BOOL useSpringForceFeedbackEffect;
 extern int32_t forceFeedbackDevice;
 
@@ -122,7 +123,7 @@ static void setEffect(DirectInputEffect *dinputEffect, const DIEFFECT *di_eff)
 				if (di_constant)
 					constant->level = CONVERT(di_constant->magnitude);
 				constant->length = CONVERT_LENGTH(di_eff->duration);
-				constant->direction.type = SDL_HAPTIC_POLAR; //di_eff->flags shows that POLAR is used (0x20)
+				constant->direction.type = useHapticPolar ? SDL_HAPTIC_POLAR : SDL_HAPTIC_STEERING_AXIS; //di_eff->flags shows that POLAR is used (0x20)
 				for (i = 0; i < di_eff->cAxes; ++i)
 					constant->direction.dir[i] = di_eff->rglDirection[i];
 // 				printf("Constant: %d %d %d, %X\n", constant->length, constant->level, di_eff->cAxes, di_eff->flags);
