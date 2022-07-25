@@ -123,7 +123,12 @@ static void setEffect(DirectInputEffect *dinputEffect, const DIEFFECT *di_eff)
 				if (di_constant)
 					constant->level = CONVERT(di_constant->magnitude);
 				constant->length = CONVERT_LENGTH(di_eff->duration);
+#ifdef SDL_HAPTIC_STEERING_AXIS
 				constant->direction.type = useHapticPolar ? SDL_HAPTIC_POLAR : SDL_HAPTIC_STEERING_AXIS; //di_eff->flags shows that POLAR is used (0x20)
+#else
+#	warning "SDL_HAPTIC_STEERING_AXIS requires SDL 2.0.14 or newer!"
+				constant->direction.type = SDL_HAPTIC_POLAR; //di_eff->flags shows that POLAR is used (0x20)
+#endif
 				for (i = 0; i < di_eff->cAxes; ++i)
 					constant->direction.dir[i] = di_eff->rglDirection[i];
 // 				printf("Constant: %d %d %d, %X\n", constant->length, constant->level, di_eff->cAxes, di_eff->flags);
