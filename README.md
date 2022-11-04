@@ -9,8 +9,7 @@ Cross-platform wrapper for the Need For Speed™ II SE game with 3D acceleration
 
 Don't forget to update submodules:
 ```sh
-$ git submodule init
-$ git submodule update
+git submodule update --init --recursive
 ```
 
 ## OpenGL
@@ -26,7 +25,7 @@ $ git submodule update
   * **32-bit** OpenGL devel and drivers,
   * **32-bit** SDL2 devel.
   * Yasm assembler,
-* On Debian you should add 32-bit architecture and install 32-bit dependencies (run as `root`):
+* On **Debian** you should add 32-bit architecture and install 32-bit dependencies (run as `root`):
 ```sh
 dpkg --add-architecture i386
 apt-get update
@@ -36,6 +35,43 @@ apt-get install libsdl2-dev:i386 gcc-multilib yasm
   * `./compile_nfs` - native compilation for Unix-like systems (Linux, OS X, ...),
   * `./compile_nfs win32` - cross compilation for Windows.
 
+
+# Notes About Windows Build:
+* One way is to use WSL (Windows Subsystem for Linux) and install `mingw-w64` which cross-compiles to Windows
+```sh
+sudo apt install mingw-w64
+```
+also `gcc-multilib` might be needed to be installed using
+```sh
+sudo apt install gcc-multilib
+```
+
+* Don't install SDL using apt-get, instead take it from their [official repo packages page](https://github.com/libsdl-org/SDL/releases/), get the package with **mingw** suffix
+
+* Inside the package folder you should use the one called *`i686-w64-mingw32`*
+* Either copy the `include, bin, lib, share` to your system files (not recommended) or you can modify the following lines in the file `compile_nfs`:
+
+  1. On line 30 with:
+      ```sh
+      C_FLAGS="$COMMON_FLAGS -O2 $CPU_FLAGS"
+      ```
+      add before the last quotation mark `-I/path/to/include/folder` so that it becomes:
+      ```sh
+      C_FLAGS="$COMMON_FLAGS -O2 $CPU_FLAGS -I/path/to/include/folder"
+      ```
+      
+  2. On line 30 add the same include directory paramter before the quote
+
+  3. On line 42 which has:
+      ```sh
+      i686-w64-mingw32-ld --enable-stdcall-fixup -o "../Need For Speed II SE/nfs2se.exe" *.o --stack=0x7D00,0x7D00 --heap=0x2000,0x1000 -lws2_32 -lwinmm -lmingwex -lmsvcrt -lkernel32 -lopengl32 -lSDL2 -lSDL2main -lSDL2_test -subsystem=$WIN_SUBSYSTEM $STRIP -e _start &&
+      ```
+      After the `-lSDL2_test` add `-L/path/to/lib/folder/`
+  4. Now the command `./compile_nfs win32` should work fine
+  5. If you try to run the exe, windows will say the dll is missing so you should get it from the `same SDL packages link` but this time the package for `win32-x86`
+  6. Copy the dll you get from decompressing the zip file and put it in the same directory as the game's exe file
+  7. Now if you follow the other steps (of copying game data and dealing with possible errors explained futher), it should work fine
+  
 ## Compile for non-x86 CPUs:
 
 ### Information:
