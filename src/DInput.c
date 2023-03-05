@@ -152,7 +152,7 @@ static void setEffect(DirectInputEffect *dinputEffect, const DIEFFECT *di_eff)
 								break;
 						}
 						*/
-						if(di_eff->rglDirection[i] > 0 && di_eff->rglDirection[i] < 18000)
+						if (di_eff->rglDirection[i] > 0 && di_eff->rglDirection[i] < 18000)
 							dir = 1;
 						else if (di_eff->rglDirection[i] > 18000 && di_eff->rglDirection[i] < 36000)
 							dir = -1;
