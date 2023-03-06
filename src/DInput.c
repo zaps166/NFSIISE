@@ -123,14 +123,50 @@ static void setEffect(DirectInputEffect *dinputEffect, const DIEFFECT *di_eff)
 				if (di_constant)
 					constant->level = CONVERT(di_constant->magnitude);
 				constant->length = CONVERT_LENGTH(di_eff->duration);
+
 #ifdef SDL_HAPTIC_STEERING_AXIS
 				constant->direction.type = useHapticPolar ? SDL_HAPTIC_POLAR : SDL_HAPTIC_STEERING_AXIS; //di_eff->flags shows that POLAR is used (0x20)
 #else
 #	warning "SDL_HAPTIC_STEERING_AXIS requires SDL 2.0.14 or newer!"
 				constant->direction.type = SDL_HAPTIC_POLAR; //di_eff->flags shows that POLAR is used (0x20)
 #endif
-				for (i = 0; i < di_eff->cAxes; ++i)
-					constant->direction.dir[i] = di_eff->rglDirection[i];
+
+				for (i = 0; i < di_eff->cAxes; ++i) {
+					int dir;
+					//SDL_HAPTIC_STEERING_AXIS uses cardinal
+					if (constant->direction.type == SDL_HAPTIC_STEERING_AXIS)
+					{
+						/*
+						switch(di_eff->rglDirection[i])
+						{
+							case 9000: //East
+							//case 18000: //South
+								dir = 1;
+								break;
+							//case 0: //North
+							case 27000: //West
+								dir = -1;
+								break;
+							default:
+								dir = 0;
+								break;
+						}
+						*/
+						if (di_eff->rglDirection[i] > 0 && di_eff->rglDirection[i] < 18000)
+							dir = 1;
+						else if (di_eff->rglDirection[i] > 18000 && di_eff->rglDirection[i] < 36000)
+							dir = -1;
+						else 
+							dir = 0;
+					}
+					else
+					{
+						dir = di_eff->rglDirection[i];
+					}
+					
+					constant->direction.dir[i] = dir;
+				}
+
 // 				printf("Constant: %d %d %d, %X\n", constant->length, constant->level, di_eff->cAxes, di_eff->flags);
 			}
 		} break;
@@ -138,6 +174,14 @@ static void setEffect(DirectInputEffect *dinputEffect, const DIEFFECT *di_eff)
 		{
 			DIPERIODIC *di_periodic = (DIPERIODIC *)di_eff->typeSpecificParams;
 			SDL_HapticPeriodic *periodic = &dinputEffect->effect.periodic;
+
+#ifdef SDL_HAPTIC_STEERING_AXIS
+				periodic->direction.type = useHapticPolar ? SDL_HAPTIC_POLAR : SDL_HAPTIC_STEERING_AXIS; //di_eff->flags shows that POLAR is used (0x20)
+#else
+#	warning "SDL_HAPTIC_STEERING_AXIS requires SDL 2.0.14 or newer!"
+				periodic->direction.type = SDL_HAPTIC_POLAR; //di_eff->flags shows that POLAR is used (0x20)
+#endif
+
 			if (di_periodic)
 			{
 				periodic->magnitude = CONVERT(di_periodic->magnitude);
@@ -157,6 +201,14 @@ static void setEffect(DirectInputEffect *dinputEffect, const DIEFFECT *di_eff)
 			{
 				/* Is it OK? I can't test it! */
 				SDL_HapticCondition *condition = &dinputEffect->effect.condition;
+
+#ifdef SDL_HAPTIC_STEERING_AXIS
+				condition->direction.type = useHapticPolar ? SDL_HAPTIC_POLAR : SDL_HAPTIC_STEERING_AXIS; //di_eff->flags shows that POLAR is used (0x20)
+#else
+#	warning "SDL_HAPTIC_STEERING_AXIS requires SDL 2.0.14 or newer!"
+				condition->direction.type = SDL_HAPTIC_POLAR; //di_eff->flags shows that POLAR is used (0x20)
+#endif
+
 				for (i = 0; i < di_eff->cAxes; ++i)
 				{
 					DICONDITION *di_condition = (DICONDITION *)di_eff->typeSpecificParams + i;
@@ -166,6 +218,16 @@ static void setEffect(DirectInputEffect *dinputEffect, const DIEFFECT *di_eff)
 					condition->right_sat[i] = CONVERT(di_condition->dwPositiveSaturation);
 					condition->left_sat[i] = CONVERT(di_condition->dwNegativeSaturation);
 					condition->deadband[i] = CONVERT(di_condition->lDeadBand);
+
+
+					//Force center spring. Experimental
+					// condition->center[i] = 0;
+					// condition->right_coeff[i] = 12000;
+					// condition->left_coeff[i] = 12000;
+					// condition->right_sat[i] =  0;
+					// condition->left_sat[i] =  0;
+					// condition->deadband[i] = 0;
+
 // 					printf("Spring[%d]: %d %d %d %d %d %d\n", i, condition->center[i], condition->right_coeff[i], condition->left_coeff[i], condition->right_sat[i], condition->left_sat[i], condition->deadband[i]);
 				}
 				condition->length = CONVERT_LENGTH(di_eff->duration);
