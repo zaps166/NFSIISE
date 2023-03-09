@@ -273,6 +273,8 @@ static void initializeSDL2()
 	puts("2");
 #endif
 	fflush(stdout);
+	
+	SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1");
 
 	if (SDL_Init(SDL_INIT_EVERYTHING & ~SDL_INIT_GAMECONTROLLER) < 0)
 		fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
