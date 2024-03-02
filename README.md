@@ -76,13 +76,12 @@ sudo apt install gcc-multilib
 
 ### Information:
 * This game can run on ARM devices, also on Android. Only **32-bit little-endian** CPUs are supported.
-* The performance is lower than the original assembly code.
-* It can be less stable than assembly code due to possible translation bugs.
+* The performance is a bit lower than the original assembly code.
+* May be less stable than assembly code due to possible translation bugs.
 
 ### Requirements:
-* SDL2 (32-bit) and OpenGL (32-bit),
-* target must be 32-bit little-endian,
-* GCC 4.9 or higher (currently Clang is not supported).
+* SDL2 (32-bit) and OpenGL (32-bit).
+* Clang compiler (must generate 32-bit output).
 
 ### Compilation:
 
@@ -90,14 +89,11 @@ sudo apt install gcc-multilib
 * run `./compile_nfs cpp`
 
 #### Android:
-* install NDK and SDK (API levels: 14 and 16),
-* set environment variables: `ANDROID_NDK_ROOT` and `ANDROID_HOME`,
-* create directory path: `src/Android/jni/SDL/include/SDL2`,
-* download SDL2 sources and create symlinks from SDL2 source directory:
-  * `android-project/app/src/main/java/org` to `src/Android/src/org`,
-  * `src` to `src/Android/jni/SDL`,
-  * `include/*.h` to `src/Android/jni/SDL/include/SDL2`,
-* run `./compile_nfs android` or `./compile_nfs android install`
+* install SDK and NDK for chosen SDL2 version,
+* set environment variables: `ANDROID_HOME` and `ANDROID_NDK_HOME`,
+* download SDL2 source code and unpack it,
+* create symlink to unpacked `SDL2-*` directory into `src/Android/app/jni/SDL`,
+* run `./compile_nfs android` or `./compile_nfs android install`.
 
 ## Run:
 
@@ -115,8 +111,7 @@ sudo apt install gcc-multilib
   * swedish.
 * Run the game.
 * The game settings files are located in `~/.nfs2se` (`%AppData%\.nfs2se` on Windows). At the first run, the `nfs2se.conf.template` will be copied there. You can modify the file if you want to configure the game. On Windows, you can use `open_config.bat` to open the config file in notepad.
-* On Ubuntu 16.04 you can quick start by installing these dependencies:
-    `sudo apt install libgl1-mesa-glx:i386 libxinerama1:i386 libxrandr2:i386`
+* On Android devices, copy `gamedata`, `fedata`, `install.win`, `text.*`, `nfs2se.conf.template` into `/sdcard/NFSIISE` or `/storage/emulated/0/NFSIISE` (create `NFSIISE` directory first).
 
 ## What works:
 

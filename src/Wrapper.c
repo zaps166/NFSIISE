@@ -183,7 +183,7 @@ static void checkGameDirs()
 {
 	static const char errorMessage[] = "Can't find \"gamedata\" and/or \"fedata\" directories in current working directory!"
 #ifndef WIN32
-		"\nBe sure that all files and directories have small letters!"
+		"\nMake sure that all files and directories have small letters!"
 #endif
 	;
 	BOOL showErrorMessage = true;
@@ -297,10 +297,6 @@ REALIGN
 #endif
 void WrapperInit(void)
 {
-#ifdef CWD_PATH
-	chdir(CWD_PATH);
-#endif
-
 #ifndef SWAP_WINDOW_AND_GL_THREAD
 	initializeSDL2();
 #endif
@@ -311,8 +307,19 @@ void WrapperInit(void)
 	SDL_JoystickEventState(SDL_IGNORE);
 	SDL_ShowCursor(false);
 
-#ifdef WIN32
+#ifdef __ANDROID__
+	if (!SDL_AndroidRequestPermission("android.permission.READ_EXTERNAL_STORAGE"))
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, "No permissions to read the external storage.", NULL);
+		exit(-1);
+	}
+	chdir("/sdcard/NFSIISE");
+#endif
+
+#if defined(WIN32)
 	const char *homeDir = getenv("AppData");
+#elif defined(__ANDROID__)
+	const char *homeDir = SDL_AndroidGetInternalStoragePath();
 #else
 	const char *homeDir = getenv("HOME");
 #endif
@@ -335,6 +342,7 @@ void WrapperInit(void)
 #else
 		strcat(buffer, "/.nfs2se/");
 #endif
+
 		mkdir_wrap(buffer, 0755);
 		pos = strlen(buffer);
 		for (i = 0; i < 5; ++i)
@@ -393,10 +401,13 @@ void WrapperInit(void)
 	signal(SIGALRM, signal_handler);
 	signal(SIGTERM, signal_handler);
 #endif
+
 	if (!f)
 		f = fopen("nfs2se.conf", "r");
 	if (!f)
-		fprintf(stderr, "Cannot open configuration file \"nfs2se.conf\"\n");
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, title, "Cannot open configuration file \"nfs2se.conf\"\n", NULL);
+	}
 	else
 	{
 		BOOL canParseNextLine = true;
@@ -523,7 +534,7 @@ void WrapperInit(void)
 	{
 #if defined WIN32
 		SetThreadAffinityMask(GetCurrentThread(), 1);
-#elif !defined(linux) || defined(__ANDROID__)
+#elif !defined(linux)
 		#warning "TODO: thread affinity"
 #else
 		cpu_set_t set;
@@ -586,6 +597,10 @@ REALIGN STDCALL SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 	uint32_t *icon, i, j;
 
 	checkGameDirs();
+
+#ifdef __ANDROID__
+	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft");
+#endif
 
 	const int windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (startInFullScreen ? fullScreenFlag : 0) | SDL_WINDOW_ALLOW_HIGHDPI;
 	sdlWin = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, winWidth, winHeight, windowFlags);
