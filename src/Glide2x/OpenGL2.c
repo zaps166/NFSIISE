@@ -194,7 +194,7 @@ static FogCoord fogCoord[MaxTriangles];
 static TextureCoord textureCoord[MaxTriangles];
 static Vertices vertices[MaxTriangles];
 
-static uint8_t *lfb, textureMem[TextureMem], fogTable[0x10000];
+static uint8_t *lfb, textureMemIDs[TextureMem], textureMemPalPtr[TextureMem], textureMemPal[TextureMem], fogTable[0x10000];
 static uint32_t *palette, tmpTexture[256 * 256 /* 0x400 for grTexSource */];
 static uint32_t trianglesCount, maxTexIdx;
 
@@ -715,15 +715,7 @@ REALIGN STDCALL BOOL grSstWinOpen(uint32_t hWnd, GrScreenResolution_t screen_res
 
 	glDepthFunc(GL_LEQUAL);
 
-	/* Indexed color textures */
-	uint32_t i;
-	for (i = 1; i <= 5; ++i)
-	{
-		glBindTexture(GL_TEXTURE_2D, i);
-		setTextureFiltering();
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 64 >> i, 64 >> i, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	}
-	maxTexIdx = 5;
+	maxTexIdx = 0;
 
 	if (!loadShaders())
 	{
@@ -776,25 +768,19 @@ REALIGN STDCALL void grTexDownloadMipMap(GrChipID_t tmu, uint32_t startAddress, 
 {
 	uint16_t *data = (uint16_t *)info->data;
 	uint32_t size = 256 >> info->largeLod;
-
-	if (info->format == GR_TEXFMT_P_8)
-	{
-		memcpy(textureMem + startAddress, data, size * size);
-		return;
-	}
-
-	drawTriangles();
-
-	uint32_t *id = (uint32_t *)(textureMem + startAddress);
+	uint32_t *id = (uint32_t *)(textureMemIDs + startAddress);
 	BOOL newTexture = false;
 
-	if (*id <= 5 || *id > maxTexIdx)
+	if (*id == 0 || *id > maxTexIdx)
 	{
 		*id = ++maxTexIdx;
 		newTexture = true;
 	}
 
-	glBindTexture(GL_TEXTURE_2D, *id);
+	drawTriangles();
+
+	if (newTexture || info->format != GR_TEXFMT_P_8)
+		glBindTexture(GL_TEXTURE_2D, *id);
 
 	if (newTexture)
 		setTextureFiltering();
@@ -804,6 +790,14 @@ REALIGN STDCALL void grTexDownloadMipMap(GrChipID_t tmu, uint32_t startAddress, 
 	int i, j;
 	switch (info->format)
 	{
+		case GR_TEXFMT_P_8:
+		{
+			if (newTexture)
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+			*(void **)(textureMemPalPtr + startAddress) = NULL;
+			memcpy(textureMemPal + startAddress, data, size * size);
+			break;
+		}
 		case GR_TEXFMT_RGB_565:
 		{
 			for (i = 0, j = 0; i < loopSize; i += 4, ++j)
@@ -838,7 +832,8 @@ REALIGN STDCALL void grTexDownloadMipMap(GrChipID_t tmu, uint32_t startAddress, 
 			break;
 		}
 	}
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmpTexture);
+	if (info->format != GR_TEXFMT_P_8)
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmpTexture);
 
 // 	printf("grTexDownloadMipMap: 0x%.8X %d\n", startAddress, maxTexIdx);
 }
@@ -866,18 +861,21 @@ REALIGN STDCALL void grTexMipMapMode(GrChipID_t tmu, GrMipMapMode_t mode, BOOL l
 }
 REALIGN STDCALL void grTexSource(GrChipID_t tmu, uint32_t startAddress, uint32_t evenOdd, GrTexInfo *info)
 {
-	uint8_t *data = textureMem + startAddress;
 	drawTriangles();
-	if (info->format != GR_TEXFMT_P_8)
-		glBindTexture(GL_TEXTURE_2D, *(uint32_t *)data);
-	else if (palette)
+	glBindTexture(GL_TEXTURE_2D, *(uint32_t *)(textureMemIDs + startAddress));
+	if (info->format == GR_TEXFMT_P_8 && palette)
 	{
-		uint32_t size = 256 >> info->largeLod;
-		int32_t sqrSize = size * size, i;
-		glBindTexture(GL_TEXTURE_2D, info->largeLod - 2);
-		for (i = 0; i < sqrSize; ++i)
-			tmpTexture[i] = palette[data[i]];
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size, size, GL_RGBA, GL_UNSIGNED_BYTE, tmpTexture);
+		void **currPalette = (void **)(textureMemPalPtr + startAddress);
+		if (*currPalette != palette) // Update only when palette or texture changes (let's assume every palette has different pointer)
+		{
+			uint8_t *data = textureMemPal + startAddress;
+			uint32_t size = 256 >> info->largeLod;
+			int32_t sqrSize = size * size, i;
+			for (i = 0; i < sqrSize; ++i)
+				tmpTexture[i] = palette[data[i]];
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size, size, GL_RGBA, GL_UNSIGNED_BYTE, tmpTexture);
+			*currPalette = palette;
+		}
 	}
 }
 REALIGN STDCALL void guFogGenerateExp(GrFog_t fogtable[GR_FOG_TABLE_SIZE], float density)
