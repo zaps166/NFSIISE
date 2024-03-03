@@ -51,7 +51,7 @@ extern SDL_Window *sdlWin;
 extern int32_t winWidth, winHeight;
 extern double dpr;
 
-extern int32_t joystickAxes[2][8];
+extern int32_t joystickAxes[2][12];
 extern int32_t joystickAxisValueShift[2];
 extern int32_t joystick0EscButton;
 
