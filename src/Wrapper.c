@@ -538,6 +538,7 @@ extern WindowProc wndProc;
 
 REALIGN STDCALL SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 {
+#ifndef __ANDROID__
 	static const uint32_t palette[8] = {0xFF000000, 0xFF000080, 0xFF0000FF, 0xFFC0C0C0, 0xFF00FFFF, 0xFFFFFFFF, 0x00000000, 0xFF008080};
 	static const uint8_t compressed_icon[372] =
 	{
@@ -575,6 +576,7 @@ REALIGN STDCALL SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 	};
 
 	uint32_t *icon, i, j;
+#endif
 
 	checkGameDirs();
 
@@ -598,6 +600,7 @@ REALIGN STDCALL SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 
 	SDL_GetWindowSize(sdlWin, &winWidth, &winHeight);
 
+#ifndef __ANDROID__
 	icon = (uint32_t *)malloc(32 * 32 * 4);
 	for (i = 0, j = 0; i < sizeof compressed_icon; ++i)
 	{
@@ -617,6 +620,7 @@ REALIGN STDCALL SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 	SDL_FreeSurface(icon_surface);
 
 	free(icon);
+#endif
 
 	wndProc = windowProc;
 
