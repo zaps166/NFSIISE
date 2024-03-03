@@ -81,7 +81,7 @@ sudo apt install gcc-multilib
 
 ### Requirements:
 * SDL2 (32-bit) and OpenGL (32-bit).
-* Clang compiler (must generate 32-bit output).
+* Clang compiler and lld linker (must generate 32-bit output).
 
 ### Compilation:
 

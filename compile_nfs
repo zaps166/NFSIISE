@@ -84,7 +84,7 @@ function compile_cpp
 	echo "OK!"
 
 	echo -n "Linking... "
-	clang -o "../Need For Speed II SE/nfs2se" $CPU_FLAGS $CPP_LTO *.o -lSDL2 $OPENGL_LIBS -lm || exit
+	clang -fuse-ld=lld -o "../Need For Speed II SE/nfs2se" $CPU_FLAGS $CPP_LTO *.o -lSDL2 $OPENGL_LIBS -lm || exit
 	echo "OK!"
 
 	if [[ $BUILD_TYPE != "debug" ]]; then
