@@ -231,7 +231,7 @@ BOOL linearSoundInterpolation = false, useGlBleginGlEnd = false, keepAspectRatio
 uint32_t fullScreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP, broadcast = 0xFFFFFFFF;
 uint16_t PORT1 = 1030, PORT2 = 1029;
 
-int32_t touchpadJoyIdx = -1, accelerometerJoyIdx = -1;
+int32_t touchpadJoyIdx = -1;
 
 static void initializeSDL2()
 {
@@ -250,7 +250,7 @@ static void initializeSDL2()
 	puts("2");
 #endif
 	fflush(stdout);
-	
+
 #ifdef WIN32
 	SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1");
 #endif
@@ -261,8 +261,8 @@ static void initializeSDL2()
 	SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "0");
 	SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 
-	if (SDL_Init(SDL_INIT_EVERYTHING & ~SDL_INIT_GAMECONTROLLER) < 0)
-		fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
+	if (SDL_Init(SDL_INIT_EVERYTHING & ~(SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC | SDL_INIT_GAMECONTROLLER)) < 0)
+		fprintf(stderr, "SDL init failed: %s\n", SDL_GetError());
 }
 
 #ifdef SWAP_WINDOW_AND_GL_THREAD
@@ -479,25 +479,22 @@ void WrapperInit(void)
 #endif
 #ifdef __ANDROID__
 			else if (!strncasecmp("AccelerometerAsJoystick=", line, 24))
-				accelerometerJoyIdx = (atoi(line + 24) == 0) ? -2 : -1;
+				SDL_SetHint(SDL_HINT_ACCELEROMETER_AS_JOYSTICK, line + 24);
 #endif
 		}
 		fclose(f);
 	}
 
+	if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC) < 0)
+		fprintf(stderr, "SDL joystick and haptic init failed: %s\n", SDL_GetError());
+
 	const int n = SDL_NumJoysticks();
 	for (i = 0; i < n; ++i)
 	{
 		const char *name = SDL_JoystickNameForIndex(i);
-		if (name)
+		if (name && strstr(name, "SynPS/2"))
 		{
-#ifdef __ANDROID__
-			if (accelerometerJoyIdx == -2 && strcmp(name, "Android Accelerometer") == 0)
-				accelerometerJoyIdx = i;
-#else
-			if (touchpadJoyIdx == -1 && strstr(name, "SynPS/2"))
-				touchpadJoyIdx = i;
-#endif
+			touchpadJoyIdx = i;
 			break;
 		}
 	}
@@ -640,7 +637,7 @@ REALIGN STDCALL SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 
 REALIGN int32_t SDL_NumJoysticks_wrap(void)
 {
-	return SDL_NumJoysticks() - (touchpadJoyIdx >= 0) - (accelerometerJoyIdx >= 0);
+	return SDL_NumJoysticks() - (touchpadJoyIdx >= 0);
 }
 
 #ifdef NFS_CPP

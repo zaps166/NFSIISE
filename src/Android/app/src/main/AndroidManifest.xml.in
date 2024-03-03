@@ -37,8 +37,6 @@
         android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
         android:hardwareAccelerated="true" >
 
-        <meta-data android:name="SDL_ENV.SDL_ACCELEROMETER_AS_JOYSTICK" android:value="1" />
-
         <activity android:name="NFSIISE"
             android:label="@string/app_name"
             android:alwaysRetainTaskState="true"
