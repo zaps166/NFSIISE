@@ -588,7 +588,7 @@ MAYBE_STATIC REALIGN STDCALL uint32_t GetObjectInfo(DirectInputDevice **this, DI
 {
 	/* Joystick only */
 // 	printf("GetObjectInfo: %p %d %d\n", *this, dwObj, dwHow);
-	memset(pdidoi + sizeof(uint32_t), 0, sizeof(DIDEVICEOBJECTINSTANCEA) - sizeof(uint32_t));
+	memset(&pdidoi->guidType, 0, sizeof(DIDEVICEOBJECTINSTANCEA) - sizeof(uint32_t));
 	return 0;
 }
 MAYBE_STATIC REALIGN STDCALL uint32_t SendForceFeedbackCommand(DirectInputDevice **this, uint32_t flags)
