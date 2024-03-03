@@ -122,6 +122,14 @@ REALIGN STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterM
 					SDL_Scancode scancode = event.key.keysym.scancode;
 					SDL_Keycode sym = event.key.keysym.sym;
 
+#ifdef __ANDROID__
+					if (sym == SDLK_AC_BACK)
+					{
+						sym = SDLK_ESCAPE;
+						scancode = 0x29;
+					}
+#endif
+
 					BOOL isWMChar = false;
 
 					msg->lParam = 1;

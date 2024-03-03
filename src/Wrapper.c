@@ -580,6 +580,7 @@ REALIGN STDCALL SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 
 #ifdef __ANDROID__
 	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft");
+	SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "1");
 #endif
 
 	const int windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (startInFullScreen ? fullScreenFlag : 0) | SDL_WINDOW_ALLOW_HIGHDPI;
