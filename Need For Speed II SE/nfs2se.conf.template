@@ -30,6 +30,9 @@
 #KeepAspectRatio:
 #	0 - Fills the entire window
 #	1 - Keeps the original aspect ratio (4:3, default)
+#LinearTextureFiltering:
+#	0 - Nearest texture filtering
+#	1 - Linear texture filtering (defailt)
 #Joystick0AxisValueShift:
 #	Specify the number to shift value for the first axis in first joystick (simple deadzone compensation)
 #Joystick1AxisValueShift:
@@ -73,6 +76,7 @@
 #UseWindowSizeForFullScreen=0
 #WindowSize=640x480
 #KeepAspectRatio=1
+#LinearTextureFiltering=1
 #Joystick0AxisValueShift=8448
 #Joystick1AxisValueShift=8448
 #Joystick0Axes2=0,1,2,3,4,5:0,0,0,0,0,0

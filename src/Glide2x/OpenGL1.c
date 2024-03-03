@@ -53,14 +53,14 @@ static PFNGLFOGCOORDFPROC p_glFogCoordf;
 static int32_t xOffset, yOffset, visibleWidth, visibleHeight;
 static SDL_GLContext glCtx;
 
-extern BOOL useGlBleginGlEnd, keepAspectRatio, windowResized;
+extern BOOL useGlBleginGlEnd, keepAspectRatio, windowResized, linearFiltering;
 extern int32_t vSync, winWidth, winHeight;
 extern SDL_Window *sdlWin;
 
 static void setTextureFiltering()
 {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, linearFiltering ? GL_LINEAR : GL_NEAREST);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);

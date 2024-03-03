@@ -227,7 +227,7 @@ int32_t joystick0EscButton = -1;
 BOOL useSpringForceFeedbackEffect = false;
 BOOL useHapticPolar = false;
 int32_t forceFeedbackDevice = -1;
-BOOL linearSoundInterpolation = false, useGlBleginGlEnd = false, keepAspectRatio = true;
+BOOL linearSoundInterpolation = false, useGlBleginGlEnd = false, keepAspectRatio = true, linearFiltering = true;
 uint32_t fullScreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP, broadcast = 0xFFFFFFFF;
 uint16_t PORT1 = 1030, PORT2 = 1029;
 
@@ -427,6 +427,8 @@ void WrapperInit(void)
 				sscanf(line + 11, "%dx%d", &winWidth, &winHeight);
 			else if (!strncasecmp("KeepAspectRatio=", line, 16))
 				sscanf(line + 16, "%d", &keepAspectRatio);
+			else if (!strncasecmp("LinearTextureFiltering=", line, 23))
+				sscanf(line + 23, "%d", &linearFiltering);
 			else if (!strncasecmp("Joystick0AxisValueShift=", line, 24))
 			{
 				joystickAxisValueShift[0] = atoi(line + 24);
