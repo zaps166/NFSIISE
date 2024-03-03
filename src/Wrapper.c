@@ -254,6 +254,10 @@ static void initializeSDL2()
 #ifdef WIN32
 	SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1");
 #endif
+#ifdef __ANDROID__
+	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft");
+	SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "1");
+#endif
 
 	if (SDL_Init(SDL_INIT_EVERYTHING & ~SDL_INIT_GAMECONTROLLER) < 0)
 		fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
@@ -579,11 +583,6 @@ REALIGN STDCALL SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 #endif
 
 	checkGameDirs();
-
-#ifdef __ANDROID__
-	SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft");
-	SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "1");
-#endif
 
 	const int windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (startInFullScreen ? fullScreenFlag : 0) | SDL_WINDOW_ALLOW_HIGHDPI;
 	sdlWin = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, winWidth, winHeight, windowFlags);
