@@ -38,10 +38,10 @@
 #	Specify which axes will be used in game for first joystick. NFS2SE supports only 6 axes (e.g. 0,12,13,14,-1,-1:0,1,1,1,0,0)
 #	The numbers after colon chooses axis type (0 - normal axis, 1 - half axis, -1 - inverted half axis)
 #Joystick1Axes2:
-#	Specify which axes will be used in game for second joystick (see above).
+#	Specify which axes will be used in game for second joystick (see above)
 #Joystick0EscButton:
-#	Specify which button will be used as Escape key. Press the button in game controls setup and look at the letter.
-#	Button number is counted from 0, so 'A' letter is 0, 'G' letter is 6.
+#	Specify which button will be used as Escape key. Press the button in game controls setup and look at the letter
+#	Button number is counted from 0, so 'A' letter is 0, 'G' letter is 6
 #UseHapticPolar:
 #	0 - Use SDL_HAPTIC_STEERING_AXIS
 #	1 - Use SDL_HAPTIC_POLAR
