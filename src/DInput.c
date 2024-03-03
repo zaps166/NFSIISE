@@ -51,6 +51,9 @@ extern SDL_Window *sdlWin;
 extern int32_t winWidth, winHeight;
 extern double dpr;
 
+extern SDL_TouchID touchId;
+extern float touchDX, touchDY;
+
 extern int32_t joystickAxes[2][12];
 extern int32_t joystickAxisValueShift[2];
 extern int32_t joystick0EscButton;
@@ -494,22 +497,31 @@ MAYBE_STATIC REALIGN STDCALL uint32_t GetDeviceData(DirectInputDevice **this, ui
 		}
 		else
 		{
-			static BOOL lastMouseButton;
-			int32_t x, y;
-			const BOOL mouseButton = SDL_GetRelativeMouseState(&x, &y) & SDL_BUTTON_LMASK;
-			if (x || y)
+			if (touchId != 0)
 			{
-				/* Only when mouse moved */
-				SDL_GetMouseState(&x, &y);
-				lastX = (x * dpr * 640.0f / winWidth)  + 0.5f;
-				lastY = (y * dpr * 480.0f / winHeight) + 0.5f;
-				/* Set as absolute position */
+				lastX += touchDX * dpr * 640.0f + 0.5f;
+				lastY += touchDY * dpr * 480.0f + 0.5f;
+				touchDX = touchDY = 0.0f;
 				rgdod[0].dwData = lastX - mousePositionX;
 				rgdod[1].dwData = lastY - mousePositionY;
 			}
-			if (!lastMouseButton)
-				rgdod[2].dwData = -mouseButton;
-			lastMouseButton = mouseButton;
+			else
+			{
+				static int32_t lastMouseButton;
+				int32_t x = 0, y = 0;
+				int32_t mouseButton = SDL_GetRelativeMouseState(&x, &y) & SDL_BUTTON_LMASK;
+				if (x || y) /* Only when mouse moved */
+				{
+					SDL_GetMouseState(&x, &y);
+					lastX = (x * dpr * 640.0f / winWidth)  + 0.5f;
+					lastY = (y * dpr * 480.0f / winHeight) + 0.5f;
+					rgdod[0].dwData = lastX - mousePositionX;
+					rgdod[1].dwData = lastY - mousePositionY;
+				}
+				if (!lastMouseButton)
+					rgdod[2].dwData = -mouseButton;
+				lastMouseButton = mouseButton;
+			}
 		}
 	}
 	return 0;

@@ -30,6 +30,27 @@ BOOL windowResized = false;
 
 WindowProc wndProc;
 
+SDL_TouchID touchId = 0;
+float touchDX = 0.0f, touchDY = 0.0f;
+static SDL_TimerID tapAndHoldTimerId = 0;
+static uint32_t tapAndHoldTimerCallback(uint32_t interval, void *param)
+{
+	SDL_Event event;
+	memset(&event, 0, sizeof event);
+	event.key.keysym.sym = SDLK_RETURN;
+	event.key.keysym.scancode = 40;
+	tapAndHoldTimerId = 0;
+	if (interval > 100)
+	{
+		event.type = SDL_KEYDOWN;
+		SDL_PushEvent(&event);
+		return 100;
+	}
+	event.type = SDL_KEYUP;
+	SDL_PushEvent(&event);
+	return 0;
+}
+
 #ifdef NFS_CPP
 	void wrap_stdcall4(void *this, void *func, void *arg0, int32_t arg1, int32_t arg2, int32_t arg3);
 
@@ -273,6 +294,48 @@ REALIGN STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterM
 					msg->wParam = (uint32_t)event.user.data1;
 					msg->lParam = (uint32_t)event.user.data2;
 					break;
+				case SDL_FINGERDOWN:
+				{
+					SDL_TouchFingerEvent *fingerEvent = ((SDL_TouchFingerEvent *)&event);
+					if (fingerEvent->pressure > 0.0f && fingerEvent->fingerId == 0 && SDL_GetTouchDeviceType(fingerEvent->touchId) == SDL_TOUCH_DEVICE_DIRECT)
+					{
+						touchId = fingerEvent->touchId;
+						touchDX = 0.0f;
+						touchDY = 0.0f;
+						if (tapAndHoldTimerId != 0)
+							SDL_RemoveTimer(tapAndHoldTimerId);
+						tapAndHoldTimerId = SDL_AddTimer(150, tapAndHoldTimerCallback, NULL);
+					}
+				} break;
+				case SDL_FINGERUP:
+				{
+					SDL_TouchFingerEvent *fingerEvent = ((SDL_TouchFingerEvent *)&event);
+					if (touchId == fingerEvent->touchId)
+					{
+						if (tapAndHoldTimerId != 0)
+						{
+							SDL_RemoveTimer(tapAndHoldTimerId);
+							tapAndHoldTimerId = 0;
+						}
+						touchId = 0;
+						touchDX = 0.0f;
+						touchDY = 0.0f;
+					}
+				} break;
+				case SDL_FINGERMOTION:
+				{
+					SDL_TouchFingerEvent *fingerEvent = ((SDL_TouchFingerEvent *)&event);
+					if (touchId == fingerEvent->touchId)
+					{
+						if (tapAndHoldTimerId != 0)
+						{
+							SDL_RemoveTimer(tapAndHoldTimerId);
+							tapAndHoldTimerId = 0;
+						}
+						touchDX += fingerEvent->dx;
+						touchDY += fingerEvent->dy;
+					}
+				} break;
 				default:
 					if (event.type >= SDL_USEREVENT)
 					{
