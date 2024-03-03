@@ -248,8 +248,10 @@ static SDL_Haptic *openHaptic(SDL_Joystick *joy)
 	else
 	{
 		haptic = SDL_HapticOpenFromJoystick(joy);
+#ifndef __ANDROID__
 		if (!haptic)
 			haptic = SDL_HapticOpen(0);
+#endif
 	}
 	return haptic;
 }
