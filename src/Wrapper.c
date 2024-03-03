@@ -330,6 +330,10 @@ void WrapperInit(void)
 			mkdir_wrap(buffer, 0755);
 		}
 
+#ifdef __ANDROID__
+		buffer[pos] = '\0';
+		settingsDir = buffer;
+#else
 		/* Checking for nfs2se.conf and copying it at first time to home dir */
 		strcpy(buffer + pos, "nfs2se.conf");
 		FILE *fSrc = fopen("nfs2se.conf.template", "r");
@@ -361,6 +365,7 @@ void WrapperInit(void)
 		{
 			free(buffer);
 		}
+#endif
 	}
 
 #ifndef WIN32
