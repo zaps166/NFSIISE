@@ -221,9 +221,8 @@ static void signal_handler(int sig)
 
 static BOOL startInFullScreen = true;
 
-int32_t joystickAxes[2][8] = {{0, 1, 2, 3, 0, 0, 0, 0}, {0, 1, 2, 3, 0, 0, 0, 0}};
+int32_t joystickAxes[2][12] = {{0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 0}, {0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 0}};
 int32_t winWidth = 640, winHeight = 480, joystickAxisValueShift[2] = {0}, vSync = 1;
-int32_t joystickButtons[2][15] = {{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}};
 int32_t joystick0EscButton = -1;
 BOOL useSpringForceFeedbackEffect = false;
 BOOL useHapticPolar = false;
@@ -252,7 +251,9 @@ static void initializeSDL2()
 #endif
 	fflush(stdout);
 	
+#ifdef WIN32
 	SDL_SetHint(SDL_HINT_JOYSTICK_THREAD, "1");
+#endif
 
 	if (SDL_Init(SDL_INIT_EVERYTHING & ~SDL_INIT_GAMECONTROLLER) < 0)
 		fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
@@ -439,14 +440,10 @@ void WrapperInit(void)
 				if (joystickAxisValueShift[1] < 0 || joystickAxisValueShift[1] > 32767)
 					joystickAxisValueShift[1] = 0;
 			}
-			else if (!strncasecmp("Joystick0Axes=", line, 14))
-				sscanf(line + 14, "%d,%d,%d,%d:%d,%d,%d,%d", joystickAxes[0]+0, joystickAxes[0]+1, joystickAxes[0]+2, joystickAxes[0]+3, joystickAxes[0]+4, joystickAxes[0]+5, joystickAxes[0]+6, joystickAxes[0]+7);
-			else if (!strncasecmp("Joystick1Axes=", line, 14))
-				sscanf(line + 14, "%d,%d,%d,%d:%d,%d,%d,%d", joystickAxes[1]+0, joystickAxes[1]+1, joystickAxes[1]+2, joystickAxes[1]+3, joystickAxes[1]+4, joystickAxes[1]+5, joystickAxes[1]+6, joystickAxes[1]+7);
-			else if (!strncasecmp("Joystick0Buttons=", line, 17))
-				sscanf(line + 17, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", joystickButtons[0]+0, joystickButtons[0]+1, joystickButtons[0]+2, joystickButtons[0]+3, joystickButtons[0]+4, joystickButtons[0]+5, joystickButtons[0]+6, joystickButtons[0]+7, joystickButtons[0]+8, joystickButtons[0]+9, joystickButtons[0]+10, joystickButtons[0]+11, joystickButtons[0]+12, joystickButtons[0]+13, joystickButtons[0]+14);
-			else if (!strncasecmp("Joystick1Buttons=", line, 17))
-				sscanf(line + 17, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", joystickButtons[1]+0, joystickButtons[1]+1, joystickButtons[1]+2, joystickButtons[1]+3, joystickButtons[1]+4, joystickButtons[1]+5, joystickButtons[1]+6, joystickButtons[1]+7, joystickButtons[1]+8, joystickButtons[1]+9, joystickButtons[1]+10, joystickButtons[1]+11, joystickButtons[1]+12, joystickButtons[1]+13, joystickButtons[1]+14);
+			else if (!strncasecmp("Joystick0Axes2=", line, 15))
+				sscanf(line + 15, "%d,%d,%d,%d,%d,%d:%d,%d,%d,%d,%d,%d", joystickAxes[0]+0, joystickAxes[0]+1, joystickAxes[0]+2, joystickAxes[0]+3, joystickAxes[0]+4, joystickAxes[0]+5, joystickAxes[0]+6, joystickAxes[0]+7, joystickAxes[0]+8, joystickAxes[0]+9, joystickAxes[0]+10, joystickAxes[0]+11);
+			else if (!strncasecmp("Joystick1Axes2=", line, 15))
+				sscanf(line + 15, "%d,%d,%d,%d,%d,%d:%d,%d,%d,%d,%d,%d", joystickAxes[1]+0, joystickAxes[1]+1, joystickAxes[1]+2, joystickAxes[1]+3, joystickAxes[1]+4, joystickAxes[1]+5, joystickAxes[1]+6, joystickAxes[1]+7, joystickAxes[1]+8, joystickAxes[1]+9, joystickAxes[1]+10, joystickAxes[1]+11);
 			else if (!strncasecmp("Joystick0EscButton=", line, 19))
 				sscanf(line + 19, "%d", &joystick0EscButton);
 			else if (!strncasecmp("UseHapticPolar=", line, 15))

@@ -51,7 +51,7 @@ extern SDL_Window *sdlWin;
 extern int32_t winWidth, winHeight;
 extern double dpr;
 
-extern int32_t joystickAxes[2][8], joystickButtons[2][15];
+extern int32_t joystickAxes[2][8];
 extern int32_t joystickAxisValueShift[2];
 extern int32_t joystick0EscButton;
 
@@ -333,8 +333,8 @@ MAYBE_STATIC REALIGN STDCALL uint32_t GetCapabilities(DirectInputDevice **this, 
 		memset(devCaps, 0, sizeof(DIDEVCAPS));
 		if ((*this)->haptic)
 			devCaps->flags = 0x100; //DIDC_FORCEFEEDBACK
-		devCaps->buttons = 15;
-		devCaps->axes = 4;
+		devCaps->buttons = 32;
+		devCaps->axes = 6;
 	}
 	return 0;
 }
@@ -403,10 +403,10 @@ MAYBE_STATIC REALIGN STDCALL uint32_t GetDeviceState(DirectInputDevice **this, u
 
 		uint32_t numButtons = SDL_JoystickNumButtons(joy);
 		uint32_t numAxes = SDL_JoystickNumAxes(joy);
-		if (numButtons > 15)
-			numButtons = 15;
-		if (numAxes > 4)
-			numAxes = 4;
+		if (numButtons > 32)
+			numButtons = 32;
+		if (numAxes > 6)
+			numAxes = 6;
 
 		const BOOL simulateEsc = (joyIdx == 0 && joystick0EscButton >= 0 && joystick0EscButton < numButtons);
 
@@ -438,19 +438,21 @@ MAYBE_STATIC REALIGN STDCALL uint32_t GetDeviceState(DirectInputDevice **this, u
 
 		for (i = 0; i < numButtons; ++i)
 		{
-			const int32_t joystickButton = joystickButtons[joyIdx][i];
-			if (simulateEsc && joystickButton == joystick0EscButton)
+			if (simulateEsc && i == joystick0EscButton)
 				continue; //Skip button which is used as Escape key
-			joyState->buttons[i] = SDL_JoystickGetButton(joy, joystickButton) << 7;
+			joyState->buttons[i] = SDL_JoystickGetButton(joy, i) << 7;
 		}
 
 		for (i = 0; i < numAxes; ++i)
 		{
-			int32_t *axis = &joyState->axes[i < 3 ? i : 5];
+			if (joystickAxes[joyIdx][i] < 0)
+				continue;
+
+			int32_t *axis = &joyState->axes[i < 3 ? i : i + 2];
 			*axis = (uint16_t)SDL_JoystickGetAxis(joy, joystickAxes[joyIdx][i]) ^ 0x8000;
-			if (joystickAxes[joyIdx][i + 4] > 0)
+			if (joystickAxes[joyIdx][i + 6] > 0)
 				*axis = (*axis >> 1) + 32768;
-			else if (joystickAxes[joyIdx][i + 4] < 0)
+			else if (joystickAxes[joyIdx][i + 6] < 0)
 				*axis = 65535 - (*axis >> 1);
 		}
 		if (numAxes > 0)
@@ -585,8 +587,8 @@ MAYBE_STATIC REALIGN STDCALL uint32_t CreateEffect(DirectInputDevice **this, con
 MAYBE_STATIC REALIGN STDCALL uint32_t GetObjectInfo(DirectInputDevice **this, DIDEVICEOBJECTINSTANCEA *pdidoi, uint32_t dwObj, uint32_t dwHow)
 {
 	/* Joystick only */
-	memset(pdidoi, 0, sizeof(DIDEVICEOBJECTINSTANCEA));
 // 	printf("GetObjectInfo: %p %d %d\n", *this, dwObj, dwHow);
+	memset(pdidoi + sizeof(uint32_t), 0, sizeof(DIDEVICEOBJECTINSTANCEA) - sizeof(uint32_t));
 	return 0;
 }
 MAYBE_STATIC REALIGN STDCALL uint32_t SendForceFeedbackCommand(DirectInputDevice **this, uint32_t flags)

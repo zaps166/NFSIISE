@@ -1,7 +1,9 @@
 #This is the "Need For Speed II SE" wrapper configuration file.
-#Don't modify the "nfs2se.conf.template" file, be sure that you are editing configuration inside home directory (created during the first run):
+#Don't modify the "nfs2se.conf.template" file, make sure that you are editing configuration inside home directory (created during the first run, except Android):
 #	Linux:   "~/.nfs2se/nfs2se.conf",
-#	Windows: "%AppData%\.nfs2se\nfs2se.conf".
+#	Windows: "%AppData%\.nfs2se\nfs2se.conf",
+#	macOS:   "~/Library/Application Support/nfs2se/nfs2se.conf",
+#	Android: "/sdcard/NFSIISE/nfs2se.conf".
 #Leave empty line at the end of the file!
 #Remove "#" from the beginning of the line to apply the configuration!
 
@@ -32,18 +34,14 @@
 #	Specify the number to shift value for the first axis in first joystick (simple deadzone compensation)
 #Joystick1AxisValueShift:
 #	Specify the number to shift value for the first axis in second joystick (simple deadzone compensation)
-#Joystick0Axes:
-#	Specify which axes will be used in game for first joystick. NFS2SE supports only 4 axes (e.g. 0,12,13,14:0,1,1,1 or 0,1,4,5:0,0,0,0 or 0,1,2,5:0,0,0,0)
+#Joystick0Axes2:
+#	Specify which axes will be used in game for first joystick. NFS2SE supports only 6 axes (e.g. 0,12,13,14,-1,-1:0,1,1,1,0,0)
 #	The numbers after colon chooses axis type (0 - normal axis, 1 - half axis, -1 - inverted half axis)
-#Joystick1Axes:
-#	Specify which axes will be used in game for second joystick. NFS2SE supports only 4 axes.
-#	The numbers after colon chooses axis type (0 - normal axis, 1 - half axis, -1 - inverted half axis)
-#Joystick0Buttons:
-#	Specify which buttons will be used in game for first joystick. Value less than 0 - disabled. NFS2SE supports 15 buttons
-#Joystick1Buttons:
-#	Specify which buttons will be used in game for second joystick. Value less than 0 - disabled. NFS2SE supports 15 buttons
+#Joystick1Axes2:
+#	Specify which axes will be used in game for second joystick (see above).
 #Joystick0EscButton:
-#	Specify which button will be used as Escape key
+#	Specify which button will be used as Escape key. Press the button in game controls setup and look at the letter.
+#	Button number is counted from 0, so 'A' letter is 0, 'G' letter is 6.
 #UseHapticPolar:
 #	0 - Use SDL_HAPTIC_STEERING_AXIS
 #	1 - Use SDL_HAPTIC_POLAR
@@ -75,10 +73,8 @@
 #KeepAspectRatio=1
 #Joystick0AxisValueShift=8448
 #Joystick1AxisValueShift=8448
-#Joystick0Axes=0,1,2,3:0,0,0,0
-#Joystick1Axes=0,1,2,3:0,0,0,0
-#Joystick0Buttons=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
-#Joystick1Buttons=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14
+#Joystick0Axes2=0,1,2,3,4,5:0,0,0,0,0,0
+#Joystick1Axes2=0,1,2,3,4,5:0,0,0,0,0,0
 #Joystick0EscButton=-1
 #UseHapticPolar=0
 #UseSpringForceFeedbackEffect=0

@@ -111,14 +111,14 @@ typedef struct
 
 typedef struct
 {
-	int32_t axes[6];
+	int32_t axes[8];
 // 	uint32_t lX;
 // 	uint32_t lY;
 // 	uint32_t lZ;
 // 	uint32_t lRx; //unsupported
 // 	uint32_t lRy; //unsupported
 // 	uint32_t lRz;
-	uint32_t rglSlider[2]; //unsupported
+//	uint32_t rglSlider[2];
 	uint32_t rgdwPOV[4]; //unsupported
 	uint8_t  buttons[32]; //only 15 buttons
 } DIJOYSTATE;
