@@ -6,6 +6,7 @@ BUILD_WINDOWS="no"
 OPENGL_DEFINE="-DOPENGL1X"
 OPENGL_LIBS="-lGL"
 ANDROID_INSTALL="no"
+CPP_LTO="-flto"
 
 OS=$(uname)
 
@@ -67,6 +68,7 @@ function compile_cpp
 
 	if [[ $BUILD_TYPE == "debug" ]]; then
 		FLAGS="-O0 -g"
+		CPP_LTO=""
 		echo "Debug"
 	else
 		FLAGS="-O3 -DNDEBUG"
