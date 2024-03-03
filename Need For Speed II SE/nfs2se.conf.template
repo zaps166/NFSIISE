@@ -42,6 +42,8 @@
 #Joystick0EscButton:
 #	Specify which button will be used as Escape key. Press the button in game controls setup and look at the letter
 #	Button number is counted from 0, so 'A' letter is 0, 'G' letter is 6
+#AccelerometerAsJoystick:
+#	Use accelerometer on Android as 3-axis joystick (1 - use, default)
 #UseHapticPolar:
 #	0 - Use SDL_HAPTIC_STEERING_AXIS
 #	1 - Use SDL_HAPTIC_POLAR
@@ -76,6 +78,7 @@
 #Joystick0Axes2=0,1,2,3,4,5:0,0,0,0,0,0
 #Joystick1Axes2=0,1,2,3,4,5:0,0,0,0,0,0
 #Joystick0EscButton=-1
+#AccelerometerAsJoystick=1
 #UseHapticPolar=0
 #UseSpringForceFeedbackEffect=0
 #ForceFeedbackDevice=-1
