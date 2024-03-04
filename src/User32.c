@@ -32,15 +32,15 @@ WindowProc wndProc;
 
 SDL_TouchID touchId = 0;
 float touchDX = 0.0f, touchDY = 0.0f;
-static SDL_TimerID tapAndHoldTimerId = 0;
-static uint32_t tapAndHoldTimerCallback(uint32_t interval, void *param)
+static uint32_t touchTimeStamp = 0;
+static SDL_TimerID tapEnterTimerId = 0;
+static uint32_t tapEnterTimerCallback(uint32_t interval, void *param)
 {
 	SDL_Event event;
 	memset(&event, 0, sizeof event);
 	event.key.keysym.sym = SDLK_RETURN;
 	event.key.keysym.scancode = 40;
-	tapAndHoldTimerId = 0;
-	if (interval > 100)
+	if (interval == 1)
 	{
 		event.type = SDL_KEYDOWN;
 		SDL_PushEvent(&event);
@@ -48,6 +48,7 @@ static uint32_t tapAndHoldTimerCallback(uint32_t interval, void *param)
 	}
 	event.type = SDL_KEYUP;
 	SDL_PushEvent(&event);
+	tapEnterTimerId = 0;
 	return 0;
 }
 
@@ -300,11 +301,9 @@ REALIGN STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterM
 					if (fingerEvent->pressure > 0.0f && fingerEvent->fingerId == 0 && SDL_GetTouchDeviceType(fingerEvent->touchId) == SDL_TOUCH_DEVICE_DIRECT)
 					{
 						touchId = fingerEvent->touchId;
-						touchDX = 0.0f;
-						touchDY = 0.0f;
-						if (tapAndHoldTimerId != 0)
-							SDL_RemoveTimer(tapAndHoldTimerId);
-						tapAndHoldTimerId = SDL_AddTimer(150, tapAndHoldTimerCallback, NULL);
+						touchDX = fingerEvent->dx;
+						touchDY = fingerEvent->dy;
+						touchTimeStamp = SDL_GetTicks();
 					}
 				} break;
 				case SDL_FINGERUP:
@@ -312,14 +311,14 @@ REALIGN STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterM
 					SDL_TouchFingerEvent *fingerEvent = ((SDL_TouchFingerEvent *)&event);
 					if (touchId == fingerEvent->touchId)
 					{
-						if (tapAndHoldTimerId != 0)
+						if (touchTimeStamp > 0 && tapEnterTimerId == 0 && SDL_GetTicks() - touchTimeStamp < 250)
 						{
-							SDL_RemoveTimer(tapAndHoldTimerId);
-							tapAndHoldTimerId = 0;
+							tapEnterTimerId = SDL_AddTimer(1, tapEnterTimerCallback, NULL);
 						}
 						touchId = 0;
 						touchDX = 0.0f;
 						touchDY = 0.0f;
+						touchTimeStamp = 0;
 					}
 				} break;
 				case SDL_FINGERMOTION:
@@ -327,13 +326,9 @@ REALIGN STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterM
 					SDL_TouchFingerEvent *fingerEvent = ((SDL_TouchFingerEvent *)&event);
 					if (touchId == fingerEvent->touchId)
 					{
-						if (tapAndHoldTimerId != 0)
-						{
-							SDL_RemoveTimer(tapAndHoldTimerId);
-							tapAndHoldTimerId = 0;
-						}
 						touchDX += fingerEvent->dx;
 						touchDY += fingerEvent->dy;
+						touchTimeStamp = 0;
 					}
 				} break;
 				default:
