@@ -41,7 +41,11 @@ static char *settingsDir = NULL;
 #ifndef WIN32
 static
 #endif
+#ifdef NFS_CPP
+BOOL useOnlyOneCPU = false;
+#else
 BOOL useOnlyOneCPU = true;
+#endif
 
 #ifndef WIN32
 char *serialPort[4] = {NULL};
