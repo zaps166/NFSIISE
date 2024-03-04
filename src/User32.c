@@ -103,7 +103,7 @@ REALIGN STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterM
 	do
 	{
 		br = true;
-		if (SDL_WaitEvent(&event))
+		if (SDL_WaitEventTimeout(&event, 1))
 		{
 			switch (event.type)
 			{
@@ -342,6 +342,10 @@ REALIGN STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterM
 			}
 			if (br)
 				return 1;
+		}
+		else
+		{
+			br = false;
 		}
 	} while (!br);
 	return -1;
