@@ -102,7 +102,7 @@ sudo apt install gcc-multilib
 * You can delete unnecessary files, e.g. `fedata/pc/text/text.*`, because TCP version uses new files in root directory.
 * All files and directories copied from CD-ROM **must** have *small letters* on Unix-like systems!!!
   * Please use the `Need For Speed II SE/convert_to_lowercase` script if you have UPPERCASE names.
-* If you want to change the language, edit `install.win` file and change the first line. Leave `4nn` as is and modify only language name. Possible languages are:
+* If you want to change the language, edit `install.win` file (with text editor which doesn't modify last line or line edings!) and change the first line. Leave `4nn` as is and modify only language name. Possible languages are:
   * english,
   * french,
   * german,
