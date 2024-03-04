@@ -56,7 +56,7 @@ extern float touchDX, touchDY;
 
 extern int32_t joystickAxes[2][12];
 extern int32_t joystickAxisValueShift[2];
-extern int32_t joystick0EscButton;
+extern int32_t joystick0EscButton, joystick0ResetButton;
 
 extern BOOL useHapticPolar;
 extern BOOL useSpringForceFeedbackEffect;
@@ -414,6 +414,7 @@ MAYBE_STATIC REALIGN STDCALL uint32_t GetDeviceState(DirectInputDevice **this, u
 			numAxes = 6;
 
 		const BOOL simulateEsc = (joyIdx == 0 && joystick0EscButton >= 0 && joystick0EscButton < numButtons);
+		const BOOL simulateF11 = (joyIdx == 0 && joystick0ResetButton >= 0 && joystick0ResetButton < numButtons);
 
 		if (simulateEsc)
 		{
@@ -441,10 +442,38 @@ MAYBE_STATIC REALIGN STDCALL uint32_t GetDeviceState(DirectInputDevice **this, u
 			}
 		}
 
+		if (simulateF11)
+		{
+			/* Simulate F11 key on Joystick */
+
+			const uint8_t f11Joy = SDL_JoystickGetButton(joy, joystick0ResetButton);
+			static BOOL f11JoyPressed = false;
+
+			SDL_Event event;
+			memset(&event, 0, sizeof event);
+			event.key.keysym.sym = SDLK_F11;
+			event.key.keysym.scancode = 68;
+
+			if (f11Joy && !f11JoyPressed)
+			{
+				event.type = SDL_KEYDOWN;
+				SDL_PushEvent(&event);
+				f11JoyPressed = true;
+			}
+			else if (!f11Joy && f11JoyPressed)
+			{
+				event.type = SDL_KEYUP;
+				SDL_PushEvent(&event);
+				f11JoyPressed = false;
+			}
+		}
+
 		for (i = 0; i < numButtons; ++i)
 		{
 			if (simulateEsc && i == joystick0EscButton)
 				continue; //Skip button which is used as Escape key
+			if (simulateF11 && i == joystick0ResetButton)
+				continue; //Skip button which is used as F11 key
 			joyState->buttons[i] = SDL_JoystickGetButton(joy, i) << 7;
 		}
 

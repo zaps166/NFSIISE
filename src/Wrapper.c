@@ -223,7 +223,7 @@ static BOOL startInFullScreen = true;
 
 int32_t joystickAxes[2][12] = {{0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 0}, {0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 0}};
 int32_t winWidth = 640, winHeight = 480, joystickAxisValueShift[2] = {0}, vSync = 1;
-int32_t joystick0EscButton = -1;
+int32_t joystick0EscButton = -1, joystick0ResetButton = -1;
 BOOL useSpringForceFeedbackEffect = false;
 BOOL useHapticPolar = false;
 int32_t forceFeedbackDevice = -1;
@@ -447,6 +447,8 @@ void WrapperInit(void)
 				sscanf(line + 15, "%d,%d,%d,%d,%d,%d:%d,%d,%d,%d,%d,%d", joystickAxes[1]+0, joystickAxes[1]+1, joystickAxes[1]+2, joystickAxes[1]+3, joystickAxes[1]+4, joystickAxes[1]+5, joystickAxes[1]+6, joystickAxes[1]+7, joystickAxes[1]+8, joystickAxes[1]+9, joystickAxes[1]+10, joystickAxes[1]+11);
 			else if (!strncasecmp("Joystick0EscButton=", line, 19))
 				sscanf(line + 19, "%d", &joystick0EscButton);
+			else if (!strncasecmp("Joystick0ResetButton=", line, 21))
+				sscanf(line + 21, "%d", &joystick0ResetButton);
 			else if (!strncasecmp("UseHapticPolar=", line, 15))
 				useHapticPolar = atoi(line + 15);
 			else if (!strncasecmp("UseSpringForceFeedbackEffect=", line, 29))

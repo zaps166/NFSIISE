@@ -8,8 +8,8 @@
 #Remove "#" from the beginning of the line to apply the configuration!
 
 #UseOnlyOneCPU:
-#	0 - The game can use more than one CPU (can be unstable)
-#	1 - The game can use only the first CPU (can be more stable, default)
+#	0 - The game can use more than one CPU (faster, but may be unstable, default on non-x86 (C++) builds)
+#	1 - The game can use only the first CPU (default on x86 native builds)
 #StartInFullScreen:
 #	0 - The game runs in window
 #	1 - The game runs in full screen (default)
@@ -45,6 +45,8 @@
 #Joystick0EscButton:
 #	Specify which button will be used as Escape key. Press the button in game controls setup and look at the letter
 #	Button number is counted from 0, so 'A' letter is 0, 'G' letter is 6
+#Joystick0ResetButton:
+#	Specify which button will be used as F11 key (car reset, see above)
 #AccelerometerAsJoystick:
 #	Use accelerometer on Android as 3-axis joystick (1 - use, default)
 #UseHapticPolar:
@@ -82,6 +84,7 @@
 #Joystick0Axes2=0,1,2,3,4,5:0,0,0,0,0,0
 #Joystick1Axes2=0,1,2,3,4,5:0,0,0,0,0,0
 #Joystick0EscButton=-1
+#Joystick0ResetButton=-1
 #AccelerometerAsJoystick=1
 #UseHapticPolar=0
 #UseSpringForceFeedbackEffect=0
