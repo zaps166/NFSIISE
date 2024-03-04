@@ -235,7 +235,7 @@ BOOL linearSoundInterpolation = false, useGlBleginGlEnd = false, keepAspectRatio
 uint32_t fullScreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP, broadcast = 0xFFFFFFFF;
 uint16_t PORT1 = 1030, PORT2 = 1029;
 
-int32_t touchpadJoyIdx = -1;
+int32_t ignoreJoyIdx = -1;
 
 static void initializeSDL2()
 {
@@ -500,11 +500,19 @@ void WrapperInit(void)
 	for (i = 0; i < n; ++i)
 	{
 		const char *name = SDL_JoystickNameForIndex(i);
-		if (name && strstr(name, "SynPS/2"))
+#ifdef __ANDROID__
+		if (n > 1 && name && strcmp(name, "Android Accelerometer") == 0)
 		{
-			touchpadJoyIdx = i;
+			ignoreJoyIdx = i;
 			break;
 		}
+#else
+		if (name && strstr(name, "SynPS/2"))
+		{
+			ignoreJoyIdx = i;
+			break;
+		}
+#endif
 	}
 
 #ifndef OPENGL1X
@@ -645,7 +653,7 @@ REALIGN STDCALL SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 
 REALIGN int32_t SDL_NumJoysticks_wrap(void)
 {
-	return SDL_NumJoysticks() - (touchpadJoyIdx >= 0);
+	return SDL_NumJoysticks() - (ignoreJoyIdx >= 0);
 }
 
 #ifdef NFS_CPP

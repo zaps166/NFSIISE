@@ -70,7 +70,7 @@ extern int32_t forceFeedbackDevice;
 	extern uint32_t mousePositionX, mousePositionY;
 #endif
 
-extern int32_t touchpadJoyIdx;
+extern int32_t ignoreJoyIdx;
 
 #define CONVERT(x) (((x)*0x7FFF)/10000)
 #define CONVERT_LENGTH(x) (((x) == (SDL_HAPTIC_INFINITY)) ? (SDL_HAPTIC_INFINITY) : ((x) / 1000))
@@ -715,7 +715,7 @@ MAYBE_STATIC REALIGN STDCALL uint32_t EnumDevices(void **this, uint32_t devType,
 		uint32_t i, n = SDL_NumJoysticks();
 		for (i = 0; i < n; ++i)
 		{
-			if (i == touchpadJoyIdx)
+			if (i == ignoreJoyIdx)
 				continue;
 			deviceInstance.guidInstance.a = JOYSTICK;
 			deviceInstance.guidInstance.b = i;

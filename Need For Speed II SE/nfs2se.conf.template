@@ -48,7 +48,7 @@
 #Joystick0ResetButton:
 #	Specify which button will be used as F11 key (car reset, see above)
 #AccelerometerAsJoystick:
-#	Use accelerometer on Android as 3-axis joystick (1 - use, default)
+#	Use accelerometer on Android as 3-axis joystick if no other joystick is connected (1 - use, default)
 #UseHapticPolar:
 #	0 - Use SDL_HAPTIC_STEERING_AXIS
 #	1 - Use SDL_HAPTIC_POLAR
