@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#if !defined(NFS_CPP) && (defined(__i386) || defined(__i386__) || defined(__x86_64) || defined(__x86_64__) || defined(__amd64))
+#if !defined(NFS_CPP) && (defined(__i386) || defined(__i386__))
 	#define STDCALL __attribute__((stdcall))
 	#define REGPARM __attribute__((regparm(2))) //First two arguments are compatible with Watcom fastcall
 
