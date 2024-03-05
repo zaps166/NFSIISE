@@ -26,6 +26,7 @@ extern uint32_t fullScreenFlag;
 extern SDL_Window *sdlWin;
 extern double dpr;
 
+BOOL needRecreateGl = false;
 BOOL windowResized = false;
 
 WindowProc wndProc;
@@ -107,6 +108,13 @@ REALIGN STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterM
 		{
 			switch (event.type)
 			{
+				case SDL_APP_WILLENTERBACKGROUND:
+					msg->uMsg = WM_KILLFOCUS;
+					break;
+				case SDL_APP_DIDENTERFOREGROUND:
+					msg->uMsg = WM_SETFOCUS;
+					needRecreateGl = true;
+					break;
 				case SDL_WINDOWEVENT:
 					switch (event.window.event)
 					{

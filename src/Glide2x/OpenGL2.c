@@ -172,21 +172,40 @@ static FogCoord fogCoord[MaxTriangles];
 static TextureCoord textureCoord[MaxTriangles];
 static Vertices vertices[MaxTriangles];
 
-static uint8_t *lfb, textureMemIDs[TextureMem], textureMemPalPtr[TextureMem], textureMemPal[TextureMem], fogTable[0x10000];
+typedef struct
+{
+	uint8_t *data;
+	uint32_t *palette;
+	GrTextureFormat_t fmt;
+	uint32_t size;
+	uint32_t id;
+} TextureInfo;
+static TextureInfo textures[TextureMem >> 2];
+
+static uint8_t *lfb, textureMem[TextureMem], fogTable[0x10000];
 static uint32_t *palette, tmpTexture[256 * 256 /* 0x400 for grTexSource */];
-static uint32_t trianglesCount, maxTexIdx;
+static uint32_t trianglesCount;
 
 static int32_t xOffset, yOffset, visibleWidth, visibleHeight;
 static SDL_GLContext glCtx;
 
-extern BOOL keepAspectRatio, windowResized, linearFiltering;
+extern BOOL keepAspectRatio, needRecreateGl, windowResized, linearFiltering;
 extern int32_t vSync, winWidth, winHeight;
 extern SDL_Window *sdlWin;
 
 /* GLSL */
-
 static GLuint g_vShader, g_fShader, g_shaderProgram;
 static GLint g_aPositionLoc, g_aTexCoordLoc, g_aColorLoc, g_aFogLoc, g_uMatrixLoc, g_uTextureEnabledLoc, g_uFogEnabledLoc, g_uFogColorLoc, g_uGammaLoc;
+
+/* GLSL config */
+static BOOL g_textureEnabled;
+static BOOL g_fogEnabled;
+static float g_fogColor[4];
+static float g_gammaValue;
+
+/* GL config */
+static BOOL g_depthMask;
+static GLenum g_blendFuncDFactor;
 
 static BOOL checkShaderCompilation(GLuint shader)
 {
@@ -264,6 +283,7 @@ static inline BOOL loadShaders()
 	g_aColorLoc = glGetAttribLocation(g_shaderProgram, "aColor");
 	g_aFogLoc = glGetAttribLocation(g_shaderProgram, "aFog");
 	g_uMatrixLoc = glGetUniformLocation(g_shaderProgram, "uMatrix");
+
 	g_uTextureEnabledLoc = glGetUniformLocation(g_shaderProgram, "uTextureEnabled");
 	g_uFogEnabledLoc = glGetUniformLocation(g_shaderProgram, "uFogEnabled");
 	g_uFogColorLoc = glGetUniformLocation(g_shaderProgram, "uFogColor");
@@ -276,7 +296,58 @@ static inline BOOL loadShaders()
 	return true;
 }
 
-/**/
+static void createContext()
+{
+	glCtx = SDL_GL_CreateContext(sdlWin);
+
+#ifndef GLES2
+	glGetShaderiv = SDL_GL_GetProcAddress("glGetShaderiv");
+	glGetProgramiv = SDL_GL_GetProcAddress("glGetProgramiv");
+	glGetShaderInfoLog = SDL_GL_GetProcAddress("glGetShaderInfoLog");
+	glGetProgramInfoLog = SDL_GL_GetProcAddress("glGetProgramInfoLog");
+	glCreateShader = SDL_GL_GetProcAddress("glCreateShader");
+	glShaderSource = SDL_GL_GetProcAddress("glShaderSource");
+	glCompileShader = SDL_GL_GetProcAddress("glCompileShader");
+	glCreateProgram = SDL_GL_GetProcAddress("glCreateProgram");
+	glAttachShader = SDL_GL_GetProcAddress("glAttachShader");
+	glLinkProgram = SDL_GL_GetProcAddress("glLinkProgram");
+	glGetAttribLocation = SDL_GL_GetProcAddress("glGetAttribLocation");
+	glGetUniformLocation = SDL_GL_GetProcAddress("glGetUniformLocation");
+	glUseProgram = SDL_GL_GetProcAddress("glUseProgram");
+	glUniform1i = SDL_GL_GetProcAddress("glUniform1i");
+	glUniformMatrix4fv = SDL_GL_GetProcAddress("glUniformMatrix4fv");
+	glVertexAttribPointer = SDL_GL_GetProcAddress("glVertexAttribPointer");
+	glUniform4f = SDL_GL_GetProcAddress("glUniform4f");
+	glUniform1f = SDL_GL_GetProcAddress("glUniform1f");
+	glEnableVertexAttribArray = SDL_GL_GetProcAddress("glEnableVertexAttribArray");
+#endif
+
+	if (vSync >= 0)
+		SDL_GL_SetSwapInterval(vSync);
+
+	glEnable(GL_SCISSOR_TEST);
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_DITHER);
+	glEnable(GL_BLEND);
+
+	glDepthFunc(GL_LEQUAL);
+
+	if (!loadShaders())
+	{
+		shaderError = true;
+		raise(SIGABRT);
+	}
+
+	glEnableVertexAttribArray(g_aPositionLoc);
+	glEnableVertexAttribArray(g_aTexCoordLoc);
+	glEnableVertexAttribArray(g_aColorLoc);
+	glEnableVertexAttribArray(g_aFogLoc);
+
+	glVertexAttribPointer(g_aPositionLoc, 3, GL_FLOAT, GL_FALSE, 0, vertices);
+	glVertexAttribPointer(g_aTexCoordLoc, 4, GL_FLOAT, GL_FALSE, 0, textureCoord);
+	glVertexAttribPointer(g_aColorLoc, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, colorValues);
+	glVertexAttribPointer(g_aFogLoc, 1, GL_UNSIGNED_BYTE, GL_TRUE, 0, fogCoord);
+}
 
 static void setTextureFiltering()
 {
@@ -286,6 +357,64 @@ static void setTextureFiltering()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
+
+static void uploadTexture(TextureInfo *ti)
+{
+	uint16_t *data = (uint16_t *)ti->data;
+	BOOL newTexture = (ti->id == 0);
+
+	if (newTexture)
+		glGenTextures(1, &ti->id);
+
+	if (newTexture || ti->fmt != GR_TEXFMT_P_8)
+		glBindTexture(GL_TEXTURE_2D, ti->id);
+
+	if (newTexture)
+		setTextureFiltering();
+
+	const uint32_t loopSize = ti->size * ti->size * 4;
+	uint8_t *tmpTexture8 = (uint8_t *)tmpTexture;
+	uint32_t i, j;
+	switch (ti->fmt)
+	{
+		case GR_TEXFMT_RGB_565:
+		{
+			for (i = 0, j = 0; i < loopSize; i += 4, ++j)
+			{
+				tmpTexture8[i + 0] = (data[j] << 3) & 0xF8;
+				tmpTexture8[i + 1] = (data[j] >> 3) & 0xFC;
+				tmpTexture8[i + 2] = (data[j] >> 8) & 0xF8;
+				tmpTexture8[i + 3] = 0xFF;
+			}
+			break;
+		}
+		case GR_TEXFMT_ARGB_1555:
+		{
+			for (i = 0, j = 0; i < loopSize; i += 4, ++j)
+			{
+				tmpTexture8[i + 0] = (data[j] << 3) & 0xF8;
+				tmpTexture8[i + 1] = (data[j] >> 2) & 0xF8;
+				tmpTexture8[i + 2] = (data[j] >> 7) & 0xF8;
+				tmpTexture8[i + 3] = (data[j] >> 15) * 255;
+			}
+			break;
+		}
+		case GR_TEXFMT_ARGB_4444:
+		{
+			for (i = 0, j = 0; i < loopSize; i += 4, ++j)
+			{
+				tmpTexture8[i + 0] = (data[j] << 4) & 0xF0;
+				tmpTexture8[i + 1] = (data[j] >> 0) & 0xF0;
+				tmpTexture8[i + 2] = (data[j] >> 4) & 0xF0;
+				tmpTexture8[i + 3] = (data[j] >> 8) & 0xF0;
+			}
+			break;
+		}
+	}
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ti->size, ti->size, 0, GL_RGBA, GL_UNSIGNED_BYTE, (ti->fmt == GR_TEXFMT_P_8) ? NULL : tmpTexture);
+}
+
+/**/
 
 static inline void convertColor(GrColor_t color, float *r, float *g, float *b, float *a)
 {
@@ -313,21 +442,23 @@ REALIGN STDCALL void grAlphaBlendFunction(GrAlphaBlendFnc_t rgb_sf, GrAlphaBlend
 	switch (rgb_df)
 	{
 		case GR_BLEND_ONE:
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			g_blendFuncDFactor = GL_ONE;
 			break;
 		case GR_BLEND_ONE_MINUS_SRC_ALPHA:
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			g_blendFuncDFactor = GL_ONE_MINUS_SRC_ALPHA;
 			break;
 	}
+	glBlendFunc(GL_SRC_ALPHA, g_blendFuncDFactor);
 // 	printf("grAlphaBlendFunction: %d %d %d %d\n", rgb_sf, rgb_df, alpha_sf, alpha_df);
 }
 REALIGN STDCALL void grAlphaCombine(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, BOOL invert)
 {
 	drawTriangles();
 	if (other == GR_COMBINE_OTHER_TEXTURE)
-		glUniform1f(g_uTextureEnabledLoc, 1.0f);
+		g_textureEnabled = 1.0f;
 	else
-		glUniform1f(g_uTextureEnabledLoc, 0.0f);
+		g_textureEnabled = 0.0f;
+	glUniform1f(g_uTextureEnabledLoc, g_textureEnabled);
 // 	printf("grAlphaCombine: %d\n", (other == GR_COMBINE_OTHER_TEXTURE));
 }
 REALIGN STDCALL void grAlphaTestFunction(GrCmpFnc_t function)
@@ -410,6 +541,63 @@ REALIGN STDCALL void grBufferSwap(int swap_interval)
 // 	printf("grBufferSwap: [%d]\n", trianglesCount);
 	drawTriangles();
 
+#ifdef GLES2
+	if (needRecreateGl)
+	{
+		uint32_t i;
+
+		// Destroy old context
+		if (glCtx)
+		{
+			for (i = 0; i < (TextureMem >> 2); ++i)
+			{
+				TextureInfo *ti = &textures[i];
+				if (ti->id != 0)
+					glDeleteTextures(1, &ti->id);
+			}
+
+			glUseProgram(0);
+
+			glDetachShader(g_shaderProgram, g_fShader);
+			glDetachShader(g_shaderProgram, g_vShader);
+
+			glDeleteProgram(g_shaderProgram);
+
+			glDeleteShader(g_fShader);
+			glDeleteShader(g_vShader);
+
+			SDL_GL_DeleteContext(glCtx);
+		}
+
+		createContext();
+
+		// Restore textures
+		for (i = 0; i < (TextureMem >> 2); ++i)
+		{
+			TextureInfo *ti = &textures[i];
+			if (ti->id == 0)
+				continue;
+
+			ti->id = 0;
+			uploadTexture(ti);
+		}
+
+		// Restore config
+		{
+			glUniform1f(g_uTextureEnabledLoc, g_textureEnabled);
+			glUniform1f(g_uFogEnabledLoc, g_fogEnabled);
+			glUniform4f(g_uFogColorLoc, g_fogColor[0], g_fogColor[1], g_fogColor[2], g_fogColor[3]);
+			glUniform1f(g_uGammaLoc, g_gammaValue);
+
+			glDepthMask(g_depthMask);
+			glBlendFunc(GL_SRC_ALPHA, g_blendFuncDFactor);
+		}
+
+		needRecreateGl = false;
+		windowResized = true;
+	}
+#endif
+
 	if (windowResized)
 	{
 		grClipWindow(0, 0, 640, 480);
@@ -472,7 +660,9 @@ REALIGN STDCALL void grDepthBufferMode(GrDepthBufferMode_t mode)
 REALIGN STDCALL void grDepthMask(BOOL mask)
 {
 	drawTriangles();
-	glDepthMask(mask);
+
+	g_depthMask = mask;
+	glDepthMask(g_depthMask);
 // 	printf("grDepthMask: %d [%d]\n", mask, trianglesCount);
 }
 REALIGN STDCALL void grDitherMode(GrDitherMode_t mode)
@@ -541,10 +731,9 @@ REALIGN STDCALL void grDrawLine(const GrVertex *a, const GrVertex *b)
 }
 REALIGN STDCALL void grFogColorValue(GrColor_t fogcolor)
 {
-	float fogColor[4];
-	convertColor(fogcolor, fogColor + 0, fogColor + 1, fogColor + 2, fogColor + 3);
+	convertColor(fogcolor, g_fogColor + 0, g_fogColor + 1, g_fogColor + 2, g_fogColor + 3);
 	drawTriangles();
-	glUniform4f(g_uFogColorLoc, fogColor[0], fogColor[1], fogColor[2], fogColor[3]);
+	glUniform4f(g_uFogColorLoc, g_fogColor[0], g_fogColor[1], g_fogColor[2], g_fogColor[3]);
 // 	printf("grFogColorValue: 0x%.8X [%d]\n", fogcolor, trianglesCount);
 }
 REALIGN STDCALL void grFogMode(GrFogMode_t mode)
@@ -552,12 +741,13 @@ REALIGN STDCALL void grFogMode(GrFogMode_t mode)
 	switch (mode)
 	{
 		case GR_FOG_DISABLE: // Is it necessary to disable fog?
-			glUniform1f(g_uFogEnabledLoc, 0.0f);
+			g_fogEnabled = 0.0f;
 			break;
 		case GR_FOG_WITH_TABLE:
-			glUniform1f(g_uFogEnabledLoc, 1.0f);
+			g_fogEnabled = 1.0f;
 			break;
 	}
+	glUniform1f(g_uFogEnabledLoc, g_fogEnabled);
 // 	printf("grFogMode: %X\n", mode);
 }
 REALIGN STDCALL void grFogTable(const GrFog_t ft[GR_FOG_TABLE_SIZE])
@@ -593,7 +783,8 @@ REALIGN STDCALL void grFogTable(const GrFog_t ft[GR_FOG_TABLE_SIZE])
 }
 REALIGN STDCALL void grGammaCorrectionValue(float value)
 {
-	glUniform1f(g_uGammaLoc, value);
+	g_gammaValue = value;
+	glUniform1f(g_uGammaLoc, g_gammaValue);
 }
 REALIGN STDCALL void grGlideInit(void)
 {
@@ -658,58 +849,9 @@ REALIGN STDCALL void grSstWinClose(void)
 }
 REALIGN STDCALL BOOL grSstWinOpen(uint32_t hWnd, GrScreenResolution_t screen_resolution, GrScreenRefresh_t refresh_rate, GrColorFormat_t color_format, GrOriginLocation_t origin_location, int nColBuffers, int nAuxBuffers)
 {
-	glCtx = SDL_GL_CreateContext(sdlWin);
+	createContext();
+
 	handleDpr();
-
-#ifndef GLES2
-	glGetShaderiv = SDL_GL_GetProcAddress("glGetShaderiv");
-	glGetProgramiv = SDL_GL_GetProcAddress("glGetProgramiv");
-	glGetShaderInfoLog = SDL_GL_GetProcAddress("glGetShaderInfoLog");
-	glGetProgramInfoLog = SDL_GL_GetProcAddress("glGetProgramInfoLog");
-	glCreateShader = SDL_GL_GetProcAddress("glCreateShader");
-	glShaderSource = SDL_GL_GetProcAddress("glShaderSource");
-	glCompileShader = SDL_GL_GetProcAddress("glCompileShader");
-	glCreateProgram = SDL_GL_GetProcAddress("glCreateProgram");
-	glAttachShader = SDL_GL_GetProcAddress("glAttachShader");
-	glLinkProgram = SDL_GL_GetProcAddress("glLinkProgram");
-	glGetAttribLocation = SDL_GL_GetProcAddress("glGetAttribLocation");
-	glGetUniformLocation = SDL_GL_GetProcAddress("glGetUniformLocation");
-	glUseProgram = SDL_GL_GetProcAddress("glUseProgram");
-	glUniform1i = SDL_GL_GetProcAddress("glUniform1i");
-	glUniformMatrix4fv = SDL_GL_GetProcAddress("glUniformMatrix4fv");
-	glVertexAttribPointer = SDL_GL_GetProcAddress("glVertexAttribPointer");
-	glUniform4f = SDL_GL_GetProcAddress("glUniform4f");
-	glUniform1f = SDL_GL_GetProcAddress("glUniform1f");
-	glEnableVertexAttribArray = SDL_GL_GetProcAddress("glEnableVertexAttribArray");
-#endif
-
-	if (vSync >= 0)
-		SDL_GL_SetSwapInterval(vSync);
-
-	glEnable(GL_SCISSOR_TEST);
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_DITHER);
-	glEnable(GL_BLEND);
-
-	glDepthFunc(GL_LEQUAL);
-
-	maxTexIdx = 0;
-
-	if (!loadShaders())
-	{
-		shaderError = true;
-		raise(SIGABRT);
-	}
-
-	glEnableVertexAttribArray(g_aPositionLoc);
-	glEnableVertexAttribArray(g_aTexCoordLoc);
-	glEnableVertexAttribArray(g_aColorLoc);
-	glEnableVertexAttribArray(g_aFogLoc);
-
-	glVertexAttribPointer(g_aPositionLoc, 3, GL_FLOAT, GL_FALSE, 0, vertices);
-	glVertexAttribPointer(g_aTexCoordLoc, 4, GL_FLOAT, GL_FALSE, 0, textureCoord);
-	glVertexAttribPointer(g_aColorLoc, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, colorValues);
-	glVertexAttribPointer(g_aFogLoc, 1, GL_UNSIGNED_BYTE, GL_TRUE, 0, fogCoord);
 
 	grClipWindow(0, 0, 640, 480);
 
@@ -744,74 +886,17 @@ REALIGN STDCALL void grTexCombineFunction(GrChipID_t tmu, GrTextureCombineFnc_t 
 }
 REALIGN STDCALL void grTexDownloadMipMap(GrChipID_t tmu, uint32_t startAddress, uint32_t evenOdd, GrTexInfo *info)
 {
-	uint16_t *data = (uint16_t *)info->data;
-	uint32_t size = 256 >> info->largeLod;
-	uint32_t *id = (uint32_t *)(textureMemIDs + startAddress);
-	BOOL newTexture = false;
+	TextureInfo *ti = &textures[startAddress >> 2];
+	ti->data = &textureMem[startAddress];
+	ti->palette = NULL;
+	ti->fmt = info->format;
+	ti->size = 256 >> info->largeLod;
 
-	if (*id == 0 || *id > maxTexIdx)
-	{
-		*id = ++maxTexIdx;
-		newTexture = true;
-	}
+	memcpy(ti->data, info->data, ti->size * ti->size * (ti->fmt == GR_TEXFMT_P_8 ? 1 : 2));
 
 	drawTriangles();
 
-	if (newTexture || info->format != GR_TEXFMT_P_8)
-		glBindTexture(GL_TEXTURE_2D, *id);
-
-	if (newTexture)
-		setTextureFiltering();
-
-	const uint32_t loopSize = size * size * 4;
-	uint8_t *tmpTexture8 = (uint8_t *)tmpTexture;
-	int i, j;
-	switch (info->format)
-	{
-		case GR_TEXFMT_P_8:
-		{
-			if (newTexture)
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-			*(void **)(textureMemPalPtr + startAddress) = NULL;
-			memcpy(textureMemPal + startAddress, data, size * size);
-			break;
-		}
-		case GR_TEXFMT_RGB_565:
-		{
-			for (i = 0, j = 0; i < loopSize; i += 4, ++j)
-			{
-				tmpTexture8[i + 0] = (data[j] << 3) & 0xF8;
-				tmpTexture8[i + 1] = (data[j] >> 3) & 0xFC;
-				tmpTexture8[i + 2] = (data[j] >> 8) & 0xF8;
-				tmpTexture8[i + 3] = 0xFF;
-			}
-			break;
-		}
-		case GR_TEXFMT_ARGB_1555:
-		{
-			for (i = 0, j = 0; i < loopSize; i += 4, ++j)
-			{
-				tmpTexture8[i + 0] = (data[j] << 3) & 0xF8;
-				tmpTexture8[i + 1] = (data[j] >> 2) & 0xF8;
-				tmpTexture8[i + 2] = (data[j] >> 7) & 0xF8;
-				tmpTexture8[i + 3] = (data[j] >> 15) * 255;
-			}
-			break;
-		}
-		case GR_TEXFMT_ARGB_4444:
-		{
-			for (i = 0, j = 0; i < loopSize; i += 4, ++j)
-			{
-				tmpTexture8[i + 0] = (data[j] << 4) & 0xF0;
-				tmpTexture8[i + 1] = (data[j] >> 0) & 0xF0;
-				tmpTexture8[i + 2] = (data[j] >> 4) & 0xF0;
-				tmpTexture8[i + 3] = (data[j] >> 8) & 0xF0;
-			}
-			break;
-		}
-	}
-	if (info->format != GR_TEXFMT_P_8)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmpTexture);
+	uploadTexture(ti);
 
 // 	printf("grTexDownloadMipMap: 0x%.8X %d\n", startAddress, maxTexIdx);
 }
@@ -839,21 +924,20 @@ REALIGN STDCALL void grTexMipMapMode(GrChipID_t tmu, GrMipMapMode_t mode, BOOL l
 }
 REALIGN STDCALL void grTexSource(GrChipID_t tmu, uint32_t startAddress, uint32_t evenOdd, GrTexInfo *info)
 {
+	TextureInfo *ti = &textures[startAddress >> 2];
 	drawTriangles();
-	glBindTexture(GL_TEXTURE_2D, *(uint32_t *)(textureMemIDs + startAddress));
-	if (info->format == GR_TEXFMT_P_8 && palette)
+	glBindTexture(GL_TEXTURE_2D, ti->id);
+	if (info->format == GR_TEXFMT_P_8 && palette && ti->palette != palette)
 	{
-		void **currPalette = (void **)(textureMemPalPtr + startAddress);
-		if (*currPalette != palette) // Update only when palette or texture changes (let's assume every palette has different pointer)
-		{
-			uint8_t *data = textureMemPal + startAddress;
-			uint32_t size = 256 >> info->largeLod;
-			int32_t sqrSize = size * size, i;
-			for (i = 0; i < sqrSize; ++i)
-				tmpTexture[i] = palette[data[i]];
-			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size, size, GL_RGBA, GL_UNSIGNED_BYTE, tmpTexture);
-			*currPalette = palette;
-		}
+		// Update only when palette or texture changes (let's assume every palette has different pointer)
+		// When texture changes, palette is NULL
+		uint8_t *data = ti->data;
+		uint32_t size = 256 >> info->largeLod;
+		int32_t sqrSize = size * size, i;
+		for (i = 0; i < sqrSize; ++i)
+			tmpTexture[i] = palette[data[i]];
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size, size, GL_RGBA, GL_UNSIGNED_BYTE, tmpTexture);
+		ti->palette = palette;
 	}
 }
 REALIGN STDCALL void guFogGenerateExp(GrFog_t fogtable[GR_FOG_TABLE_SIZE], float density)
