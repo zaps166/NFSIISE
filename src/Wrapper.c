@@ -241,7 +241,7 @@ static BOOL startInFullScreen = true;
 
 int32_t joystickAxes[2][12] = {{0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 0}, {0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 0}};
 int32_t initialWinWidth = 640, initialWinHeight = 480, winWidth, winHeight, vSync = 1;
-int32_t joystickAxisValueShift[2] = {0}, joystick0EscButton = -1, joystick0ResetButton = -1;
+int32_t joystickAxisValueShift[2] = {-1, -1}, joystick0EscButton = -1, joystick0ResetButton = -1;
 BOOL useSpringForceFeedbackEffect = false;
 BOOL useHapticPolar = false;
 int32_t forceFeedbackDevice = -1;
@@ -303,7 +303,7 @@ void WrapperInit(void)
 	uint32_t msaa = 0;
 #endif
 	FILE *f = NULL;
-	int i;
+	int i, j;
 
 	SDL_JoystickEventState(SDL_IGNORE);
 	SDL_ShowCursor(false);
@@ -468,17 +468,9 @@ void WrapperInit(void)
 			else if (!strncasecmp("LinearTextureFiltering=", line, 23))
 				sscanf(line + 23, "%d", &linearFiltering);
 			else if (!strncasecmp("Joystick0AxisValueShift=", line, 24))
-			{
 				joystickAxisValueShift[0] = atoi(line + 24);
-				if (joystickAxisValueShift[0] < 0 || joystickAxisValueShift[0] > 32767)
-					joystickAxisValueShift[0] = 0;
-			}
 			else if (!strncasecmp("Joystick1AxisValueShift=", line, 24))
-			{
 				joystickAxisValueShift[1] = atoi(line + 24);
-				if (joystickAxisValueShift[1] < 0 || joystickAxisValueShift[1] > 32767)
-					joystickAxisValueShift[1] = 0;
-			}
 			else if (!strncasecmp("Joystick0Axes2=", line, 15))
 				sscanf(line + 15, "%d,%d,%d,%d,%d,%d:%d,%d,%d,%d,%d,%d", joystickAxes[0]+0, joystickAxes[0]+1, joystickAxes[0]+2, joystickAxes[0]+3, joystickAxes[0]+4, joystickAxes[0]+5, joystickAxes[0]+6, joystickAxes[0]+7, joystickAxes[0]+8, joystickAxes[0]+9, joystickAxes[0]+10, joystickAxes[0]+11);
 			else if (!strncasecmp("Joystick1Axes2=", line, 15))
@@ -531,22 +523,43 @@ void WrapperInit(void)
 		fprintf(stderr, "SDL joystick and haptic init failed: %s\n", SDL_GetError());
 
 	const int n = SDL_NumJoysticks();
-	for (i = 0; i < n; ++i)
+	for (i = 0, j = 0; i < n; ++i)
 	{
 		const char *name = SDL_JoystickNameForIndex(i);
 #ifdef __ANDROID__
 		if (n > 1 && name && strcmp(name, "Android Accelerometer") == 0)
 		{
 			ignoreJoyIdx = i;
-			break;
+			continue
 		}
 #else
 		if (name && strstr(name, "SynPS/2"))
 		{
 			ignoreJoyIdx = i;
-			break;
+			continue;
 		}
 #endif
+		if (j < 2)
+		{
+			switch (SDL_JoystickGetDeviceType(i))
+			{
+				case SDL_JOYSTICK_TYPE_GAMECONTROLLER:
+					joystickAxisValueShift[j] = 3072;
+					break;
+				case SDL_JOYSTICK_TYPE_WHEEL:
+					joystickAxisValueShift[j] = 6144;
+					break;
+				default:
+					break;
+			}
+		}
+		++j;
+	}
+
+	for (i = 0; i < 2; ++i)
+	{
+		if (joystickAxisValueShift[i] < 0 || joystickAxisValueShift[i] > 32767)
+			joystickAxisValueShift[i] = 0;
 	}
 
 #ifndef OPENGL1X
