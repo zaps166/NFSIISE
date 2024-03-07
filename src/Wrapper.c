@@ -204,15 +204,29 @@ static void signal_handler(int sig)
 		return;
 	}
 
+	extern BOOL contextError;
 #ifndef OPENGL1X
 	extern BOOL shaderError;
-	if (sig == SIGABRT && shaderError)
+	extern BOOL framebufferError;
+#endif // OPENGL1X
+	if (contextError)
 	{
 		SDL_SetWindowFullscreen(sdlWin, SDL_FALSE);
-		SDL_ShowSimpleMessageBox(0, "GLSL error", "Error loading shaders, see console output!", NULL);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "OpenGL", "Can't create context!", NULL);
 	}
-	else
+#ifndef OPENGL1X
+	else if (shaderError)
+	{
+		SDL_SetWindowFullscreen(sdlWin, SDL_FALSE);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "OpenGL", "Error loading shaders, see console output!", NULL);
+	}
+	else if (framebufferError)
+	{
+		SDL_SetWindowFullscreen(sdlWin, SDL_FALSE);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "OpenGL", "Can't create framebuffer!", NULL);
+	}
 #endif // OPENGL1X
+	else
 	{
 		fprintf(stderr, "Application closed with a signal: %d\n", sig);
 		fflush(stderr);
@@ -226,14 +240,18 @@ static void signal_handler(int sig)
 static BOOL startInFullScreen = true;
 
 int32_t joystickAxes[2][12] = {{0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 0}, {0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 0}};
-int32_t winWidth = 640, winHeight = 480, joystickAxisValueShift[2] = {0}, vSync = 1;
-int32_t joystick0EscButton = -1, joystick0ResetButton = -1;
+int32_t initialWinWidth = 640, initialWinHeight = 480, winWidth, winHeight, vSync = 1;
+int32_t joystickAxisValueShift[2] = {0}, joystick0EscButton = -1, joystick0ResetButton = -1;
 BOOL useSpringForceFeedbackEffect = false;
 BOOL useHapticPolar = false;
 int32_t forceFeedbackDevice = -1;
 BOOL linearSoundInterpolation = false, useGlBleginGlEnd = false, keepAspectRatio = true, linearFiltering = true;
 uint32_t fullScreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP, broadcast = 0xFFFFFFFF;
 uint16_t PORT1 = 1030, PORT2 = 1029;
+#ifndef OPENGL1X
+BOOL fixedFramebufferSize = false;
+BOOL framebufferLinearFiltering = true;
+#endif
 
 int32_t ignoreJoyIdx = -1;
 
@@ -281,7 +299,9 @@ void WrapperInit(void)
 	initializeSDL2();
 #endif
 
+#ifdef OPENGL1X
 	uint32_t msaa = 0;
+#endif
 	FILE *f = NULL;
 	int i;
 
@@ -419,19 +439,30 @@ void WrapperInit(void)
 				startInFullScreen = !!atoi(line + 18);
 			else if (!strncasecmp("VSync=", line, 6))
 				vSync = atoi(line + 6);
+#ifdef OPENGL1X
 			else if (!strncasecmp("MSAA=", line, 5))
 			{
 				msaa = atoi(line + 5);
 				if (msaa > 16 || (msaa & (msaa - 1)))
 					msaa = 0;
 			}
-			else if (!strncasecmp("UseWindowSizeForFullScreen=", line, 27))
+#endif
+			else if (!strncasecmp("FixedRenderingSize=", line, 19))
 			{
-				if (atoi(line + 27))
+				int val = atoi(line + 19);
+				if (val == 1 || val == 2)
+				{
+#ifdef OPENGL1X
 					fullScreenFlag = SDL_WINDOW_FULLSCREEN;
+#else
+					fixedFramebufferSize = true;
+					if (val == 2)
+						framebufferLinearFiltering = false;
+#endif
+				}
 			}
 			else if (!strncasecmp("WindowSize=", line, 11))
-				sscanf(line + 11, "%dx%d", &winWidth, &winHeight);
+				sscanf(line + 11, "%dx%d", &initialWinWidth, &initialWinHeight);
 			else if (!strncasecmp("KeepAspectRatio=", line, 16))
 				sscanf(line + 16, "%d", &keepAspectRatio);
 			else if (!strncasecmp("LinearTextureFiltering=", line, 23))
@@ -524,12 +555,13 @@ void WrapperInit(void)
 # endif
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-#endif
+#else
 	if (msaa)
 	{
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, msaa == 1 ? 0 : 1);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, msaa);
 	}
+#endif
 #ifndef WIN32
 	for (i = 0; i < 4; ++i)
 	{
@@ -612,17 +644,20 @@ REALIGN STDCALL SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 
 	checkGameDirs();
 
-	const int windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | (startInFullScreen ? fullScreenFlag : 0) | SDL_WINDOW_ALLOW_HIGHDPI;
-	sdlWin = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, winWidth, winHeight, windowFlags);
+	int windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI | (startInFullScreen ? fullScreenFlag : 0);
+	if (fullScreenFlag == SDL_WINDOW_FULLSCREEN_DESKTOP)
+		windowFlags |= SDL_WINDOW_RESIZABLE;
+	sdlWin = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, initialWinWidth, initialWinHeight, windowFlags);
 	if (!sdlWin)
 	{
+		const char errorText[] = "Cannot create window: %s\nCheck the OpenGL drivers and the game settings!";
 		const char *error = SDL_GetError();
-		int bufferSize = strlen(error) + 71;
+		size_t bufferSize = strlen(error) + sizeof(errorText) - 2;
 		char *buffer = (char *)malloc(bufferSize);
-		snprintf(buffer, bufferSize, "Cannot create window: %s\nCheck the OpenGL drivers and the game settings!", error);
+		snprintf(buffer, bufferSize, errorText, error);
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, buffer, NULL);
 		free(buffer);
-		exit(0);
+		exit(-1);
 	}
 
 	SDL_GetWindowSize(sdlWin, &winWidth, &winHeight);

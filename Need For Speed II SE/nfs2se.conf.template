@@ -18,13 +18,16 @@
 #	 0 - VSync disabled
 #	 1 - VSync enabled (default)
 #	>1 - VSync enabled, limit the framerate
-#MSAA (Multisample antialiasing):
+#MSAA (Multisample antialiasing, OpenGL 1 only):
 #	0 - Don't change (default)
 #	1 - Disable MSAA
 #	2, 4, 8, 16 - Enable MSAA. If not supported, the game probably won't run.
-#UseWindowSizeForFullScreen:
-#	0 - Don't change screen size (default)
-#	1 - Use screen size from "WindowSize"
+#FixedRenderingSize:
+#	0 - Window size determines game rendering size (default)
+#	1 - Fixed game rendering size (value is specified in "WindowSize"):
+#			- OpenGL 1     - window has fixed size, full screen will change screen resolution
+#			- OpenGL(ES) 2 - framebuffer has fixed size
+#	2 - Same as "1", but OpenGL(ES) 2 renderer doesn't use linear image upscaling
 #WindowSize:
 #	Type your own window size (default: 640x480)
 #KeepAspectRatio:
@@ -61,7 +64,7 @@
 #	0 - Original samplerate - 22050Hz (default)
 #	1 - Linear interpolated sound to 44100Hz (artificial highs)
 #UseGlBleginGlEnd:
-#	Use glBegin(), glEnd() instead of glDrawArrays() - can be slower, disabled by default
+#	Use glBegin(), glEnd() instead of glDrawArrays() in OpenGL 1 - can be slower, disabled by default
 #Port1:
 #	TCP and UDP port (default: 1030)
 #Port2:
@@ -75,7 +78,7 @@
 #StartInFullScreen=1
 #VSync=-1
 #MSAA=4
-#UseWindowSizeForFullScreen=0
+#FixedRenderingSize=1
 #WindowSize=640x480
 #KeepAspectRatio=1
 #LinearTextureFiltering=1

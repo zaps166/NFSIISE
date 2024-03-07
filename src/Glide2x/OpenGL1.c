@@ -8,6 +8,10 @@
 
 void SetBrightness(float);
 
+#include <signal.h>
+
+BOOL contextError = false;
+
 #define MaxTriangles 0x000400
 #define TextureMem   0x200000
 #define VertexSnap   0x0C0000
@@ -52,7 +56,7 @@ typedef struct
 } TextureInfo;
 static TextureInfo textures[TextureMem >> 2];
 
-static uint8_t *lfb, textureMem[TextureMem], fogTable[0x10000];
+static uint8_t *lfb, textureMem[TextureMem], g_fogTable[0x10000];
 static uint32_t *palette, tmpTexture[0x400];
 static uint32_t trianglesCount, maxTexIdx;
 
@@ -72,15 +76,6 @@ static void setTextureFiltering()
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-}
-
-static inline void convertColor(GrColor_t color, float *r, float *g, float *b, float *a)
-{
-	/* Game uses ARGB color format */
-	*a = ((color & 0xFF000000) >> 24) / 255.0;
-	*r = ((color & 0x00FF0000) >> 16) / 255.0;
-	*g = ((color & 0x0000FF00) >>  8) / 255.0;
-	*b = ((color & 0x000000FF)      ) / 255.0;
 }
 
 static inline void drawTriangles()
@@ -165,7 +160,7 @@ REALIGN STDCALL void grClipWindow(uint32_t minX, uint32_t minY, uint32_t maxX, u
 REALIGN STDCALL void grBufferClear(GrColor_t color, GrAlpha_t alpha, uint16_t depth)
 {
 	float r, g , b, a;
-	convertColor(color, &r, &g, &b, &a);
+	convertColor(color, &alpha, &r, &g, &b, &a);
 
 // 	printf("grBufferClear: %X %X %X [%d]\n", color, alpha, depth, trianglesCount);
 
@@ -189,7 +184,23 @@ REALIGN STDCALL void grChromakeyValue(GrColor_t value)
 REALIGN STDCALL void grBufferSwap(int swap_interval)
 {
 // 	printf("grBufferSwap: [%d]\n", trianglesCount);
-	swapBufferCommon();
+
+	if (windowResized)
+	{
+		grClipWindow(0, 0, 640, 480);
+		windowResized = false;
+	}
+	else
+	{
+		drawTriangles();
+	}
+
+	GLint scissorBox[4] = {};
+	glGetIntegerv(GL_SCISSOR_BOX, scissorBox);
+	if (clearUnusedArea(xOffset, yOffset, visibleWidth, visibleHeight))
+		glScissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
+
+	SDL_GL_SwapWindow(sdlWin);
 }
 REALIGN STDCALL void grColorCombine(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, BOOL invert)
 {
@@ -237,7 +248,7 @@ REALIGN STDCALL void grDrawTriangle(const GrVertex *a, const GrVertex *b, const 
 
 			glColor4f(grVertex->r / 255.0f, grVertex->g / 255.0f, grVertex->b / 255.0f, grVertex->a / 255.0f);
 			if (p_glFogCoordf)
-				p_glFogCoordf(fogTable[(uint16_t)(1.0f / grVertex->oow)] / 255.0f);
+				p_glFogCoordf(g_fogTable[(uint16_t)(1.0f / grVertex->oow)] / 255.0f);
 			glTexCoord4f(grVertex->tmuvtx[0].sow / 256.0f, grVertex->tmuvtx[0].tow / 256.0f, 0.0f, grVertex->oow);
 			glVertex3f(grVertex->x - VertexSnap, grVertex->y - VertexSnap, grVertex->oow);
 		}
@@ -254,7 +265,7 @@ REALIGN STDCALL void grDrawTriangle(const GrVertex *a, const GrVertex *b, const 
 			colorValues[trianglesCount].vertex[i].b = grVertex->b / 255.0f;
 			colorValues[trianglesCount].vertex[i].a = grVertex->a / 255.0f;
 
-			fogCoord[trianglesCount].vertex[i] = fogTable[(uint16_t)(1.0f / grVertex->oow)] / 255.0f;
+			fogCoord[trianglesCount].vertex[i] = g_fogTable[(uint16_t)(1.0f / grVertex->oow)] / 255.0f;
 
 			textureCoord[trianglesCount].vertex[i].s = grVertex->tmuvtx[0].sow / 256.0f;
 			textureCoord[trianglesCount].vertex[i].t = grVertex->tmuvtx[0].tow / 256.0f;
@@ -286,8 +297,8 @@ REALIGN STDCALL void grDrawLine(const GrVertex *a, const GrVertex *b)
 REALIGN STDCALL void grFogColorValue(GrColor_t fogcolor)
 {
 	float fogColor[4];
-	convertColor(fogcolor, fogColor + 0, fogColor + 1, fogColor + 2, fogColor + 3);
 	drawTriangles();
+	convertColor(fogcolor, NULL, &fogColor[0], &fogColor[1], &fogColor[2], &fogColor[3]);
 	glFogfv(GL_FOG_COLOR, fogColor);
 // 	printf("grFogColorValue: 0x%.8X [%d]\n", fogcolor, trianglesCount);
 }
@@ -377,6 +388,12 @@ REALIGN STDCALL void grSstWinClose(void)
 REALIGN STDCALL BOOL grSstWinOpen(uint32_t hWnd, GrScreenResolution_t screen_resolution, GrScreenRefresh_t refresh_rate, GrColorFormat_t color_format, GrOriginLocation_t origin_location, int nColBuffers, int nAuxBuffers)
 {
 	glCtx = SDL_GL_CreateContext(sdlWin);
+	if (!glCtx)
+	{
+		contextError = true;
+		raise(SIGABRT);
+	}
+
 	handleDpr();
 
 	if (vSync >= 0)
@@ -466,8 +483,7 @@ REALIGN STDCALL void grTexDownloadMipMap(GrChipID_t tmu, uint32_t startAddress, 
 	switch (info->format)
 	{
 		case GR_TEXFMT_P_8:
-			if (newTexture)
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
 			ti->data = &textureMem[startAddress];
 			ti->palette = NULL;
 			memcpy(ti->data, info->data, size * size);

@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MIT
 
-static void handleDpr();
-static void swapBufferCommon();
+#include "Glide2x.h"
+
+static inline void handleDpr();
+static inline BOOL clearUnusedArea(int32_t xOffset, int32_t yOffset, int32_t visibleWidth, int32_t visibleHeight);
+static inline void convertColor(GrColor_t color, uint8_t *alpha, float *r, float *g, float *b, float *a);
 
 #ifdef OPENGL1X
 	#include "Glide2x/OpenGL1.c"
@@ -9,7 +12,7 @@ static void swapBufferCommon();
 	#include "Glide2x/OpenGL2.c"
 #endif
 
-static void handleDpr()
+static inline void handleDpr()
 {
 	extern double dpr;
 	SDL_GetWindowSize(sdlWin, &winWidth, &winHeight);
@@ -19,25 +22,11 @@ static void handleDpr()
 	winWidth  *= dpr;
 	winHeight *= dpr;
 }
-static void swapBufferCommon()
+static inline BOOL clearUnusedArea(int32_t xOffset, int32_t yOffset, int32_t visibleWidth, int32_t visibleHeight)
 {
-	if (windowResized)
-	{
-		grClipWindow(0, 0, 640, 480);
-		windowResized = false;
-	}
-	else
-	{
-		drawTriangles();
-	}
-
 	if (keepAspectRatio && (xOffset > 0 || yOffset > 0))
 	{
-		GLint scissorBox[4] = {0, 0, winWidth, winHeight};
-		glGetIntegerv(GL_SCISSOR_BOX, scissorBox);
-
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		if (xOffset > 0)
 		{
 			glScissor(0, 0, xOffset, winHeight);
@@ -53,14 +42,26 @@ static void swapBufferCommon()
 			glScissor(0, 0, winWidth, winHeight - visibleHeight - yOffset);
 			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-			glScissor(0, yOffset + visibleHeight, winWidth, yOffset);
+			glScissor(0, yOffset + visibleHeight, winWidth, yOffset + 1);
 			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 		}
-
-		glScissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
+		return true;
 	}
-
-	SDL_GL_SwapWindow(sdlWin);
+	return false;
+}
+static inline void convertColor(GrColor_t color, uint8_t *alpha, float *r, float *g, float *b, float *a)
+{
+	/* Game uses ARGB color format */
+	*r = ((color & 0x00FF0000) >> 16) / 255.0f;
+	*g = ((color & 0x0000FF00) >>  8) / 255.0f;
+	*b = ((color & 0x000000FF)      ) / 255.0f;
+	if (a)
+	{
+		if (alpha)
+			*a = *alpha / 255.0f;
+		else
+			*a = 1.0f;
+	}
 }
 
 REALIGN STDCALL void grFogTable(const GrFog_t ft[GR_FOG_TABLE_SIZE])
@@ -90,7 +91,7 @@ REALIGN STDCALL void grFogTable(const GrFog_t ft[GR_FOG_TABLE_SIZE])
 
 	for (i = 0; i < GR_FOG_TABLE_SIZE; ++i)
 		for (j = intStartEnd[i]; j < intStartEnd[i + 1]; ++j)
-			fogTable[j] = (uint8_t)(glideFogTable[i] + (glideFogTable[i + 1] - glideFogTable[i]) * (j - intStartEnd[i]) / intEndMinusStart[i]);
+			g_fogTable[j] = (uint8_t)(glideFogTable[i] + (glideFogTable[i + 1] - glideFogTable[i]) * (j - intStartEnd[i]) / intEndMinusStart[i]);
 
 // 	printf("grFogTable\n");
 }
@@ -122,12 +123,12 @@ REALIGN STDCALL void guFogGenerateExp(GrFog_t fogtable[GR_FOG_TABLE_SIZE], float
 	int i;
 
 	dp = density * tableIndexToW[GR_FOG_TABLE_SIZE - 1];
-	scale = 255.0f / (1.0f - (float)SDL_pow(2.71828182845904523536029, -dp));
+	scale = 255.0f / (1.0f - (float)SDL_powf(2.71828182845904523536029f, -dp));
 
 	for (i = 0; i < GR_FOG_TABLE_SIZE; ++i)
 	{
 		dp = density * tableIndexToW[i];
-		f = (1.0f - (float)SDL_pow(2.71828182845904523536029, -dp)) * scale;
+		f = (1.0f - (float)SDL_powf(2.71828182845904523536029f, -dp)) * scale;
 		if (f > 255.0f)
 			f = 255.0f;
 		else if (f < 0.0f)
