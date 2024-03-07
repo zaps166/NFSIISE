@@ -3,7 +3,7 @@
 BUILD="x86"
 BUILD_TYPE="release"
 BUILD_WINDOWS="no"
-OPENGL_DEFINE="-DOPENGL1X"
+OPENGL_DEFINE=""
 OPENGL_LIBS="-lGL"
 ANDROID_INSTALL="no"
 CPP_LTO="-flto"
@@ -109,8 +109,8 @@ do
 		win32)
 			BUILD_WINDOWS="yes"
 		;;
-		gl2)
-			OPENGL_DEFINE=""
+		gl1)
+			OPENGL_DEFINE="-DOPENGL1X"
 		;;
 		gles2)
 			OPENGL_DEFINE="-DGLES2"
