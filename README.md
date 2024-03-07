@@ -129,17 +129,18 @@ sudo apt install gcc-multilib
 
 ## Function keys in-game
 
-* F1  - toggle rain,
-* F2  - car detail,
-* F3  - view distance,
-* F4  - toggle horizon,
-* F5  - toggle HUD (player 1),
-* F6  - toggle HUD (player 2),
-* F7  - toggle mirror,
-* F8  - toggle music,
-* F9  - toggle sound effects,
-* F10 - brightness,
-* F11 - reset car.
+* F1  - toggle rain
+* F2  - car detail
+* F3  - view distance
+* F4  - toggle horizon
+* F5  - toggle HUD (player 1)
+* F6  - toggle HUD (player 2)
+* F7  - toggle mirror
+* F8  - toggle music
+* F9  - toggle sound effects
+* F10 - brightness
+* F11 - reset car (player 1)
+* F12 - reset car (player 2)
 
 ## Additional information:
 
