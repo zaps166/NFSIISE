@@ -13,7 +13,7 @@ OS=$(uname)
 function compile_x86
 {
 	CPU_FLAGS='-mno-sse2 -mno-sse -mno-mmx'
-	COMMON_FLAGS='-Wall -m32 -std=gnu89'
+	COMMON_FLAGS='-Wall -m32 -std=c99'
 
 	echo -n "Building"
 	if [[ $BUILD_TYPE == "debug" ]]; then
@@ -80,7 +80,7 @@ function compile_cpp
 	echo "OK!"
 
 	echo -n "Compiling C code... "
-	clang -c -std=gnu89 -Wno-incompatible-function-pointer-types -Wno-int-conversion -Wall $CPU_FLAGS $FLAGS $OPENGL_DEFINE -DNFS_CPP *.c || exit
+	clang -c -std=c99 -Wno-incompatible-function-pointer-types -Wno-int-conversion -Wall $CPU_FLAGS $FLAGS $OPENGL_DEFINE -DNFS_CPP *.c || exit
 	echo "OK!"
 
 	echo -n "Linking... "
