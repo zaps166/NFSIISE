@@ -3,10 +3,10 @@
 #include "Wrapper.h"
 #include "Version"
 #include <SDL2/SDL.h>
+#include <signal.h>
 #ifdef WIN32
 	#include <windows.h>
 #else
-	#include <signal.h>
 	#include <sched.h>
 #endif
 
@@ -191,11 +191,12 @@ static void checkGameDirs()
 	}
 }
 
-#ifndef WIN32
 static void signal_handler(int sig)
 {
+#ifndef WIN32
 	if (sig == SIGPIPE)
 		return;
+#endif
 
 	if (sig == SIGINT || sig == SIGTERM)
 	{
@@ -211,18 +212,24 @@ static void signal_handler(int sig)
 #endif // OPENGL1X
 	if (contextError)
 	{
+#ifndef WIN32
 		SDL_SetWindowFullscreen(sdlWin, SDL_FALSE);
+#endif
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "OpenGL", "Can't create context!", NULL);
 	}
 #ifndef OPENGL1X
 	else if (shaderError)
 	{
+#ifndef WIN32
 		SDL_SetWindowFullscreen(sdlWin, SDL_FALSE);
+#endif
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "OpenGL", "Error loading shaders, see console output!", NULL);
 	}
 	else if (framebufferError)
 	{
+#ifndef WIN32
 		SDL_SetWindowFullscreen(sdlWin, SDL_FALSE);
+#endif
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "OpenGL", "Can't create framebuffer!", NULL);
 	}
 #endif // OPENGL1X
@@ -235,7 +242,6 @@ static void signal_handler(int sig)
 	signal(sig, SIG_DFL);
 	raise(sig);
 }
-#endif
 
 static BOOL startInFullScreen = true;
 
@@ -394,9 +400,7 @@ void WrapperInit(void)
 	event_mutex = SDL_CreateMutex();
 	event_cond = SDL_CreateCond();
 
-	signal(SIGINT, signal_handler);
 	signal(SIGILL, signal_handler);
-	signal(SIGABRT, signal_handler);
 	signal(SIGBUS, signal_handler);
 	signal(SIGFPE, signal_handler);
 	signal(SIGUSR1, signal_handler);
@@ -404,8 +408,11 @@ void WrapperInit(void)
 	signal(SIGUSR2, signal_handler);
 	signal(SIGPIPE, signal_handler);
 	signal(SIGALRM, signal_handler);
-	signal(SIGTERM, signal_handler);
 #endif
+
+	signal(SIGINT, signal_handler);
+	signal(SIGABRT, signal_handler);
+	signal(SIGTERM, signal_handler);
 
 	if (!f)
 		f = fopen("nfs2se.conf", "r");
