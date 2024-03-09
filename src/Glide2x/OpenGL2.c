@@ -864,19 +864,17 @@ REALIGN STDCALL void grBufferSwap(int swap_interval)
 		needRecreateGl = false;
 		windowResized = true;
 	}
-	else
-	{
-		useGameProgram(true);
-	}
 
 	if (windowResized)
 	{
 		createFrameBuffer();
+		useGameProgram(true);
 		grClipWindow(0, 0, 640, 480);
 		windowResized = false;
 	}
 	else
 	{
+		useGameProgram(true);
 		glViewport(viewportSize[0], viewportSize[1], viewportSize[2], viewportSize[3]);
 		glScissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]);
 	}
