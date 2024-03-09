@@ -368,7 +368,7 @@ MAYBE_STATIC REALIGN STDCALL uint32_t GetDeviceState(DirectInputDevice **this, u
 		uint32_t i;
 
 		DIJOYSTATE *joyState = (DIJOYSTATE *)data;
-		SDL_memset4(joyState->axes, 0x7FFF, 6);
+		SDL_memset4(joyState->axes, 0x7FFF, 8);
 		memset(joyState->buttons, 0, sizeof joyState->buttons);
 
 		SDL_Joystick *joy = (*this)->joy;
