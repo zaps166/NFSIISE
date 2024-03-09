@@ -530,7 +530,7 @@ void WrapperInit(void)
 		if (n > 1 && name && strcmp(name, "Android Accelerometer") == 0)
 		{
 			ignoreJoyIdx = i;
-			continue
+			continue;
 		}
 #else
 		if (name && strstr(name, "SynPS/2"))
