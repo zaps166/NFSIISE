@@ -46,20 +46,16 @@
 #Joystick1Axes2:
 #	Specify which axes will be used in game for second joystick (see above)
 #Joystick0EscButton:
-#	Specify which button will be used as Escape key. Press the button in game controls setup and look at the letter
+#	Specify which button will be used as Escape key for first joystick. Press the button in game controls setup and look at the letter
 #	Button number is counted from 0, so 'A' letter is 0, 'G' letter is 6
+#Joystick1EscButton:
+#	Specify which button will be used as Escape key for second joystick (see above)
 #Joystick0ResetButton:
-#	Specify which button will be used as F11 key (car reset, see above)
+#	Specify which button on first joystick will be used as F11 key (car reset, see above)
+#Joystick1ResetButton:
+#	Specify which button on second joystick will be used as F12 key (car reset, see above)
 #AccelerometerAsJoystick:
 #	Use accelerometer on Android as 3-axis joystick if no other joystick is connected (1 - use, default)
-#UseHapticPolar:
-#	0 - Use SDL_HAPTIC_STEERING_AXIS
-#	1 - Use SDL_HAPTIC_POLAR
-#UseSpringForceFeedbackEffect:
-#	0 - Don't use Spring Force Feedback Effect (default)
-#	1 - Use Spring Force Feedback Effect (experimental)
-#ForceFeedbackDevice:
-#	Specify the Force Feedback device (-1 - auto, default)
 #LinearSoundInterpolation:
 #	0 - Original samplerate - 22050Hz (default)
 #	1 - Linear interpolated sound to 44100Hz (artificial highs)
@@ -87,11 +83,10 @@
 #Joystick0Axes2=0,1,2,3,4,5:0,0,0,0,0,0
 #Joystick1Axes2=0,1,2,3,4,5:0,0,0,0,0,0
 #Joystick0EscButton=-1
+#Joystick1EscButton=-1
 #Joystick0ResetButton=-1
+#Joystick1ResetButton=-1
 #AccelerometerAsJoystick=1
-#UseHapticPolar=0
-#UseSpringForceFeedbackEffect=0
-#ForceFeedbackDevice=-1
 #LinearSoundInterpolation=1
 #UseGlBleginGlEnd=0
 #Port1=1030

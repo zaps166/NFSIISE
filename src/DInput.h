@@ -134,23 +134,23 @@ typedef struct
 
 typedef struct
 {
-	uint32_t magnitude;
+	int32_t magnitude;
 } DICONSTANTFORCE;
 typedef struct
 {
 	uint32_t magnitude;
-	uint32_t offset;
+	int32_t offset;
 	uint32_t phase;
 	uint32_t period;
 } DIPERIODIC;
 typedef struct
 {
-	uint32_t lOffset;
-	uint32_t lPositiveCoefficient;
-	uint32_t lNegativeCoefficient;
-	uint32_t dwPositiveSaturation;
-	uint32_t dwNegativeSaturation;
-	uint32_t lDeadBand;
+	int32_t offset;
+	int32_t positiveCoefficient;
+	int32_t negativeCoefficient;
+	uint32_t positiveSaturation;
+	uint32_t negativeSaturation;
+	uint32_t deadBand;
 } DICONDITION;
 
 typedef struct
@@ -200,10 +200,18 @@ typedef struct DirectInputEffect
 	uint32_t (STDCALL *Escape)(struct DirectInputEffect **this, DIEFFESCAPE *);
 	/* My variables */
 	GUID guid;
-	SDL_Haptic *haptic;
+
 	SDL_HapticEffect effect;
-	uint16_t real_type;
-	int32_t effect_idx, *xAxis;
+	BOOL playing;
+	uint8_t *gain;
+
+	// Rumble
+	SDL_Joystick *joy;
+
+	// Haptic
+	SDL_Haptic *haptic;
+	int32_t effect_idx;
+	int16_t constantToSineDivider;
 } DirectInputEffect;
 
 typedef struct DirectInputDevice
@@ -240,10 +248,13 @@ typedef struct DirectInputDevice
 	uint32_t (STDCALL *SendDeviceData)(struct DirectInputDevice **this, uint32_t cbObjectData, const DIDEVICEOBJECTDATA *rgdod, uint32_t *inOut, uint32_t fl);
 	/* My variables */
 	GUID guid;
+	uint32_t lastX, lastY;
+	uint8_t escPressed, resetPressed;
 	SDL_Joystick *joy;
+	BOOL rumble;
+	uint8_t gain;
 	SDL_Haptic *haptic;
-	uint32_t num_effects;
-	int32_t xAxis;
+	int32_t num_effects;
 	DirectInputEffect **effects;
 } DirectInputDevice;
 

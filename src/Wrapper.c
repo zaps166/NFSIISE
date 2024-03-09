@@ -247,10 +247,7 @@ static BOOL startInFullScreen = true;
 
 int32_t joystickAxes[2][12] = {{0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 0}, {0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 0}};
 int32_t initialWinWidth = 640, initialWinHeight = 480, winWidth, winHeight, vSync = 1;
-int32_t joystickAxisValueShift[2] = {-1, -1}, joystick0EscButton = -1, joystick0ResetButton = -1;
-BOOL useSpringForceFeedbackEffect = false;
-BOOL useHapticPolar = false;
-int32_t forceFeedbackDevice = -1;
+int32_t joystickAxisValueShift[2] = {-1, -1}, joystickEscButton[2] = {-1, -1}, joystickResetButton[2] = {-1, -1};
 BOOL linearSoundInterpolation = false, useGlBleginGlEnd = false, keepAspectRatio = true, linearFiltering = true;
 uint32_t fullScreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP, broadcast = 0xFFFFFFFF;
 uint16_t PORT1 = 1030, PORT2 = 1029;
@@ -258,8 +255,6 @@ uint16_t PORT1 = 1030, PORT2 = 1029;
 BOOL fixedFramebufferSize = false;
 BOOL framebufferLinearFiltering = true;
 #endif
-
-int32_t ignoreJoyIdx = -1;
 
 static void initializeSDL2()
 {
@@ -309,7 +304,6 @@ void WrapperInit(void)
 	uint32_t msaa = 0;
 #endif
 	FILE *f = NULL;
-	int i, j;
 
 	SDL_JoystickEventState(SDL_IGNORE);
 	SDL_ShowCursor(false);
@@ -483,17 +477,13 @@ void WrapperInit(void)
 			else if (!strncasecmp("Joystick1Axes2=", line, 15))
 				sscanf(line + 15, "%d,%d,%d,%d,%d,%d:%d,%d,%d,%d,%d,%d", joystickAxes[1]+0, joystickAxes[1]+1, joystickAxes[1]+2, joystickAxes[1]+3, joystickAxes[1]+4, joystickAxes[1]+5, joystickAxes[1]+6, joystickAxes[1]+7, joystickAxes[1]+8, joystickAxes[1]+9, joystickAxes[1]+10, joystickAxes[1]+11);
 			else if (!strncasecmp("Joystick0EscButton=", line, 19))
-				sscanf(line + 19, "%d", &joystick0EscButton);
+				sscanf(line + 19, "%d", &joystickEscButton[0]);
+			else if (!strncasecmp("Joystick1EscButton=", line, 19))
+				sscanf(line + 19, "%d", &joystickEscButton[1]);
 			else if (!strncasecmp("Joystick0ResetButton=", line, 21))
-				sscanf(line + 21, "%d", &joystick0ResetButton);
-			else if (!strncasecmp("UseHapticPolar=", line, 15))
-				useHapticPolar = atoi(line + 15);
-			else if (!strncasecmp("UseSpringForceFeedbackEffect=", line, 29))
-				useSpringForceFeedbackEffect = atoi(line + 29);
-			else if (!strncasecmp("ForceFeedbackDevice=", line, 20))
-				forceFeedbackDevice = atoi(line + 20);
-			else if (forceFeedbackDevice < 0 && !strncasecmp("WindowsForceFeedbackDevice=", line, 27))
-				forceFeedbackDevice = atoi(line + 27);
+				sscanf(line + 21, "%d", &joystickResetButton[0]);
+			else if (!strncasecmp("Joystick1ResetButton=", line, 21))
+				sscanf(line + 21, "%d", &joystickResetButton[1]);
 			else if (!strncasecmp("LinearSoundInterpolation=", line, 25))
 				linearSoundInterpolation = !!atoi(line + 25);
 			else if (!strncasecmp("UseGlBleginGlEnd=", line, 17))
@@ -529,46 +519,6 @@ void WrapperInit(void)
 	if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC) < 0)
 		fprintf(stderr, "SDL joystick and haptic init failed: %s\n", SDL_GetError());
 
-	const int n = SDL_NumJoysticks();
-	for (i = 0, j = 0; i < n; ++i)
-	{
-		const char *name = SDL_JoystickNameForIndex(i);
-#ifdef __ANDROID__
-		if (n > 1 && name && strcmp(name, "Android Accelerometer") == 0)
-		{
-			ignoreJoyIdx = i;
-			continue;
-		}
-#else
-		if (name && strstr(name, "SynPS/2"))
-		{
-			ignoreJoyIdx = i;
-			continue;
-		}
-#endif
-		if (j < 2)
-		{
-			switch (SDL_JoystickGetDeviceType(i))
-			{
-				case SDL_JOYSTICK_TYPE_GAMECONTROLLER:
-					joystickAxisValueShift[j] = 3072;
-					break;
-				case SDL_JOYSTICK_TYPE_WHEEL:
-					joystickAxisValueShift[j] = 6144;
-					break;
-				default:
-					break;
-			}
-		}
-		++j;
-	}
-
-	for (i = 0; i < 2; ++i)
-	{
-		if (joystickAxisValueShift[i] < 0 || joystickAxisValueShift[i] > 32767)
-			joystickAxisValueShift[i] = 0;
-	}
-
 #ifndef OPENGL1X
 # ifdef GLES2
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
@@ -583,6 +533,7 @@ void WrapperInit(void)
 	}
 #endif
 #ifndef WIN32
+	uint32_t i;
 	for (i = 0; i < 4; ++i)
 	{
 		if (!serialPort[i])
@@ -711,7 +662,7 @@ REALIGN STDCALL SDL_Window *WrapperCreateWindow(WindowProc windowProc)
 
 REALIGN int32_t SDL_NumJoysticks_wrap(void)
 {
-	return SDL_NumJoysticks() - (ignoreJoyIdx >= 0);
+	return 2;
 }
 
 #ifdef NFS_CPP

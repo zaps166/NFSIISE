@@ -40,7 +40,7 @@ static uint32_t tapEnterTimerCallback(uint32_t interval, void *param)
 	SDL_Event event;
 	memset(&event, 0, sizeof event);
 	event.key.keysym.sym = SDLK_RETURN;
-	event.key.keysym.scancode = 40;
+	event.key.keysym.scancode = SDL_SCANCODE_RETURN;
 	if (interval == 1)
 	{
 		event.type = SDL_KEYDOWN;
