@@ -3,7 +3,7 @@
 #ifndef WRAPPER_H
 #define WRAPPER_H
 
-#ifndef WIN32
+#if !defined(WIN32) && !defined(_GNU_SOURCE)
 	#define _GNU_SOURCE
 #endif
 
@@ -11,7 +11,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#if !defined(NFS_CPP) && (defined(__i386) || defined(__i386__))
+#ifdef NOT_COMPILING
+	#define STDCALL
+	#define REGPARM
+
+	#define MAYBE_THIS_SINGLE void
+	#define MAYBE_THIS
+#elif !defined(NFS_CPP) && (defined(__i386) || defined(__i386__))
 	#define STDCALL __attribute__((stdcall))
 	#define REGPARM __attribute__((regparm(2))) //First two arguments are compatible with Watcom fastcall
 
