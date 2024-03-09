@@ -591,7 +591,7 @@ void WrapperInit(void)
 	{
 #if defined WIN32
 		SetThreadAffinityMask(GetCurrentThread(), 1);
-#elif !defined(__linux__)
+#elif !defined(linux)
 		#warning "TODO: thread affinity"
 #else
 		cpu_set_t set;

@@ -4,7 +4,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := main
 
-LOCAL_CFLAGS   := -DNDEBUG -O3 -std=c99 -DGLES2 -DNFS_CPP -Wno-int-conversion -Wno-incompatible-function-pointer-types -flto
+LOCAL_CFLAGS   := -DNDEBUG -O3 -std=gnu89 -DGLES2 -DNFS_CPP -Wno-int-conversion -Wno-incompatible-function-pointer-types -flto
 LOCAL_CPPFLAGS := -std=c++14 -fno-rtti -fno-exceptions -Wno-c++11-narrowing
 LOCAL_LDFLAGS  := -fuse-ld=lld
 
