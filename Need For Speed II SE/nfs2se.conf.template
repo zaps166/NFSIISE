@@ -8,8 +8,8 @@
 #Remove "#" from the beginning of the line to apply the configuration!
 
 #UseOnlyOneCPU:
-#	0 - The game can use more than one CPU (faster, but may be unstable, default on non-x86 (C++) builds)
-#	1 - The game can use only the first CPU (default on x86 native builds)
+#	0 - The game uses all CPU cores (default)
+#	1 - The game uses only first CPU core (use if you have lockups or weird errors on movie)
 #StartInFullScreen:
 #	0 - The game runs in window
 #	1 - The game runs in full screen (default)
