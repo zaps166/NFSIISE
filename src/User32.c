@@ -124,12 +124,6 @@ REALIGN STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterM
 							windowResized = true;
 							br = false;
 							break;
-						case SDL_WINDOWEVENT_MINIMIZED:
-							msg->uMsg = WM_KILLFOCUS;
-							break;
-						case SDL_WINDOWEVENT_RESTORED:
-							msg->uMsg = WM_SETFOCUS;
-							break;
 					}
 					break;
 				case WM_DESTROY:
