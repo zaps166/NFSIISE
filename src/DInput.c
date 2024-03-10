@@ -54,7 +54,7 @@ static const char *g_joyPaths[2];
 
 extern SDL_Window *sdlWin;
 extern int32_t winWidth, winHeight;
-extern double dpr;
+extern float dpr;
 
 extern SDL_TouchID touchId;
 extern float touchDX, touchDY;

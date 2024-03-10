@@ -28,7 +28,7 @@ uint32_t watchdogTimer(uint32_t interval, void *param)
 }
 
 SDL_Window *sdlWin = NULL;
-double dpr = 1.0;
+float dpr = 1.0f;
 
 #ifdef OPENGL1X
 void SetBrightness(float val)

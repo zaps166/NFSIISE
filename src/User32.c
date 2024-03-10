@@ -24,7 +24,7 @@ static const uint8_t sdl_to_windows_scancode_table[100] =
 extern int32_t winWidth, winHeight;
 extern uint32_t fullScreenFlag;
 extern SDL_Window *sdlWin;
-extern double dpr;
+extern float dpr;
 
 BOOL needRecreateGl = false;
 BOOL windowResized = false;

@@ -14,11 +14,11 @@ static inline void convertColor(GrColor_t color, uint8_t *alpha, float *r, float
 
 static inline void handleDpr()
 {
-	extern double dpr;
+	extern float dpr;
 	SDL_GetWindowSize(sdlWin, &winWidth, &winHeight);
 	int w = winWidth, h = winHeight;
 	SDL_GL_GetDrawableSize(sdlWin, &w, &h);
-	dpr = ((double)w / (double)winWidth + (double)h / (double)winHeight) / 2.0;
+	dpr = ((float)w / (float)winWidth + (float)h / (float)winHeight) / 2.0f;
 	winWidth  *= dpr;
 	winHeight *= dpr;
 }
