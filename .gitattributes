@@ -1,1 +1,2 @@
 *.bat text eol=crlf
+nfs2se.conf.template text eol=crlf
