@@ -33,6 +33,7 @@ WindowProc wndProc;
 
 SDL_TouchID touchId = 0;
 float touchDX = 0.0f, touchDY = 0.0f;
+static float touchDXY = 0.0f;
 static uint32_t touchTimeStamp = 0;
 static SDL_TimerID tapEnterTimerId = 0;
 static uint32_t tapEnterTimerCallback(uint32_t interval, void *param)
@@ -303,8 +304,6 @@ REALIGN STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterM
 					if (fingerEvent->pressure > 0.0f && fingerEvent->fingerId == 0 && SDL_GetTouchDeviceType(fingerEvent->touchId) == SDL_TOUCH_DEVICE_DIRECT)
 					{
 						touchId = fingerEvent->touchId;
-						touchDX = fingerEvent->dx;
-						touchDY = fingerEvent->dy;
 						touchTimeStamp = SDL_GetTicks();
 					}
 				} break;
@@ -320,6 +319,7 @@ REALIGN STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterM
 						touchId = 0;
 						touchDX = 0.0f;
 						touchDY = 0.0f;
+						touchDXY = 0.0f;
 						touchTimeStamp = 0;
 					}
 				} break;
@@ -330,7 +330,15 @@ REALIGN STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterM
 					{
 						touchDX += fingerEvent->dx;
 						touchDY += fingerEvent->dy;
-						touchTimeStamp = 0;
+						if (touchTimeStamp > 0)
+						{
+							touchDXY += SDL_fabsf(fingerEvent->dx) + SDL_fabsf(fingerEvent->dy);
+							if (touchDXY >= 0.01f)
+							{
+								/* Don't simulate key press on finger up after small motion */
+								touchTimeStamp = 0;
+							}
+						}
 					}
 				} break;
 				default:
