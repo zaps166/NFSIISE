@@ -215,7 +215,7 @@ static void signal_handler(int sig)
 #ifndef WIN32
 		SDL_SetWindowFullscreen(sdlWin, SDL_FALSE);
 #endif
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "OpenGL", "Can't create context!", NULL);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, "Can't create context!", NULL);
 	}
 #ifndef OPENGL1X
 	else if (shaderError)
@@ -223,14 +223,14 @@ static void signal_handler(int sig)
 #ifndef WIN32
 		SDL_SetWindowFullscreen(sdlWin, SDL_FALSE);
 #endif
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "OpenGL", "Error loading shaders, see console output!", NULL);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, "Error loading shaders, see console output!", NULL);
 	}
 	else if (framebufferError)
 	{
 #ifndef WIN32
 		SDL_SetWindowFullscreen(sdlWin, SDL_FALSE);
 #endif
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "OpenGL", "Can't create framebuffer!", NULL);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, "Can't create framebuffer!", NULL);
 	}
 #endif // OPENGL1X
 	else
