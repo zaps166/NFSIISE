@@ -51,7 +51,7 @@ REALIGN STDCALL void *GetCurrentThread_wrap(void)
 }
 REALIGN STDCALL BOOL TerminateThread_wrap(HANDLE hThread, uint32_t exitCode)
 {
-	return TerminateThread(hThread, exitCode);
+	return false;
 }
 REALIGN STDCALL void InitializeCriticalSection_wrap(CRITICAL_SECTION *criticalSection)
 {
