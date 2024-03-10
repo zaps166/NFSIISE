@@ -4,6 +4,7 @@
 #include "Version"
 #include <SDL2/SDL.h>
 #include <signal.h>
+#include <sys/stat.h>
 #ifdef WIN32
 	#include <windows.h>
 #else
@@ -163,31 +164,39 @@ static inline void mkdir_wrap(const char *path, uint32_t mode)
 
 static void checkGameDirs()
 {
-	static const char errorMessage[] = "Can't find \"gamedata\" and/or \"fedata\" directories in current working directory!"
-#ifndef WIN32
-		"\nMake sure that all files and directories have small letters!"
-#endif
-	;
-	BOOL showErrorMessage = true;
-#ifdef WIN32
-	DWORD dwAttrib1 = GetFileAttributes("gamedata");
-	DWORD dwAttrib2 = GetFileAttributes("fedata");
-	if
-	(
-		dwAttrib1 != INVALID_FILE_ATTRIBUTES &&
-		dwAttrib2 != INVALID_FILE_ATTRIBUTES &&
-		(dwAttrib1 & FILE_ATTRIBUTE_DIRECTORY) &&
-		(dwAttrib2 & FILE_ATTRIBUTE_DIRECTORY)
-	) showErrorMessage = false;
-#else
 	struct stat st;
-	if (!stat("gamedata", &st) && S_ISDIR(st.st_mode) && !stat("fedata", &st) && S_ISDIR(st.st_mode))
-		showErrorMessage = false;
-#endif
-	if (showErrorMessage)
+	uint32_t i;
+
+	if (stat("gamedata", &st) != 0 || !S_ISDIR(st.st_mode) || stat("fedata/pc", &st) != 0 || !S_ISDIR(st.st_mode))
 	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, errorMessage, NULL);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title,
+			"Can't find \"gamedata\" and/or \"fedata\" directories!"
+#ifndef WIN32
+			"\nMake sure that all files and directories have small letters!"
+#endif
+			, NULL
+		);
 		exit(-1);
+	}
+
+	const char *const files[] = {
+		"install.win",
+		"text.eng",
+		"text.fre",
+		"text.ger",
+		"text.ita",
+		"text.spa",
+		"text.swe",
+	};
+	for (i = 0; i < sizeof(files) / sizeof(*files); ++i)
+	{
+		if (stat(files[i], &st) != 0 || !S_ISREG(st.st_mode))
+		{
+			char text[32];
+			snprintf(text, sizeof(text), "Missing %s file!", files[i]);
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, text, NULL);
+			exit(-1);
+		}
 	}
 }
 
