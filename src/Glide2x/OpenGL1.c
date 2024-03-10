@@ -483,7 +483,6 @@ REALIGN STDCALL void grTexDownloadMipMap(GrChipID_t tmu, uint32_t startAddress, 
 	switch (info->format)
 	{
 		case GR_TEXFMT_P_8:
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
 			ti->data = &textureMem[startAddress];
 			ti->palette = NULL;
 			memcpy(ti->data, info->data, size * size);
@@ -536,7 +535,7 @@ REALIGN STDCALL void grTexSource(GrChipID_t tmu, uint32_t startAddress, uint32_t
 		uint32_t sqrSize = size * size, i;
 		for (i = 0; i < sqrSize; ++i)
 			tmpTexture[i] = palette[data[i]];
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size, size, GL_BGRA, GL_UNSIGNED_BYTE, tmpTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_BGRA, GL_UNSIGNED_BYTE, tmpTexture);
 		ti->palette = palette;
 	}
 }

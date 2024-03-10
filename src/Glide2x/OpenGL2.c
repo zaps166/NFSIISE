@@ -666,7 +666,6 @@ static void uploadTexture(TextureInfo *ti)
 	switch (ti->fmt)
 	{
 		case GR_TEXFMT_P_8:
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ti->size, ti->size, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 			ti->palette = NULL;
 			break;
 		case GR_TEXFMT_RGB_565:
@@ -1177,7 +1176,7 @@ REALIGN STDCALL void grTexSource(GrChipID_t tmu, uint32_t startAddress, uint32_t
 			uint32_t value = g_palette[data[i]];
 			g_tmpTexture[i] = ((value >> 16) & 0x000000FF) | ((value << 16) & 0x00FF0000) | (value & 0xFF00FF00);
 		}
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size, size, GL_RGBA, GL_UNSIGNED_BYTE, g_tmpTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, g_tmpTexture);
 		ti->palette = g_palette;
 	}
 }
