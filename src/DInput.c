@@ -39,7 +39,6 @@
 	#define MAYBE_STATIC static
 #endif
 
-#include <SDL2/SDL_version.h>
 #include <SDL2/SDL_events.h>
 
 #define MOUSE        0x6F1D2B60
@@ -273,21 +272,16 @@ static void ensureJoyOpen(DirectInputDevice *dev)
 			if (dev->gain < 100)
 				SDL_HapticSetGain(dev->haptic, dev->gain);
 		}
-#if SDL_VERSION_ATLEAST(2, 0, 9)
 		else if (SDL_JoystickGetType(joy) == SDL_JOYSTICK_TYPE_GAMECONTROLLER)
 		{
 			/* Use rumble as a fallback */
-# if SDL_VERSION_ATLEAST(2, 0, 18)
 			dev->rumble = SDL_JoystickHasRumble(joy);
-# else
 			dev->rumble = (SDL_JoystickRumble(joy, 0, 0, 0) == 0);
-# endif
 			if (dev->rumble)
 			{
 				printf("Using rumble for joystick index: %d\n", joyIdx); fflush(stdout);
 			}
 		}
-#endif
 
 		/* Re-open effects */
 		for (i = 0; i < dev->num_effects; ++i)
@@ -304,14 +298,12 @@ static void maybeRestartEffect(DirectInputEffect *eff)
 
 	if (eff->joy)
 	{
-#if SDL_VERSION_ATLEAST(2, 0, 9)
 		const SDL_HapticLeftRight *lr = &eff->effect.leftright;
 		uint32_t gain = SDL_min(*eff->gain, 100u);
 		if (gain > 0)
 		{
 			SDL_JoystickRumble(eff->joy, lr->large_magnitude * gain / 100, lr->small_magnitude * gain / 100, lr->length);
 		}
-#endif
 	}
 	else if (eff->haptic && eff->effect_idx >= 0)
 	{
@@ -327,9 +319,7 @@ static void maybeStopEffect(DirectInputEffect *eff, BOOL pause)
 
 	if (eff->joy)
 	{
-#if SDL_VERSION_ATLEAST(2, 0, 9)
 		SDL_JoystickRumble(eff->joy, 0, 0, 0);
-#endif
 	}
 	else if (eff->haptic && eff->effect_idx >= -1)
 	{
