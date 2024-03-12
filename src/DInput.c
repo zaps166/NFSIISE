@@ -61,7 +61,7 @@ extern float touchDX, touchDY;
 
 extern int32_t joystickAxes[2][12];
 extern int32_t joystickAxisValueShift[2];
-extern int32_t joystickEscButton[2], joystickResetButton[2];
+extern int32_t joystickEscButton[2], joystickResetButton[2], joystickDPadButtons[2][4];
 
 #ifdef NFS_CPP
 	extern uint32_t *mousePositionX, *mousePositionY;
@@ -637,12 +637,31 @@ MAYBE_STATIC REALIGN STDCALL uint32_t GetDeviceState(DirectInputDevice **this, u
 	{
 		simulateKey(SDLK_F11 + joyIdx, SDL_SCANCODE_F11 + joyIdx, SDL_JoystickGetButton(joy, joystickResetButton[joyIdx]), &(*this)->resetPressed);
 	}
+	for (i = 0; i < 4; ++i)
+	{
+		if (joystickDPadButtons[joyIdx][i] >= 0 && joystickDPadButtons[joyIdx][i] < numButtons)
+		{
+			simulateKey(SDLK_RIGHT + i, SDL_SCANCODE_RIGHT + i, SDL_JoystickGetButton(joy, joystickDPadButtons[joyIdx][i]), &(*this)->dpadPressed[i]);
+		}
+	}
 
 	for (i = 0; i < numButtons; ++i)
 	{
+		BOOL ignore = false;
+		int32_t j;
 		if (i == joystickEscButton[joyIdx] || i == joystickResetButton[joyIdx])
-			continue; //Skip joystick button assigned as keyboard keys
-		joyState->buttons[i] = SDL_JoystickGetButton(joy, i) << 7;
+		{
+			ignore = true;
+		}
+		else for (j = 0; j < 4; ++j)
+		{
+			if (i == joystickDPadButtons[joyIdx][j])
+				ignore = true;
+		}
+		if (!ignore) //Skip joystick button assigned as keyboard keys
+		{
+			joyState->buttons[i] = SDL_JoystickGetButton(joy, i) << 7;
+		}
 	}
 
 	for (i = 0; i < numAxes; ++i)

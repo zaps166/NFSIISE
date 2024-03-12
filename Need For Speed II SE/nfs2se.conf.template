@@ -45,13 +45,18 @@
 #	The numbers after colon chooses axis type (0 - normal axis, 1 - half axis, -1 - inverted half axis)
 #Joystick1Axes2:
 #	Specify which axes will be used in game for second joystick (see above)
+#Joystick0DPadButtons:
+#	Specify which buttons will be used as right, left, up, down keys for first joystick
+#	Press the button in game controls setup and look at the letter (e.g. 14,13,12,11)
+#	Buttons are counted from 0, so 'A' letter is 0, 'G' letter is 6, etc (-1 - don't use)
+#Joystick1DPadButtons:
+#	Specify which buttons will be used as right, left, up, down keys for second joystick (see above)
 #Joystick0EscButton:
-#	Specify which button will be used as Escape key for first joystick. Press the button in game controls setup and look at the letter
-#	Button number is counted from 0, so 'A' letter is 0, 'G' letter is 6
+#	Specify which button will be used as Escape key for first joystick (see above, e.g. 6)
 #Joystick1EscButton:
 #	Specify which button will be used as Escape key for second joystick (see above)
 #Joystick0ResetButton:
-#	Specify which button on first joystick will be used as F11 key (car reset, see above)
+#	Specify which button on first joystick will be used as F11 key (car reset, see above, e.g. 4)
 #Joystick1ResetButton:
 #	Specify which button on second joystick will be used as F12 key (car reset, see above)
 #AccelerometerAsJoystick:
@@ -82,6 +87,8 @@
 #Joystick1AxisValueShift=0
 #Joystick0Axes2=0,1,2,3,4,5:0,0,0,0,0,0
 #Joystick1Axes2=0,1,2,3,4,5:0,0,0,0,0,0
+#Joystick0DPadButtons=-1,-1,-1,-1
+#Joystick1DPadButtons=-1,-1,-1,-1
 #Joystick0EscButton=-1
 #Joystick1EscButton=-1
 #Joystick0ResetButton=-1

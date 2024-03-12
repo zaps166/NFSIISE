@@ -252,7 +252,7 @@ static BOOL startInFullScreen = true;
 
 int32_t joystickAxes[2][12] = {{0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 0}, {0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 0}};
 int32_t initialWinWidth = 640, initialWinHeight = 480, winWidth, winHeight, vSync = 1;
-int32_t joystickAxisValueShift[2] = {-1, -1}, joystickEscButton[2] = {-1, -1}, joystickResetButton[2] = {-1, -1};
+int32_t joystickAxisValueShift[2] = {-1, -1}, joystickEscButton[2] = {-1, -1}, joystickResetButton[2] = {-1, -1}, joystickDPadButtons[2][4] = {{-1, -1, -1, -1}, {-1, -1, -1, -1}};
 BOOL linearSoundInterpolation = false, useGlBleginGlEnd = false, keepAspectRatio = true, linearFiltering = true;
 uint32_t fullScreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP, broadcast = 0xFFFFFFFF;
 uint16_t PORT1 = 1030, PORT2 = 1029;
@@ -489,6 +489,10 @@ void WrapperInit(void)
 				sscanf(line + 21, "%d", &joystickResetButton[0]);
 			else if (!strncasecmp("Joystick1ResetButton=", line, 21))
 				sscanf(line + 21, "%d", &joystickResetButton[1]);
+			else if (!strncasecmp("Joystick0DPadButtons=", line, 21))
+				sscanf(line + 21, "%d,%d,%d,%d", &joystickDPadButtons[0][0], &joystickDPadButtons[0][1], &joystickDPadButtons[0][2], &joystickDPadButtons[0][3]);
+			else if (!strncasecmp("Joystick1DPadButtons=", line, 21))
+				sscanf(line + 21, "%d,%d,%d,%d", &joystickDPadButtons[1][0], &joystickDPadButtons[1][1], &joystickDPadButtons[1][2], &joystickDPadButtons[1][3]);
 			else if (!strncasecmp("LinearSoundInterpolation=", line, 25))
 				linearSoundInterpolation = !!atoi(line + 25);
 			else if (!strncasecmp("UseGlBleginGlEnd=", line, 17))

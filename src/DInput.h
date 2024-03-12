@@ -249,7 +249,7 @@ typedef struct DirectInputDevice
 	/* My variables */
 	GUID guid;
 	uint32_t lastX, lastY;
-	uint8_t escPressed, resetPressed;
+	uint8_t escPressed, resetPressed, dpadPressed[4];
 	SDL_Joystick *joy;
 	BOOL rumble;
 	uint8_t gain;
