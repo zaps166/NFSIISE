@@ -64,8 +64,6 @@
 #LinearSoundInterpolation:
 #	0 - Original samplerate - 22050Hz (default)
 #	1 - Linear interpolated sound to 44100Hz (artificial highs)
-#UseGlBleginGlEnd:
-#	Use glBegin(), glEnd() instead of glDrawArrays() in OpenGL 1 - can be slower, disabled by default
 #Port1:
 #	TCP and UDP port (default: 1030)
 #Port2:
@@ -95,7 +93,6 @@
 #Joystick1ResetButton=-1
 #AccelerometerAsJoystick=1
 #LinearSoundInterpolation=1
-#UseGlBleginGlEnd=0
 #Port1=1030
 #Port2=1029
 #Bcast=255.255.255.255

@@ -12,41 +12,10 @@ void SetBrightness(float);
 
 BOOL contextError = false;
 
-#define MaxTriangles 0x000400
 #define TextureMem   0x200000
 #define VertexSnap   0x0C0000
 #define Near        -1.0f
 #define Far          0.0f
-
-typedef struct
-{
-	struct
-	{
-		float r, g, b, a;
-	} vertex[3];
-} ColorValues;
-typedef struct
-{
-	float vertex[3];
-} FogCoord;
-typedef struct
-{
-	struct
-	{
-		float s, t, r, q;
-	} vertex[3];
-} TextureCoord;
-typedef struct
-{
-	struct
-	{
-		float x, y, z;
-	} vertex[3];
-} Vertices;
-static ColorValues colorValues[MaxTriangles];
-static FogCoord fogCoord[MaxTriangles];
-static TextureCoord textureCoord[MaxTriangles];
-static Vertices vertices[MaxTriangles];
 
 typedef struct
 {
@@ -58,14 +27,13 @@ static TextureInfo textures[TextureMem >> 2];
 
 static uint8_t *lfb, textureMem[TextureMem], g_fogTable[0x10000];
 static uint32_t *palette, tmpTexture[0x400];
-static uint32_t trianglesCount, maxTexIdx;
 
 static PFNGLFOGCOORDFPROC p_glFogCoordf;
 
 static int32_t xOffset, yOffset, visibleWidth, visibleHeight;
 static SDL_GLContext glCtx;
 
-extern BOOL useGlBleginGlEnd, keepAspectRatio, windowResized, linearFiltering;
+extern BOOL keepAspectRatio, windowResized, linearFiltering;
 extern int32_t vSync, winWidth, winHeight;
 extern SDL_Window *sdlWin;
 
@@ -78,20 +46,10 @@ static void setTextureFiltering()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
-static inline void drawTriangles()
-{
-	if (trianglesCount)
-	{
-		glDrawArrays(GL_TRIANGLES, 0, trianglesCount * 3);
-		trianglesCount = 0;
-	}
-}
-
 /**/
 
 REALIGN STDCALL void grAlphaBlendFunction(GrAlphaBlendFnc_t rgb_sf, GrAlphaBlendFnc_t rgb_df, GrAlphaBlendFnc_t alpha_sf, GrAlphaBlendFnc_t alpha_df)
 {
-	drawTriangles();
 	switch (rgb_df)
 	{
 		case GR_BLEND_ONE:
@@ -105,7 +63,6 @@ REALIGN STDCALL void grAlphaBlendFunction(GrAlphaBlendFnc_t rgb_sf, GrAlphaBlend
 }
 REALIGN STDCALL void grAlphaCombine(GrCombineFunction_t function, GrCombineFactor_t factor, GrCombineLocal_t local, GrCombineOther_t other, BOOL invert)
 {
-	drawTriangles();
 	if (other == GR_COMBINE_OTHER_TEXTURE)
 		glEnable(GL_TEXTURE_2D);
 	else
@@ -146,8 +103,6 @@ REALIGN STDCALL void grClipWindow(uint32_t minX, uint32_t minY, uint32_t maxX, u
 
 // 	printf("grClipWindow: %d %d %d %d [%d]\n", minX, minY, maxX, maxY, trianglesCount);
 
-	drawTriangles();
-
 	glLoadIdentity();
 
 	glOrtho(scaledMinX, scaledMaxX, scaledMaxY, scaledMinY, Near, Far);
@@ -163,8 +118,6 @@ REALIGN STDCALL void grBufferClear(GrColor_t color, GrAlpha_t alpha, uint16_t de
 	convertColor(color, &alpha, &r, &g, &b, &a);
 
 // 	printf("grBufferClear: %X %X %X [%d]\n", color, alpha, depth, trianglesCount);
-
-	drawTriangles();
 
 	glClearColor(r, g, b, a);
 	glClearDepth(depth / 65535.0f);
@@ -190,10 +143,6 @@ REALIGN STDCALL void grBufferSwap(int swap_interval)
 		grClipWindow(0, 0, 640, 480);
 		windowResized = false;
 	}
-	else
-	{
-		drawTriangles();
-	}
 
 	GLint scissorBox[4] = {};
 	glGetIntegerv(GL_SCISSOR_BOX, scissorBox);
@@ -216,7 +165,6 @@ REALIGN STDCALL void grDepthBiasLevel(int16_t level)
 }
 REALIGN STDCALL void grDepthBufferFunction(GrCmpFnc_t function)
 {
-// 	drawTriangles();
 // 	glDepthFunc(GL_NEVER + function);
 // 	printf("grDepthBufferFunction: %X\n", function);
 }
@@ -226,7 +174,6 @@ REALIGN STDCALL void grDepthBufferMode(GrDepthBufferMode_t mode)
 }
 REALIGN STDCALL void grDepthMask(BOOL mask)
 {
-	drawTriangles();
 	glDepthMask(mask);
 // 	printf("grDepthMask: %d [%d]\n", mask, trianglesCount);
 }
@@ -239,53 +186,22 @@ REALIGN STDCALL void grDrawTriangle(const GrVertex *a, const GrVertex *b, const 
 // 	printf("grDrawTriangle\n");
 	const GrVertex *grVertices[3] = {a, b, c};
 	uint32_t i;
-	if (useGlBleginGlEnd)
+	glBegin(GL_TRIANGLES);
+	for (i = 0; i < 3; ++i)
 	{
-		glBegin(GL_TRIANGLES);
-		for (i = 0; i < 3; ++i)
-		{
-			const GrVertex *grVertex = grVertices[i];
+		const GrVertex *grVertex = grVertices[i];
 
-			glColor4f(grVertex->r / 255.0f, grVertex->g / 255.0f, grVertex->b / 255.0f, grVertex->a / 255.0f);
-			if (p_glFogCoordf)
-				p_glFogCoordf(g_fogTable[(uint16_t)(1.0f / grVertex->oow)] / 255.0f);
-			glTexCoord4f(grVertex->tmuvtx[0].sow / 256.0f, grVertex->tmuvtx[0].tow / 256.0f, 0.0f, grVertex->oow);
-			glVertex3f(grVertex->x - VertexSnap, grVertex->y - VertexSnap, grVertex->oow);
-		}
-		glEnd();
+		glColor4f(grVertex->r / 255.0f, grVertex->g / 255.0f, grVertex->b / 255.0f, grVertex->a / 255.0f);
+		if (p_glFogCoordf)
+			p_glFogCoordf(g_fogTable[(uint16_t)(1.0f / grVertex->oow)] / 255.0f);
+		glTexCoord4f(grVertex->tmuvtx[0].sow / 256.0f, grVertex->tmuvtx[0].tow / 256.0f, 0.0f, grVertex->oow);
+		glVertex3f(grVertex->x - VertexSnap, grVertex->y - VertexSnap, grVertex->oow);
 	}
-	else
-	{
-		for (i = 0; i < 3; ++i)
-		{
-			const GrVertex *grVertex = grVertices[i];
-
-			colorValues[trianglesCount].vertex[i].r = grVertex->r / 255.0f;
-			colorValues[trianglesCount].vertex[i].g = grVertex->g / 255.0f;
-			colorValues[trianglesCount].vertex[i].b = grVertex->b / 255.0f;
-			colorValues[trianglesCount].vertex[i].a = grVertex->a / 255.0f;
-
-			fogCoord[trianglesCount].vertex[i] = g_fogTable[(uint16_t)(1.0f / grVertex->oow)] / 255.0f;
-
-			textureCoord[trianglesCount].vertex[i].s = grVertex->tmuvtx[0].sow / 256.0f;
-			textureCoord[trianglesCount].vertex[i].t = grVertex->tmuvtx[0].tow / 256.0f;
-			textureCoord[trianglesCount].vertex[i].q = grVertex->oow;
-
-			vertices[trianglesCount].vertex[i].x = grVertex->x - VertexSnap;
-			vertices[trianglesCount].vertex[i].y = grVertex->y - VertexSnap;
-			vertices[trianglesCount].vertex[i].z = grVertex->oow;
-		}
-		if (++trianglesCount >= MaxTriangles)
-		{
-			drawTriangles();
-// 			fprintf(stderr, "Too many triangles!\n");
-		}
-	}
+	glEnd();
 }
 REALIGN STDCALL void grDrawLine(const GrVertex *a, const GrVertex *b)
 {
 // 	printf("grDrawLine: [%d]\n", trianglesCount);
-	drawTriangles();
 	glBegin(GL_LINES); {
 		glColor4ub(a->r, a->g, a->b, a->a);
 		glVertex3f(a->x - VertexSnap, a->y - VertexSnap, a->oow);
@@ -297,7 +213,6 @@ REALIGN STDCALL void grDrawLine(const GrVertex *a, const GrVertex *b)
 REALIGN STDCALL void grFogColorValue(GrColor_t fogcolor)
 {
 	float fogColor[4];
-	drawTriangles();
 	convertColor(fogcolor, NULL, &fogColor[0], &fogColor[1], &fogColor[2], &fogColor[3]);
 	glFogfv(GL_FOG_COLOR, fogColor);
 // 	printf("grFogColorValue: 0x%.8X [%d]\n", fogcolor, trianglesCount);
@@ -408,28 +323,7 @@ REALIGN STDCALL BOOL grSstWinOpen(uint32_t hWnd, GrScreenResolution_t screen_res
 	glAlphaFunc(GL_GREATER, 16.0f / 255.0f);
 	glDepthFunc(GL_LEQUAL);
 
-	maxTexIdx = 0;
-
-	if (useGlBleginGlEnd)
-		p_glFogCoordf = (PFNGLFOGCOORDFPROC)SDL_GL_GetProcAddress("glFogCoordfEXT");
-	else
-	{
-		glEnableClientState(GL_COLOR_ARRAY);
-		glColorPointer(4, GL_FLOAT, 0, colorValues);
-
-		PFNGLFOGCOORDPOINTERPROC p_glFogCoordPointer = (PFNGLFOGCOORDPOINTERPROC)SDL_GL_GetProcAddress("glFogCoordPointerEXT");
-		if (p_glFogCoordPointer)
-		{
-			glEnableClientState(GL_FOG_COORD_ARRAY);
-			p_glFogCoordPointer(GL_FLOAT, 0, fogCoord);
-		}
-
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(4, GL_FLOAT, 0, textureCoord);
-
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glVertexPointer(3, GL_FLOAT, 0, vertices);
-	}
+	p_glFogCoordf = (PFNGLFOGCOORDFPROC)SDL_GL_GetProcAddress("glFogCoordfEXT");
 
 	grClipWindow(0, 0, 640, 480);
 
@@ -469,8 +363,6 @@ REALIGN STDCALL void grTexDownloadMipMap(GrChipID_t tmu, uint32_t startAddress, 
 	uint32_t size = 256 >> info->largeLod;
 	BOOL newTexture = (ti->id == 0);
 
-	drawTriangles();
-
 	if (newTexture)
 		glGenTextures(1, &ti->id);
 
@@ -497,7 +389,7 @@ REALIGN STDCALL void grTexDownloadMipMap(GrChipID_t tmu, uint32_t startAddress, 
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size, size, 0, GL_BGRA, GL_UNSIGNED_SHORT_4_4_4_4_REV, data);
 			break;
 	}
-// 	printf("grTexDownloadMipMap: 0x%.8X %d\n", startAddress, maxTexIdx);
+// 	printf("grTexDownloadMipMap: 0x%.8X\n", startAddress);
 }
 REALIGN STDCALL void grTexDownloadTable(GrChipID_t tmu, GrTexTable_t type, void *data)
 {
@@ -524,7 +416,6 @@ REALIGN STDCALL void grTexMipMapMode(GrChipID_t tmu, GrMipMapMode_t mode, BOOL l
 REALIGN STDCALL void grTexSource(GrChipID_t tmu, uint32_t startAddress, uint32_t evenOdd, GrTexInfo *info)
 {
 	TextureInfo *ti = &textures[startAddress >> 2];
-	drawTriangles();
 	glBindTexture(GL_TEXTURE_2D, ti->id);
 	if (info->format == GR_TEXFMT_P_8 && palette && ti->palette != palette)
 	{
