@@ -348,47 +348,50 @@ static void setEffect(DirectInputEffect *dinputEffect, const DIEFFECT *di_eff)
 					SDL_HapticConstant *sdl_constant = &dinputEffect->effect.constant;
 					sdl_constant->length = length;
 					sdl_constant->level = convertDiToS16(di_constant->magnitude);
-#if 1 // Use CARTESIAN instead of POLAR (POLAR coords don't work on Windows on G29 wheel with SDL 2.30.1)
-					sdl_constant->direction.type = SDL_HAPTIC_CARTESIAN;
-					int32_t direction = di_eff->rglDirection[0] / 100;
-//					fprintf(stderr, "Constant: %d\n", direction);
-					if (direction > 0 && direction < 180)
+					if (SDL_HapticNumAxes(dinputEffect->haptic) == 1)
 					{
-						int32_t tmp = direction;
-						if (tmp > 90)
-							tmp = 180 - tmp;
-						sdl_constant->level = sdl_constant->level * tmp / 90; //Reduce level if not 90 degrees
-						sdl_constant->direction.dir[0] = 1;
-					}
-					else if (direction > 180 && direction < 360)
-					{
-						int32_t tmp = direction - 180;
-						if (tmp > 90)
-							tmp = 180 - tmp;
-						sdl_constant->level = sdl_constant->level * tmp / 90; //Reduce level if not 270 degrees
-						sdl_constant->direction.dir[0] = -1;
-					}
-					else if (SDL_HapticQuery(dinputEffect->haptic) & SDL_HAPTIC_SINE)
-					{
-						/* Use sine force for 0 or 180 (can't determine the direction) */
-						SDL_HapticEffect backup = dinputEffect->effect;
-						memset(&dinputEffect->effect, 0, sizeof(SDL_HapticEffect));
-						dinputEffect->effect.type = SDL_HAPTIC_SINE;
-						dinputEffect->constantToSineDivider = 2;
-						setEffect(dinputEffect, di_eff);
-						dinputEffect->constantToSineDivider = 0;
-						dinputEffect->effect = backup;
-						return;
+						sdl_constant->direction.type = SDL_HAPTIC_CARTESIAN;
+						int32_t direction = di_eff->rglDirection[0] / 100;
+	//					fprintf(stderr, "Constant: %d\n", direction);
+						if (direction > 0 && direction < 180)
+						{
+							int32_t tmp = direction;
+							if (tmp > 90)
+								tmp = 180 - tmp;
+							sdl_constant->level = sdl_constant->level * tmp / 90; //Reduce level if not 90 degrees
+							sdl_constant->direction.dir[0] = 1;
+						}
+						else if (direction > 180 && direction < 360)
+						{
+							int32_t tmp = direction - 180;
+							if (tmp > 90)
+								tmp = 180 - tmp;
+							sdl_constant->level = sdl_constant->level * tmp / 90; //Reduce level if not 270 degrees
+							sdl_constant->direction.dir[0] = -1;
+						}
+						else if (SDL_HapticQuery(dinputEffect->haptic) & SDL_HAPTIC_SINE)
+						{
+							/* Use sine force for 0 or 180 (can't determine the direction) */
+							SDL_HapticEffect backup = dinputEffect->effect;
+							memset(&dinputEffect->effect, 0, sizeof(SDL_HapticEffect));
+							dinputEffect->effect.type = SDL_HAPTIC_SINE;
+							dinputEffect->constantToSineDivider = 2;
+							setEffect(dinputEffect, di_eff);
+							dinputEffect->constantToSineDivider = 0;
+							dinputEffect->effect = backup;
+							return;
+						}
+						else
+						{
+							/* Disable effect if sine force is not supported for 0 or 180 */
+							sdl_constant->level = 0;
+						}
 					}
 					else
 					{
-						/* Disable effect if sine force is not supported for 0 or 180 */
-						sdl_constant->level = 0;
+						sdl_constant->direction.type = SDL_HAPTIC_POLAR;
+						sdl_constant->direction.dir[0] = di_eff->rglDirection[0];
 					}
-#else
-					sdl_constant->direction.type = SDL_HAPTIC_POLAR;
-					sdl_constant->direction.dir[0] = di_eff->rglDirection[0];
-#endif
 					break;
 				}
 				case SDL_HAPTIC_SINE:
