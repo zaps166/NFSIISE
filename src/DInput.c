@@ -138,19 +138,19 @@ static void maybeInitEffect(DirectInputDevice *dev, DirectInputEffect *eff)
 					eff->effect.type = SDL_HAPTIC_CONSTANT;
 				else if (query & SDL_HAPTIC_SINE)
 					eff->effect.type = SDL_HAPTIC_SINE;
-				effName = "Constant force";
+				effName = "Constant";
 				break;
 			}
 			case FORCE_SQUARE:
 				/* Use Sine effect instead of Square (SDL2 doesn't have Square effect) */
 				if (query & SDL_HAPTIC_SINE)
 					eff->effect.type = SDL_HAPTIC_SINE;
-				effName = "Square force";
+				effName = "Sine";
 				break;
 			case FORCE_SPRING:
 				if (query & SDL_HAPTIC_SPRING)
 					eff->effect.type = SDL_HAPTIC_SPRING;
-				effName = "Spring force";
+				effName = "Spring";
 				break;
 		}
 
@@ -158,10 +158,14 @@ static void maybeInitEffect(DirectInputDevice *dev, DirectInputEffect *eff)
 		if (eff->effect.type != 0)
 		{
 			eff->haptic = dev->haptic;
+			if (eff->guid.a == FORCE_CONST && eff->effect.type == SDL_HAPTIC_SINE)
+			{
+				printf("Effect: \"%s\" will be converted to effect: \"Sine\"\n", effName); fflush(stdout);
+			}
 		}
 		else
 		{
-			printf("Effect: %s not found for joystick: %d\n", effName, joyIdx); fflush(stdout);
+			printf("Effect: \"%s\" not found for joystick: %d\n", effName, joyIdx); fflush(stdout);
 		}
 	}
 }
@@ -235,7 +239,7 @@ static void ensureJoyOpen(DirectInputDevice *dev)
 		dev->haptic = SDL_HapticOpenFromJoystick(joy);
 		if (dev->haptic)
 		{
-			printf("Haptic opened for joystick index: %d\n", joyIdx); fflush(stdout);
+			printf("Haptic opened for joystick index: %d", joyIdx);
 		}
 		else
 		{
@@ -253,7 +257,7 @@ static void ensureJoyOpen(DirectInputDevice *dev)
 					dev->haptic = SDL_HapticOpen(i);
 					if (dev->haptic)
 					{
-						printf("Haptic \"%s\" opened at system index: %d for joystick index: %d\n", name, i, joyIdx); fflush(stdout);
+						printf("Haptic \"%s\" opened at system index: %d for joystick index: %d", name, i, joyIdx);
 					}
 					break;
 				}
@@ -262,6 +266,9 @@ static void ensureJoyOpen(DirectInputDevice *dev)
 
 		if (dev->haptic)
 		{
+			printf(", num axes: %d\n", SDL_HapticNumAxes(dev->haptic));
+			fflush(stdout);
+
 			/* Re-apply gain */
 			if (dev->gain < 100)
 				SDL_HapticSetGain(dev->haptic, dev->gain);
