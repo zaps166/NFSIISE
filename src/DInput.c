@@ -452,7 +452,10 @@ static void setEffect(DirectInputEffect *dinputEffect, const DIEFFECT *di_eff)
 			sdl_condition->right_sat[0]   = sdl_condition->left_sat[0]   = val * 2;
 			sdl_condition->right_coeff[0] = sdl_condition->left_coeff[0] = val;
 #endif
-			sdl_condition->direction.type = SDL_HAPTIC_CARTESIAN;
+			if (SDL_HapticNumAxes(dinputEffect->haptic) == 1)
+				sdl_condition->direction.type = SDL_HAPTIC_CARTESIAN;
+			else
+				sdl_condition->direction.type = SDL_HAPTIC_POLAR;
 
 //			fprintf(stderr, "Spring: %6d %6d\n",
 //				sdl_condition->right_coeff[0],
