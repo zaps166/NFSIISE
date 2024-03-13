@@ -301,7 +301,7 @@ REALIGN STDCALL BOOL GetMessageA_wrap(MSG *msg, void *hWnd, uint32_t wMsgFilterM
 				case SDL_FINGERDOWN:
 				{
 					SDL_TouchFingerEvent *fingerEvent = ((SDL_TouchFingerEvent *)&event);
-					if (fingerEvent->pressure > 0.0f && fingerEvent->fingerId == 0 && SDL_GetTouchDeviceType(fingerEvent->touchId) == SDL_TOUCH_DEVICE_DIRECT)
+					if (touchId == 0 && fingerEvent->pressure > 0.0f && SDL_GetTouchDeviceType(fingerEvent->touchId) == SDL_TOUCH_DEVICE_DIRECT)
 					{
 						touchId = fingerEvent->touchId;
 						touchTimeStamp = SDL_GetTicks();
