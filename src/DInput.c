@@ -206,6 +206,9 @@ static void ensureJoyOpen(DirectInputDevice *dev)
 
 	if (!joy)
 	{
+		if (joyIdx == 1 && !g_joyPaths[0])
+			return; // First joystick not open - don't open second joystick
+
 		const int32_t n = SDL_NumJoysticks();
 		for (i = 0; i < n; ++i)
 		{
