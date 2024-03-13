@@ -148,8 +148,3 @@ sudo apt install gcc-multilib
 * OpenGL 1.x only: if the game crashes it might not restore the gamma properly. In this case run: `xgamma -gamma 1.0`.
 * There is Docker based build environment available on [GitHub](https://github.com/thomas-mc-work/nfsiise-build-env).
 * LICENSE is only for wrapper source code.
-
-## Patches:
-
-* This directory contains patch for SDL 2.0.3 (SDL 2.0.4 has already this bugfix). It allows to use all axes in DualShock3 gamepad! You must also modify `nfs2se.conf` file (Joystick0Axes, Joystick0Buttons).
-  * Unfortunately, only main 6 axes in DualShock 3 are accessible since Linux 4.12.
