@@ -32,11 +32,10 @@ apt-get update
 apt-get install libsdl2-dev:i386 gcc-multilib yasm
 ```
 * Edit the `compile_nfs` script, modify what do you want. Compile the game by executing the script - it will automatically generate executable file inside `Need For Speed II SE` directory:
-  * `./compile_nfs` - native compilation for Unix-like systems (Linux, OS X, ...),
-  * `./compile_nfs win32` - cross compilation for Windows.
+  * `./compile_nfs` - native compilation for Unix-like systems (Linux, macOS up to Mojave, ...),
+  * `./compile_nfs win32` - cross compilation for Windows (on Arch Linux install: `mingw-w64-gcc` and `mingw-w64-sdl2` from AUR).
 
-
-# Notes About Windows Build:
+## Notes About Windows Build using WSL:
 * One way is to use WSL (Windows Subsystem for Linux) and install `mingw-w64` which cross-compiles to Windows
 ```sh
 sudo apt install mingw-w64
@@ -51,7 +50,7 @@ sudo apt install gcc-multilib
 * Inside the package folder you should use the one called *`i686-w64-mingw32`*
 * Either copy the `include, bin, lib, share` to your system files (not recommended) or you can modify the following lines in the file `compile_nfs`:
 
-  1. On line 30 with:
+  - On line 27 with:
       ```sh
       C_FLAGS="$COMMON_FLAGS -O2 $CPU_FLAGS"
       ```
@@ -59,19 +58,19 @@ sudo apt install gcc-multilib
       ```sh
       C_FLAGS="$COMMON_FLAGS -O2 $CPU_FLAGS -I/path/to/include/folder"
       ```
-      
-  2. On line 30 add the same include directory paramter before the quote
 
-  3. On line 42 which has:
+  - On line 23 add the same include directory paramter before the quote
+
+  - On line 39 which has:
       ```sh
       i686-w64-mingw32-ld --enable-stdcall-fixup -o "../Need For Speed II SE/nfs2se.exe" *.o --stack=0x7D00,0x7D00 --heap=0x2000,0x1000 -lws2_32 -lwinmm -lmingwex -lmsvcrt -lkernel32 -lopengl32 -lSDL2 -lSDL2main -lSDL2_test -subsystem=$WIN_SUBSYSTEM $STRIP -e _start &&
       ```
       After the `-lSDL2_test` add `-L/path/to/lib/folder/`
-  4. Now the command `./compile_nfs win32` should work fine
-  5. If you try to run the exe, windows will say the dll is missing so you should get it from the `same SDL packages link` but this time the package for `win32-x86`
-  6. Copy the dll you get from decompressing the zip file and put it in the same directory as the game's exe file
-  7. Now if you follow the other steps (of copying game data and dealing with possible errors explained futher), it should work fine
-  
+  - Now the command `./compile_nfs win32` should work fine
+  - If you try to run the exe, windows will say the dll is missing so you should get it from the `same SDL packages link` but this time the package for `win32-x86`
+  - Copy the dll you get from decompressing the zip file and put it in the same directory as the game's exe file
+  - Now if you follow the other steps (of copying game data and dealing with possible errors explained futher), it should work fine
+
 ## Compile for non-x86 CPUs:
 
 ### Information:
@@ -125,7 +124,6 @@ sudo apt install gcc-multilib
 ## What does not work:
 
 * Modem connection (it will never work again, this feature has been removed from assembly code),
-* If Force Feedback does not work, you can try to select Force Feedback device in `nfs2se.conf` file (`ForceFeedbackDevice`).
 
 ## Function keys in-game
 
@@ -149,6 +147,7 @@ sudo apt install gcc-multilib
 * Cockpit view and night driving are unavailable (original 3D-accelerated version doesn't have this), see [NFSIISEN](https://github.com/zaps166/NFSIISEN) repository.
 * OpenGL 1.x only: if the game crashes it might not restore the gamma properly. In this case run: `xgamma -gamma 1.0`.
 * There is Docker based build environment available on [GitHub](https://github.com/thomas-mc-work/nfsiise-build-env).
+* LICENSE is only for wrapper source code.
 
 ## Patches:
 
