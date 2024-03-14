@@ -40,6 +40,7 @@
 #endif
 
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL.h>
 
 #define MOUSE        0x6F1D2B60
 #define JOYSTICK     0x6F1D2B70
@@ -934,6 +935,9 @@ REALIGN STDCALL uint32_t DirectInputCreateA_wrap(MAYBE_THIS void *hInstance, uin
 #ifdef NFS_CPP
 	dinput_game_thread = this;
 #endif
+
+	if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC) < 0)
+		fprintf(stderr, "SDL joystick and haptic init failed: %s\n", SDL_GetError());
 
 	return 0;
 }

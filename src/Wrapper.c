@@ -523,9 +523,6 @@ void WrapperInit(void)
 		fclose(f);
 	}
 
-	if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC) < 0)
-		fprintf(stderr, "SDL joystick and haptic init failed: %s\n", SDL_GetError());
-
 #ifndef OPENGL1X
 # ifdef GLES2
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
