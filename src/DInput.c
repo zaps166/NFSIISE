@@ -280,7 +280,6 @@ static void ensureJoyOpen(DirectInputDevice *dev)
 		{
 			/* Use rumble as a fallback */
 			dev->rumble = SDL_JoystickHasRumble(joy);
-			dev->rumble = (SDL_JoystickRumble(joy, 0, 0, 0) == 0);
 			if (dev->rumble)
 			{
 				printf("Using rumble for joystick index: %d\n", joyIdx); fflush(stdout);
