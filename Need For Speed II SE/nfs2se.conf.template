@@ -5,11 +5,11 @@
 #	macOS:   "~/Library/Application Support/nfs2se/nfs2se.conf",
 #	Android: "/sdcard/NFSIISE/nfs2se.conf".
 #Leave empty line at the end of the file!
-#Remove "#" from the beginning of the line to apply the configuration!
+#You can add "#" at the beginning of the line to disable the configuration line!
 
 #UseOnlyOneCPU:
 #	0 - The game uses all CPU cores (default)
-#	1 - The game uses only first CPU core (use if you have lockups or weird errors on movie)
+#	1 - The game uses only first CPU core (use if you have lockups or weird errors on movies)
 #StartInFullScreen:
 #	0 - The game runs in window
 #	1 - The game runs in full screen (default)
@@ -21,21 +21,21 @@
 #MSAA (Multisample antialiasing, OpenGL 1 only):
 #	0 - Don't change (default)
 #	1 - Disable MSAA
-#	2, 4, 8, 16 - Enable MSAA. If not supported, the game probably won't run.
+#	2, 4, 8, 16 - Enable MSAA. If not supported, the game probably won't start.
 #FixedRenderingSize:
 #	0 - Window size determines game rendering size (default)
 #	1 - Fixed game rendering size (value is specified in "WindowSize"):
-#			- OpenGL 1     - window has fixed size, full screen will change screen resolution
-#			- OpenGL(ES) 2 - framebuffer has fixed size
-#	2 - Same as "1", but OpenGL(ES) 2 renderer doesn't use linear image upscaling
+#			- OpenGL1       - window has fixed size, full screen will change screen resolution
+#			- OpenGL2/GLES2 - framebuffer has fixed size
+#	2 - Same as "1", but OpenGL2/GLES2 renderer won't use linear image upscaling
 #WindowSize:
-#	Type your own window size (default: 640x480)
+#	Window or rendering size (see "FixedRenderingSize", default: 640x480)
 #KeepAspectRatio:
 #	0 - Fills the entire window
-#	1 - Keeps the original aspect ratio (4:3, default)
+#	1 - Keeps the original 4:3 aspect ratio (default)
 #LinearTextureFiltering:
 #	0 - Nearest texture filtering
-#	1 - Linear texture filtering (defailt)
+#	1 - Linear texture filtering (default)
 #JoystickApplyDeadzone:
 #	Apply game default deadzone for joysticks
 #JoystickDisableAxesInMenu:
@@ -62,8 +62,8 @@
 #AccelerometerAsJoystick:
 #	Use accelerometer on Android as 3-axis joystick if no other joystick is connected (1 - use, default)
 #LinearSoundInterpolation:
-#	0 - Original samplerate - 22050Hz (default)
-#	1 - Linear interpolated sound to 44100Hz (artificial highs)
+#	0 - Original samplerate - 22050Hz (system-dependent resampling, default)
+#	1 - Linear interpolated sound to 44100Hz (forced artificial highs)
 #Port1:
 #	TCP and UDP port (default: 1030)
 #Port2:
@@ -73,29 +73,29 @@
 #LinuxCOM1, LinuxCOM2, LinuxCOM3, LinuxCOM4:
 #	Full path to serial port device (e.g. /dev/ttyS0)
 
-#UseOnlyOneCPU=1
-#StartInFullScreen=1
-#VSync=-1
-#MSAA=4
-#FixedRenderingSize=1
-#WindowSize=640x480
-#KeepAspectRatio=1
-#LinearTextureFiltering=1
-#JoystickApplyDeadzone=0
-#JoystickDisableAxesInMenu=0
-#Joystick0Axes2=0,1,2,3,4,5:0,0,0,0,0,0
-#Joystick1Axes2=0,1,2,3,4,5:0,0,0,0,0,0
-#Joystick0DPadButtons=-1,-1,-1,-1
-#Joystick1DPadButtons=-1,-1,-1,-1
-#Joystick0EscButton=-1
-#Joystick1EscButton=-1
-#Joystick0ResetButton=-1
-#Joystick1ResetButton=-1
-#AccelerometerAsJoystick=1
-#LinearSoundInterpolation=1
-#Port1=1030
-#Port2=1029
-#Bcast=255.255.255.255
+UseOnlyOneCPU=0
+StartInFullScreen=1
+VSync=1
+MSAA=0
+FixedRenderingSize=0
+WindowSize=640x480
+KeepAspectRatio=1
+LinearTextureFiltering=1
+JoystickApplyDeadzone=0
+JoystickDisableAxesInMenu=0
+Joystick0Axes2=0,1,2,3,4,5:0,0,0,0,0,0
+Joystick1Axes2=0,1,2,3,4,5:0,0,0,0,0,0
+Joystick0DPadButtons=-1,-1,-1,-1
+Joystick1DPadButtons=-1,-1,-1,-1
+Joystick0EscButton=-1
+Joystick1EscButton=-1
+Joystick0ResetButton=-1
+Joystick1ResetButton=-1
+AccelerometerAsJoystick=1
+LinearSoundInterpolation=0
+Port1=1030
+Port2=1029
+Bcast=255.255.255.255
 LinuxCOM1=/dev/ttyS0
 LinuxCOM2=/dev/ttyS1
 LinuxCOM3=/dev/ttyUSB0
