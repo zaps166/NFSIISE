@@ -158,6 +158,7 @@ static void maybeInitEffect(DirectInputDevice *dev, DirectInputEffect *eff)
 		if (eff->effect.type != 0)
 		{
 			eff->haptic = dev->haptic;
+			eff->useCartesian = dev->useCartesian;
 			if (eff->guid.a == FORCE_CONST && eff->effect.type == SDL_HAPTIC_SINE)
 			{
 				printf("Effect: \"%s\" will be converted to effect: \"Sine\"\n", effName); fflush(stdout);
@@ -269,7 +270,18 @@ static void ensureJoyOpen(DirectInputDevice *dev)
 
 		if (dev->haptic)
 		{
-			printf(", num axes: %d\n", SDL_HapticNumAxes(dev->haptic));
+			int32_t hapticNumAxes = SDL_HapticNumAxes(dev->haptic);
+
+			if (hapticNumAxes == 1)
+				dev->useCartesian = true;
+#ifdef linux
+			else if (hapticNumAxes == 2 && SDL_JoystickGetType(joy) == SDL_JOYSTICK_TYPE_WHEEL)
+				dev->useCartesian = true; //Linux detects Logitech G29 as 2-axis haptic device
+#endif
+			else
+				dev->useCartesian = false;
+
+			printf(", num axes: %d, %s coordinates\n", hapticNumAxes, dev->useCartesian ? "cartesian" : "polar");
 			fflush(stdout);
 
 			/* Re-apply gain */
@@ -348,7 +360,7 @@ static void setEffect(DirectInputEffect *dinputEffect, const DIEFFECT *di_eff)
 					SDL_HapticConstant *sdl_constant = &dinputEffect->effect.constant;
 					sdl_constant->length = length;
 					sdl_constant->level = convertDiToS16(di_constant->magnitude);
-					if (SDL_HapticNumAxes(dinputEffect->haptic) == 1)
+					if (dinputEffect->useCartesian)
 					{
 						sdl_constant->direction.type = SDL_HAPTIC_CARTESIAN;
 						int32_t direction = di_eff->rglDirection[0] / 100;
@@ -455,7 +467,7 @@ static void setEffect(DirectInputEffect *dinputEffect, const DIEFFECT *di_eff)
 			sdl_condition->right_sat[0]   = sdl_condition->left_sat[0]   = val * 2;
 			sdl_condition->right_coeff[0] = sdl_condition->left_coeff[0] = val;
 #endif
-			if (SDL_HapticNumAxes(dinputEffect->haptic) == 1)
+			if (dinputEffect->useCartesian)
 				sdl_condition->direction.type = SDL_HAPTIC_CARTESIAN;
 			else
 				sdl_condition->direction.type = SDL_HAPTIC_POLAR;

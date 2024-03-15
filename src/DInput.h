@@ -211,6 +211,7 @@ typedef struct DirectInputEffect
 	// Haptic
 	SDL_Haptic *haptic;
 	int32_t effect_idx;
+	BOOL useCartesian;
 	int16_t constantToSineDivider;
 } DirectInputEffect;
 
@@ -252,6 +253,7 @@ typedef struct DirectInputDevice
 	uint8_t escPressed, resetPressed, dpadPressed[4];
 	SDL_Joystick *joy;
 	BOOL rumble;
+	BOOL useCartesian;
 	uint8_t gain;
 	SDL_Haptic *haptic;
 	int32_t num_effects;
