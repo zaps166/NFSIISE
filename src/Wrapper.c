@@ -252,7 +252,8 @@ static BOOL startInFullScreen = true;
 
 int32_t joystickAxes[2][12] = {{0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 0}, {0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 0}};
 int32_t initialWinWidth = 640, initialWinHeight = 480, winWidth, winHeight, vSync = 1;
-int32_t joystickAxisValueShift[2] = {-1, -1}, joystickEscButton[2] = {-1, -1}, joystickResetButton[2] = {-1, -1}, joystickDPadButtons[2][4] = {{-1, -1, -1, -1}, {-1, -1, -1, -1}};
+BOOL joystickApplyDeadzone = false, joystickDisableAxesInMenu = false;
+int32_t joystickEscButton[2] = {-1, -1}, joystickResetButton[2] = {-1, -1}, joystickDPadButtons[2][4] = {{-1, -1, -1, -1}, {-1, -1, -1, -1}};
 BOOL linearSoundInterpolation = false, keepAspectRatio = true, linearFiltering = true;
 uint32_t fullScreenFlag = SDL_WINDOW_FULLSCREEN_DESKTOP, broadcast = 0xFFFFFFFF;
 uint16_t PORT1 = 1030, PORT2 = 1029;
@@ -473,10 +474,10 @@ void WrapperInit(void)
 				sscanf(line + 16, "%d", &keepAspectRatio);
 			else if (!strncasecmp("LinearTextureFiltering=", line, 23))
 				sscanf(line + 23, "%d", &linearFiltering);
-			else if (!strncasecmp("Joystick0AxisValueShift=", line, 24))
-				joystickAxisValueShift[0] = atoi(line + 24);
-			else if (!strncasecmp("Joystick1AxisValueShift=", line, 24))
-				joystickAxisValueShift[1] = atoi(line + 24);
+			else if (!strncasecmp("JoystickApplyDeadzone=", line, 22))
+				joystickApplyDeadzone = !!atoi(line + 22);
+			else if (!strncasecmp("JoystickDisableAxesInMenu=", line, 26))
+				joystickDisableAxesInMenu = !!atoi(line + 26);
 			else if (!strncasecmp("Joystick0Axes2=", line, 15))
 				sscanf(line + 15, "%d,%d,%d,%d,%d,%d:%d,%d,%d,%d,%d,%d", joystickAxes[0]+0, joystickAxes[0]+1, joystickAxes[0]+2, joystickAxes[0]+3, joystickAxes[0]+4, joystickAxes[0]+5, joystickAxes[0]+6, joystickAxes[0]+7, joystickAxes[0]+8, joystickAxes[0]+9, joystickAxes[0]+10, joystickAxes[0]+11);
 			else if (!strncasecmp("Joystick1Axes2=", line, 15))

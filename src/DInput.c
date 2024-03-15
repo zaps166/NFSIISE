@@ -51,6 +51,8 @@
 #define USE_ORIGINAL_SPRING_VALUES 0
 
 static const char *g_joyPaths[2];
+static SDL_threadID g_mainThread;
+static uint8_t g_buttonsPressedCount[2][32];
 
 extern SDL_Window *sdlWin;
 extern int32_t winWidth, winHeight;
@@ -60,15 +62,24 @@ extern SDL_TouchID touchId;
 extern float touchDX, touchDY;
 
 extern int32_t joystickAxes[2][12];
-extern int32_t joystickAxisValueShift[2];
+extern BOOL joystickApplyDeadzone, joystickDisableAxesInMenu;
 extern int32_t joystickEscButton[2], joystickResetButton[2], joystickDPadButtons[2][4];
 
 #ifdef NFS_CPP
+	extern uint32_t *dword_557540;
 	extern uint32_t *mousePositionX, *mousePositionY;
+	extern uint8_t *inControlAssignMode;
+
+	#define dword_557540 (*&dword_557540)
 	#define mousePositionX (*mousePositionX)
 	#define mousePositionY (*mousePositionY)
+	#define inControlAssignMode (*inControlAssignMode)
 #else
+	extern uint32_t dword_557540;
 	extern uint32_t mousePositionX, mousePositionY;
+	extern uint8_t inControlAssignMode;
+
+	#define dword_557540 (&dword_557540)
 #endif
 
 static void simulateKey(int32_t keycode, int32_t scancode, uint8_t pressed, uint8_t *lastPressed)
@@ -623,7 +634,7 @@ MAYBE_STATIC REALIGN STDCALL uint32_t GetDeviceState(DirectInputDevice **this, u
 		return 0;
 
 	DIJOYSTATE *joyState = (DIJOYSTATE *)data;
-	SDL_memset4(joyState->axes, 0x7FFF, 8);
+	SDL_memset4(joyState->axes, 0x8000, 8);
 	memset(joyState->buttons, 0, sizeof joyState->buttons);
 
 	SDL_Joystick *joy = (*this)->joy;
@@ -653,6 +664,9 @@ MAYBE_STATIC REALIGN STDCALL uint32_t GetDeviceState(DirectInputDevice **this, u
 		}
 	}
 
+	//Delay the button pressed information in control assign mode to allow axis detection
+	//when we have axis which works also like a button
+	const BOOL delayButtons = inControlAssignMode;
 	for (i = 0; i < numButtons; ++i)
 	{
 		BOOL ignore = false;
@@ -668,50 +682,40 @@ MAYBE_STATIC REALIGN STDCALL uint32_t GetDeviceState(DirectInputDevice **this, u
 		}
 		if (!ignore) //Skip joystick button assigned as keyboard keys
 		{
-			joyState->buttons[i] = SDL_JoystickGetButton(joy, i) << 7;
+			const uint8_t maxPressedCount = 50;
+			uint8_t pressed = SDL_JoystickGetButton(joy, i);
+			uint8_t *pressedCount = &g_buttonsPressedCount[joyIdx][i];
+			if (pressed)
+			{
+				if (delayButtons && *pressedCount < maxPressedCount)
+					*pressedCount += 1;
+			}
+			else if (*pressedCount > 0)
+			{
+				*pressedCount -= 1;
+			}
+			if ((!delayButtons && *pressedCount == 0) || *pressedCount == maxPressedCount)
+			{
+				joyState->buttons[i] = pressed << 7;
+			}
 		}
 	}
 
-	for (i = 0; i < numAxes; ++i)
+	const BOOL isGameThread = (g_mainThread != SDL_ThreadID());
+	if (isGameThread || delayButtons || !joystickDisableAxesInMenu)
 	{
-		if (joystickAxes[joyIdx][i] < 0)
-			continue;
-
-		int32_t *axis = &joyState->axes[i < 3 ? i : i + 2];
-		*axis = (uint16_t)SDL_JoystickGetAxis(joy, joystickAxes[joyIdx][i]) ^ 0x8000;
-		if (joystickAxes[joyIdx][i + 6] > 0)
-			*axis = (*axis >> 1) + 32768;
-		else if (joystickAxes[joyIdx][i + 6] < 0)
-			*axis = 65535 - (*axis >> 1);
-	}
-
-	int32_t localJoystickAxisValueShift = joystickAxisValueShift[joyIdx];
-	if (localJoystickAxisValueShift < 0 || localJoystickAxisValueShift > 32767)
-	{
-		switch (SDL_JoystickGetType(joy))
+		for (i = 0; i < numAxes; ++i)
 		{
-			case SDL_JOYSTICK_TYPE_GAMECONTROLLER:
-				localJoystickAxisValueShift = 3072;
-				break;
-			case SDL_JOYSTICK_TYPE_WHEEL:
-				localJoystickAxisValueShift = 6144;
-				break;
-			default:
-				localJoystickAxisValueShift = 0;
-				break;
-		}
-	}
-	if (localJoystickAxisValueShift != 0)
-	{
-		if (joyState->axes[0] < 0x8000)
-			joyState->axes[0] -= localJoystickAxisValueShift;
-		else if (joyState->axes[0] > 0x8000)
-			joyState->axes[0] += localJoystickAxisValueShift;
+			if (joystickAxes[joyIdx][i] < 0)
+				continue;
 
-		if (joyState->axes[0] > 0xFFFF)
-			joyState->axes[0] = 0xFFFF;
-		else if (joyState->axes[0] < 0x0000)
-			joyState->axes[0] = 0x0000;
+			int32_t *axis = &joyState->axes[i < 3 ? i : i + 2];
+			*axis = (uint16_t)SDL_JoystickGetAxis(joy, joystickAxes[joyIdx][i]) ^ 0x8000;
+			if (joystickAxes[joyIdx][i + 6] > 0)
+				*axis = (*axis >> 1) + 32768;
+			else if (joystickAxes[joyIdx][i + 6] < 0)
+				*axis = 65535 - (*axis >> 1);
+		}
 	}
 
 	return 0;
@@ -950,5 +954,86 @@ REALIGN STDCALL uint32_t DirectInputCreateA_wrap(MAYBE_THIS void *hInstance, uin
 	if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC) < 0)
 		fprintf(stderr, "SDL joystick and haptic init failed: %s\n", SDL_GetError());
 
+	g_mainThread = SDL_ThreadID();
+
 	return 0;
+}
+
+/// Reimplemented game functions
+
+REALIGN REGPARM int32_t processAxes(uint32_t inputValue)
+{
+	int32_t ret = 0;
+
+	int32_t axis = dword_557540[((inputValue >> 20) << 4) + ((inputValue >> 16) & 7)];
+
+	int32_t vh = inputValue & 0xFF00;
+	int32_t vl = (inputValue & 0xFF) << 8;
+
+	if (vh == 0x6800)
+	{
+		// 0 in the middle of the axis value, left direction
+
+		int32_t threshold = 0x8000;
+		if (joystickApplyDeadzone)
+			threshold = vh;
+
+		// Swap values for one-quarter and three-quarter
+		if (vl == 0x4E00)
+			vl = 0x1A00;
+		else if (vl == 0x1A00)
+			vl = 0x4E00;
+
+		if (axis < threshold)
+			ret = (threshold - axis) / ((threshold - vl) >> 8);
+	}
+	else if (vh == 0x9800)
+	{
+		// 0 in the middle of the axis value, right direction
+
+		int32_t threshold = 0x8000;
+		if (joystickApplyDeadzone)
+			threshold = vh;
+
+		// Swap values for one-quarter and three-quarter
+		if (vl == 0xB200)
+			vl = 0xE600;
+		else if (vl == 0xE600)
+			vl = 0xB200;
+
+		vl += 0x100;
+
+		if (axis > threshold)
+			ret = (axis - threshold) / ((vl - threshold) >> 8);
+	}
+	else if (vh == 0x1400 || vl == 0x1400)
+	{
+		// Full axis
+
+		int32_t threshold = 0x0000;
+
+		if (vl == 0x1400)
+		{
+			// Axis is reversed - swap axis value and swap vl<=>vh
+			axis = 0xffff - axis;
+			vl = vl ^ vh;
+			vh = vl ^ vh;
+			vl = vl ^ vh;
+		}
+
+		// Swap values for one-quarter and three-quarter
+		if (vl == 0xB600)
+			vl = 0x4A00;
+		else if (vl == 0x4A00)
+			vl = 0xB600;
+
+		if (joystickApplyDeadzone)
+			threshold = vh;
+
+		ret = (axis - threshold) / ((vl - threshold) >> 8);
+	}
+
+	ret = SDL_clamp(ret, 0, 255);
+
+	return ret;
 }
