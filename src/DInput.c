@@ -656,7 +656,39 @@ MAYBE_STATIC REALIGN STDCALL uint32_t GetDeviceState(DirectInputDevice **this, u
 	{
 		simulateKey(SDLK_F11 + joyIdx, SDL_SCANCODE_F11 + joyIdx, SDL_JoystickGetButton(joy, joystickResetButton[joyIdx]), &(*this)->resetPressed);
 	}
-	for (i = 0; i < 4; ++i)
+	if (SDL_JoystickNumHats(joy) > 0)
+	{
+		uint8_t pressed[4] = {0};
+		switch (SDL_JoystickGetHat(joy, 0))
+		{
+			case SDL_HAT_CENTERED:
+				break;
+			case SDL_HAT_UP:
+				pressed[3] = 1;
+				numButtons = 0;
+				break;
+			case SDL_HAT_RIGHT:
+				pressed[0] = 1;
+				numButtons = 0;
+				break;
+			case SDL_HAT_DOWN:
+				pressed[2] = 1;
+				numButtons = 0;
+				break;
+			case SDL_HAT_LEFT:
+				pressed[1] = 1;
+				numButtons = 0;
+				break;
+			default:
+				numButtons = 0;
+				break;
+		}
+		for (i = 0; i < 4; ++i)
+		{
+			simulateKey(SDLK_RIGHT + i, SDL_SCANCODE_RIGHT + i, pressed[i], &(*this)->dpadPressed[i]);
+		}
+	}
+	else for (i = 0; i < 4; ++i)
 	{
 		if (joystickDPadButtons[joyIdx][i] >= 0 && joystickDPadButtons[joyIdx][i] < numButtons)
 		{
