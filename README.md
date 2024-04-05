@@ -111,6 +111,13 @@ sudo apt install gcc-multilib
 * Run the game.
 * The game settings files are located in `~/.nfs2se` (`%AppData%\.nfs2se` on Windows). At the first run, the `nfs2se.conf.template` will be copied there. You can modify the file if you want to configure the game. On Windows, you can use `open_config.bat` to open the config file in notepad.
 * On Android devices, copy `gamedata`, `fedata`, `install.win`, `text.*`, `nfs2se.conf` (rename `nfs2se.conf.template` to `nfs2se.conf`) into `/sdcard/NFSIISE` or `/storage/emulated/0/NFSIISE` (create `NFSIISE` directory first).
+* For Batocera Linux devices (an open-source and completely free retro-gaming distribution), tested with version 39:
+  * take Windows version (e.g `nfs2se-win32-v1.4.0.zip` under Releases), unpack it,
+  * copy original `fedata` and `gamedata` directories into `Need For Speed II SE` directory,
+  * in `Need For Speed II SE` directory create new file `autorun.cmd` with content `CMD=nfs2se.exe`,
+  * rename directory `Need For Speed II SE` to `Need For Speed II SE.pc`,
+  * place directory `Need For Speed II SE.pc` into your Batocera Linux directory `/userdata/roms/windows/`,
+  * to update the game list in Batocera using your controller, press `START` and go to `GAME SETTINGS` → `UPDATE GAMELISTS`, the game is listed under `Windows` section and will be successfully emulated via Wine
 
 ## What works:
 
