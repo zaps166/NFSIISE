@@ -645,6 +645,7 @@ MAYBE_STATIC REALIGN STDCALL uint32_t GetDeviceState(DirectInputDevice **this, u
 
 	int32_t numButtons = SDL_min(SDL_JoystickNumButtons(joy), 32);
 	int32_t numAxes = SDL_min(SDL_JoystickNumAxes(joy), 6);
+	int32_t numHats = SDL_JoystickNumHats(joy);
 
 	int32_t i;
 
@@ -656,7 +657,7 @@ MAYBE_STATIC REALIGN STDCALL uint32_t GetDeviceState(DirectInputDevice **this, u
 	{
 		simulateKey(SDLK_F11 + joyIdx, SDL_SCANCODE_F11 + joyIdx, SDL_JoystickGetButton(joy, joystickResetButton[joyIdx]), &(*this)->resetPressed);
 	}
-	if (SDL_JoystickNumHats(joy) > 0)
+	if (numHats > 0)
 	{
 		uint8_t pressed[4] = {0};
 		switch (SDL_JoystickGetHat(joy, 0))
@@ -734,7 +735,7 @@ MAYBE_STATIC REALIGN STDCALL uint32_t GetDeviceState(DirectInputDevice **this, u
 	}
 
 	const BOOL isGameThread = (g_mainThread != SDL_ThreadID());
-	if (isGameThread || delayButtons || !joystickDisableAxesInMenu)
+	if (isGameThread || delayButtons || (numHats <= 0 && !joystickDisableAxesInMenu))
 	{
 		for (i = 0; i < numAxes; ++i)
 		{
