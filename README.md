@@ -5,6 +5,13 @@ NFSIISE
 
 Cross-platform wrapper for the Need For Speed™ II SE game with 3D acceleration and TCP protocol!
 
+## Nix package manager support (Any Linux&WSL)
+
+Check out [Nix instructions](./nix-instructions.md)
+
+This method is simplest if you already have nix package manager, if not you can install it by [official nix guide](https://nixos.org/download/#download-nix) on any linux distro.
+
+
 ## GIT clone:
 
 Don't forget to update submodules:
@@ -86,6 +93,12 @@ sudo apt install gcc-multilib
 
 #### Linux:
 * run `./compile_nfs cpp`
+
+#### Nix-way
+
+* run `nix build` for local build
+
+  files will appear in `result` directory
 
 #### Android:
 * install SDK and NDK for chosen SDL2 version,
