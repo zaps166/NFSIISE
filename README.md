@@ -118,6 +118,15 @@ sudo apt install gcc-multilib
   * rename directory `Need For Speed II SE` to `Need For Speed II SE.pc`,
   * place directory `Need For Speed II SE.pc` into your Batocera Linux directory `/userdata/roms/windows/`,
   * to update the game list in Batocera using your controller, press `START` and go to `GAME SETTINGS` → `UPDATE GAMELISTS`, the game is listed under `Windows` section and will be successfully emulated via Wine
+* For Batocera Linux v44 (tested with NFSIISE wrapper v1.4.0 and Wine Proton 11.0):
+  * If NFSIISE is already installed in `/userdata/roms/windows/Need For Speed II SE.pc/`, no changes to the game files are required.
+  * In EmulationStation, open **Advanced Game Options** for Need For Speed II SE.
+  * Configure the following settings:
+    * **WINE RUNNER:** Wine-Proton
+    * **FORCE LARGE ADDRESS:** Off
+  * Launch the game normally.
+  * **Compatibility note:** With FORCE LARGE ADDRESS enabled, the game crashed on startup under Wine Proton 11.0 with an unhandled page fault at `0x00491C04`. Disabling this option resolved the issue.
+  * For a fresh installation, refer to the Batocera installation instructions above for preparing the game directory and `autorun.cmd` file.
 
 ## What works:
 
